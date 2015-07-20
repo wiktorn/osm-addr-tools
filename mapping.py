@@ -44,6 +44,7 @@ addr_map = {
  'Boh. Stalingradu': 'Bohaterów Stalingradu',
  'Boh. Warszawy': 'Bohaterów Warszawy',
  'Bojara-Fijałkowskiego Gracjana': 'Gracjana Bojara-Fijałkowskiego',
+ 'Bony': 'Królowej Bony',
  'Bora-Komorowskiego T. gen.': 'Generała Tadeusza Bora-Komorowskiego',
  'Borzymowskiego Marcina': 'Marcina Borzymowskiego',
  'Boya Żeleńskiego': 'Tadeusza Boya-Żeleńskiego',
