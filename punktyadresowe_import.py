@@ -549,7 +549,7 @@ class GUGiK(AbstractImport):
 
     @staticmethod
     def divideBbox(minx, miny, maxx, maxy):
-        """divides bbox to tiles of maximum supported size by EUiA WMS"""
+        """divides bbox to tiles of maximum supported size by EMUiA WMS"""
         return [
             (x / GUGiK.__PRECISION,
              y / GUGiK.__PRECISION,
@@ -558,7 +558,6 @@ class GUGiK(AbstractImport):
             for x in range(math.floor(minx * GUGiK.__PRECISION), math.ceil(maxx * GUGiK.__PRECISION), GUGiK.__MAX_BBOX_X * GUGiK.__PRECISION)
             for y in range(math.floor(miny * GUGiK.__PRECISION), math.ceil(maxy * GUGiK.__PRECISION), GUGiK.__MAX_BBOX_Y * GUGiK.__PRECISION)
         ]
-
 
     def _convertToAddress(self, soup):
         desc_soup = lxml.html.fromstring(str(soup.find('{http://www.opengis.net/kml/2.2}description').text))
@@ -630,6 +629,92 @@ class GUGiK(AbstractImport):
         ret = [max(v, key=lambda z: z.id_) for  v in groupby(ret, lambda z: z.id_.rsplit('.', 1)[0]).values()]
         return ret
 
+class GISNET(AbstractImport):
+    # parametry do EPSG 2180
+    __MAX_BBOX_X = 20000
+    __MAX_BBOX_Y = 45000
+    __MAX_BBOX_X = 1000
+    __MAX_BBOX_Y = 1000
+    __PRECISION = 10
+    __base_url = "http://%s.gis-net.pl/geoserver-%s/wms?SERVICE=WMS&FORMAT=application/vnd.google-earth.kml+xml&VERSION=1.1.1&SERVICE=WMS&REQUEST=GetMap&LAYERS=Punkty_Adresowe&STYLES=&SRS=EPSG:2180&WIDTH=1000&HEIGHT=1000&BBOX="
+    __log = logging.getLogger(__name__).getChild('GUGiK')
+
+    def __init__(self, gmina, terc):
+        super(GISNET, self).__init__(terc=terc)
+        self.terc = terc
+        self.gmina = gmina
+
+    @staticmethod
+    def divideBbox(minx, miny, maxx, maxy):
+        """divides bbox to tiles of maximum supported size by EMUiA WMS"""
+        return [
+            (x / GISNET.__PRECISION,
+             y / GISNET.__PRECISION,
+            min(x / GISNET.__PRECISION + GISNET.__MAX_BBOX_X, maxx),
+            min(y / GISNET.__PRECISION + GISNET.__MAX_BBOX_Y, maxy))
+            for x in range(math.floor(minx * GISNET.__PRECISION), math.ceil(maxx * GISNET.__PRECISION), GISNET.__MAX_BBOX_X * GISNET.__PRECISION)
+            for y in range(math.floor(miny * GISNET.__PRECISION), math.ceil(maxy * GISNET.__PRECISION), GISNET.__MAX_BBOX_Y * GISNET.__PRECISION)
+        ]
+
+
+    def _convertToAddress(self, soup):
+        desc_soup = lxml.html.fromstring(str(soup.find('{http://www.opengis.net/kml/2.2}description').text))
+        addr_kv = dict(
+            (
+             str(x.find('strong').find('span').text),
+             str(x.find('span').text)
+            ) for x in desc_soup.find('ul').iterchildren()
+        )
+
+        coords = soup.find('{http://www.opengis.net/kml/2.2}Point').find('{http://www.opengis.net/kml/2.2}coordinates').text.split(',')
+        ret = Address.mappedAddress(
+                addr_kv[str_normalize('numer_adr')],
+                addr_kv.get(str_normalize('KOD_POCZTOWY')),
+                addr_kv.get(str_normalize('nazwa_ulicy')),
+                addr_kv[str_normalize('miejscowosc')],
+                addr_kv.get(str_normalize('TERYT_ULICY')),
+                addr_kv.get(str_normalize('TERYT_MIEJSCOWOSCI')),
+                '%s.gis-net.pl' % (self.gmina,),
+                {'lat': coords[1], 'lon': coords[0]},
+                addr_kv.get(str_normalize('id_adres'))
+        )
+        ret.status = addr_kv[str_normalize('status')]
+        return ret
+
+    def _isEligible(self, addr):
+        # TODO: check status?
+        if addr.status.upper() != 'POGLĄDOWE':
+            self.__log.debug('Ignoring address %s, because status %s is not ZATWIERDZONY', addr, addr.status.upper())
+            return False
+        if not addr.get_point().within(self.shape):
+            # do not report anything about this, this is normal
+            return False
+        return True
+
+    def fetchTiles(self):
+        bbox = self.getBbox2180()
+        ret = []
+        for i in self.divideBbox(*bbox):
+            url = GISNET.__base_url % (self.gmina, self.gmina) + ",".join(map(str, i))
+            self.__log.info("Fetching from GISNET: %s", url)
+            opener = get_ssl_no_verify_opener()
+
+            data = opener.open(url).read()
+            self.__log.debug("Reponse size: %d", len(data))
+            soup = lxml.etree.fromstring(data)
+            doc = soup.find('{http://www.opengis.net/kml/2.2}Document') # be namespace aware
+            if doc is not None:
+                ret.extend(filter(
+                    self._isEligible,
+                    map(self._convertToAddress, doc.iterchildren('{http://www.opengis.net/kml/2.2}Placemark'))
+                    )
+                )
+            else:
+                raise ValueError('No data returned from GISNET possibly to wrong scale. Check __MAX_BBOX_X, __MAX_BBOX_Y, HEIGHT and WIDTH')
+        # take latest version for each point (version is last element after dot in id_)
+        ret = [max(v, key=lambda z: z.id_) for  v in groupby(ret, lambda z: z.id_.rsplit('.', 1)[0]).values()]
+        return ret
+
 class AddressEncoder(json.JSONEncoder):
     def default(self, obj):
         if isinstance(obj, Address):
@@ -648,7 +733,7 @@ def get_ssl_no_verify_opener():
 def main():
     parser = argparse.ArgumentParser(description="Downloads data from iMPA and saves in OSM or JSON format. CC-BY-SA 3.0 @ WiktorN. Filename is <gmina>.osm or <gmina>.json")
     parser.add_argument('--output-format', choices=['json', 'osm'],  help='output file format - "json" or "osm", default: osm', default="osm", dest='output_format')
-    parser.add_argument('--source', choices=['impa', 'gugik'],  help='input source: "gugik" or "impa". Emuia requires providing teryt:terc code. Defaults to "impa"', default="impa", dest='source')
+    parser.add_argument('--source', choices=['impa', 'gugik', 'gisnet'],  help='input source: "gugik" or "impa". Gugik and gisnet requires providing teryt:terc code. Defaults to "impa"', default="impa", dest='source')
     parser.add_argument('--log-level', help='Set logging level (debug=10, info=20, warning=30, error=40, critical=50), default: 20', dest='log_level', default=20, type=int)
     parser.add_argument('--no-mapping', help='Disable mapping of streets and cities', dest='no_mapping', default=False, action='store_const', const=True)
     parser.add_argument('--wms', help='Override WMS address with address points', dest='wms', default=None)
@@ -664,8 +749,14 @@ def main():
         mapcity = lambda x, y: x
     if args.source == "impa":
         imp_gen = partial(iMPA, wms=args.wms, terc=args.terc)
-    else:
+    elif args.source == "gugik":
         imp_gen = partial(GUGiK, terc=args.terc)
+    elif args.source == "gisnet":
+        imp_gen = partial(GISNET, terc=args.terc)
+        if not args.gmina:
+            raise Exception("You need to provide service name")
+    else:
+        raise Exception("Source not supported")
     if args.gmina:
         rets = parallel_execution(*map(lambda x: lambda: imp_gen(x).getAddresses(), args.gmina))
         #rets = list(map(lambda x: impa_gen(x).fetchTiles(), args.gmina)) # usefull for debugging
