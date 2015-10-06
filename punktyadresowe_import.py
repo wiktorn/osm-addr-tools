@@ -50,6 +50,7 @@ from mapping import mapstreet, mapcity, mappostcode
 from utils import parallel_execution, groupby
 import lxml.html
 import lxml.etree
+import rtree
 
 
 # stałe
@@ -134,14 +135,23 @@ class Address(object): #namedtuple('BaseAddress', ['housenumber', 'postcode', 's
         assert isinstance(self.location, dict)
         assert 'lon' in self.location
         assert 'lat' in self.location
+        assert not street or street == street.strip()
 
     @staticmethod
     def mappedAddress(*args, **kwargs):
+        ret = Address.mappedAddress_kpc(*args, **kwargs)
+        ret.postcode = mappostcode('', ret.simc)
+        return ret
+
+    @staticmethod
+    def mappedAddress_kpc(*args, **kwargs):
         ret = Address(*args, **kwargs)
         ret.housenumber = ret.housenumber.replace(' ', '')
-        ret.postcode = mappostcode('', ret.simc)
         if ret.street:
-            ret.street = mapstreet(re.sub(' +', ' ', ret.street), ret.sym_ul)
+            assert ret.street == ret.street.strip()
+            newstreet = mapstreet(re.sub(' +', ' ', ret.street), ret.sym_ul)
+            assert newstreet == newstreet.strip()
+            ret.street = newstreet
         ret.city = mapcity(ret.city, ret.simc)
         return ret
 
@@ -293,7 +303,7 @@ class AbstractImport(object):
 relation
     ["teryt:terc"="%s"]
     ["boundary"="administrative"]
-    ["admin_level"="7"];
+    ["admin_level"~"[79]"];
 out bb;
 >;
 out bb;
@@ -637,7 +647,7 @@ class GISNET(AbstractImport):
     __MAX_BBOX_Y = 1000
     __PRECISION = 10
     __base_url = "http://%s.gis-net.pl/geoserver-%s/wms?SERVICE=WMS&FORMAT=application/vnd.google-earth.kml+xml&VERSION=1.1.1&SERVICE=WMS&REQUEST=GetMap&LAYERS=Punkty_Adresowe&STYLES=&SRS=EPSG:2180&WIDTH=1000&HEIGHT=1000&BBOX="
-    __log = logging.getLogger(__name__).getChild('GUGiK')
+    __log = logging.getLogger(__name__).getChild('GISNET')
 
     def __init__(self, gmina, terc):
         super(GISNET, self).__init__(terc=terc)
@@ -715,6 +725,89 @@ class GISNET(AbstractImport):
         ret = [max(v, key=lambda z: z.id_) for  v in groupby(ret, lambda z: z.id_.rsplit('.', 1)[0]).values()]
         return ret
 
+class WarszawaUM(AbstractImport):
+    __base_url = "http://mapa.um.warszawa.pl/mapviewer/foi"
+    # request zawiera odpytanie o obszar Warszawy w EPSG:2178
+    __base_data = "request=getfoi&version=1.0&bbox=7489837.24855:5773796.99219:7518467.53701:5803895.93273&width=1&height=1&theme=dane_wawa.R_PUNKTY_ADRESOWE_TOOLTIP&clickable=yes&area=yes&dstsrid=2178&cachefoi=yes&tid=104_75201&aw=no"
+    # request zawiera odpytanie o obszar Warszawy w EPSG:4326
+    __base_data = "request=getfoi&version=1.0&bbox=20.8516882:52.0978507:21.2711512:52.3681531&width=1&height=1&theme=dane_wawa.R_PUNKTY_ADRESOWE_TOOLTIP&clickable=yes&area=yes&dstsrid=4326&cachefoi=yes&tid=104_75201&aw=no"
+    __base_data = "request=getfoi&version=1.0&bbox=%s:%s:%s:%s&width=1&height=1&theme=dane_wawa.R_PUNKTY_ADRESOWE_TOOLTIP&clickable=yes&area=yes&dstsrid=4326&cachefoi=yes&tid=104_75201&aw=no"
+    __log = logging.getLogger(__name__).getChild('WarszawaUM')
+
+    def __init__(self, gmina, terc):
+        super(WarszawaUM, self).__init__(terc=terc)
+        self.terc = terc
+        self.gmina = gmina
+        self.gugik = GUGiK(terc)
+
+    def _findNearest(self, point, street, housenumber):
+        lst = list(map(self.gugik_data.get, self.gugik_index.nearest(point*2, 10)))
+        if street.startswith('ul. '):
+            street = street[4:]
+        for addr in lst:
+            if addr.housenumber == housenumber:
+                if street in addr.street:
+                    return addr
+                for street_part in street.split(' '):
+                    if len(street_part) > 3 and street_part in addr.street:
+                        #self.__log.debug("Found candidate %d m away. Street names: %s and %s", distance(point, (addr.location['lat'], addr.location['lon'])), street, addr.street)
+                        return addr
+                if len(street) > 7 and street[4:] in addr.street:
+                    self.__log.debug("Found candidate %d m away. Street names: %s and %s", distance(point, (addr.location['lat'], addr.location['lon'])), street, addr.street)
+                    return addr
+                        
+        ret = lst[0]
+        if ret.housenumber != housenumber:
+            self.__log.debug("Different housenumber in GUGiK than in mapa.um.warszawa.pl. GUGiK: %s, mapa: %s, street: %s", ret.housenumber, housenumber, street)
+            return ret
+        if ret.street != street:
+            self.__log.debug("Different street in GUGiK than in mapa.um.warszawa.pl. GUGiK: %s, mapa: %s. Housenumber: %s", ret.street, street, housenumber)
+            return None
+        return ret
+
+    def _convertToAddress(self, entry):
+        desc_soup = entry['name'] 
+        addr_kv = dict(x.split(': ', 2) for x in desc_soup.split('\n'))
+        (street, housenumber) = addr_kv[str_normalize('Adres')].rsplit(' ',1)
+        street = street.strip()
+        nearest = self._findNearest((float(entry['y']), float(entry['x'])), street, housenumber)
+
+        ret = Address.mappedAddress_kpc(
+                housenumber,
+                addr_kv.get(str_normalize('Kod pocztowy')),
+                street,
+                'Warszawa',
+                nearest.sym_ul if nearest else None,
+                nearest.simc if nearest else None, 
+                'mapa.um.warszawa.pl',
+                {'lat': entry['y'], 'lon': entry['x']},
+                entry['id']
+        )
+        return ret
+
+    def _isEligible(self, addr):
+        if not addr.get_point().within(self.shape):
+            # do not report anything about this, this is normal
+            return False
+        return True
+
+    def fetchTiles(self):
+        opener = get_ssl_no_verify_opener()
+        data = opener.open(WarszawaUM.__base_url, (WarszawaUM.__base_data % self.getBbox()).encode('utf-8')).read().decode('utf-8')
+        self.__log.debug("Reponse size: %d", len(data))
+        return self.convertData(data)
+
+    def convertData(self, data):
+        d = re.sub(r"{(foiarray|id)", r'{"\1"', data)
+        d = re.sub(r",(name|gtype|imgurl|x|y|width|height|attrnames|themeMBR|isWholeImg):", r',"\1":', d)
+        parsed = json.loads(d)
+        self.gugik_data = {}
+        self.gugik_index = rtree.index.Index()
+        for key, addr in enumerate(self.gugik.fetchTiles()):
+            self.gugik_data[key] = addr
+            self.gugik_index.insert(key,  (float(addr.location['lat']), float(addr.location['lon'])))
+        return list(filter(self._isEligible, map(self._convertToAddress, parsed['foiarray'])))
+
 class AddressEncoder(json.JSONEncoder):
     def default(self, obj):
         if isinstance(obj, Address):
@@ -733,7 +826,7 @@ def get_ssl_no_verify_opener():
 def main():
     parser = argparse.ArgumentParser(description="Downloads data from iMPA and saves in OSM or JSON format. CC-BY-SA 3.0 @ WiktorN. Filename is <gmina>.osm or <gmina>.json")
     parser.add_argument('--output-format', choices=['json', 'osm'],  help='output file format - "json" or "osm", default: osm', default="osm", dest='output_format')
-    parser.add_argument('--source', choices=['impa', 'gugik', 'gisnet'],  help='input source: "gugik" or "impa". Gugik and gisnet requires providing teryt:terc code. Defaults to "impa"', default="impa", dest='source')
+    parser.add_argument('--source', choices=['impa', 'gugik', 'gisnet', 'warszawa'],  help='input source: "gugik", "impa", "gisnet" or "warszawa". Gugik, gisnet and warszawa requires providing teryt:terc code. Defaults to "impa"', default="impa", dest='source')
     parser.add_argument('--log-level', help='Set logging level (debug=10, info=20, warning=30, error=40, critical=50), default: 20', dest='log_level', default=20, type=int)
     parser.add_argument('--no-mapping', help='Disable mapping of streets and cities', dest='no_mapping', default=False, action='store_const', const=True)
     parser.add_argument('--wms', help='Override WMS address with address points', dest='wms', default=None)
@@ -755,6 +848,8 @@ def main():
         imp_gen = partial(GISNET, terc=args.terc)
         if not args.gmina:
             raise Exception("You need to provide service name")
+    elif args.source == 'warszawa':
+        imp_gen = partial(WarszawaUM, terc=args.terc)
     else:
         raise Exception("Source not supported")
     if args.gmina:
