@@ -304,6 +304,8 @@ class Merger(object):
                 # update street name based on OSM data
                 entry.addFixme('Street name in import source: %s' % (entry.street,))
                 entry.street = node.street
+                # clear symul after name change
+                entry.symul = ""
                 self.set_state(node, 'visible') # make this *always* visible, to verify, if OSM value is correct. Hope that entry will eventually get merged with node
                 # and fixme will get updated
             if node and node.street == entry.street and node.city == entry.city and node.housenumber != entry.housenumber and \
