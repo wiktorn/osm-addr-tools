@@ -741,9 +741,9 @@ class WarszawaUM(AbstractImport):
         self.gugik = GUGiK(terc)
 
     def _findNearest(self, point, street, housenumber):
-        lst = list(map(self.gugik_data.get, self.gugik_index.nearest(point*2, 10)))
-        if street.startswith('ul. '):
-            street = street[4:]
+        lst = list(
+                map(self.gugik_data.get, self.gugik_index.nearest(point*2, 10))
+            )
         for addr in lst:
             if addr.housenumber == housenumber:
                 if street in addr.street:
@@ -757,12 +757,14 @@ class WarszawaUM(AbstractImport):
                     return addr
                         
         ret = lst[0]
-        if ret.housenumber != housenumber:
-            self.__log.debug("Different housenumber in GUGiK than in mapa.um.warszawa.pl. GUGiK: %s, mapa: %s, street: %s", ret.housenumber, housenumber, street)
-            return ret
+        if distance(point, ret.get_point()) > 100:
+            self.__log.warn("Distance between address: %s, %s and nearest GUGiK: %s is %d. Not merging with GUGIK", street, housenumber, ret, distance(point, ret.get_point()))
+            return None
         if ret.street != street:
             self.__log.debug("Different street in GUGiK than in mapa.um.warszawa.pl. GUGiK: %s, mapa: %s. Housenumber: %s", ret.street, street, housenumber)
             return None
+        if ret.housenumber != housenumber:
+            self.__log.debug("Different housenumber in GUGiK than in mapa.um.warszawa.pl. GUGiK: %s, mapa: %s, street: %s", ret.housenumber, housenumber, street)
         return ret
 
     def _convertToAddress(self, entry):
@@ -770,7 +772,13 @@ class WarszawaUM(AbstractImport):
         addr_kv = dict(x.split(': ', 2) for x in desc_soup.split('\n'))
         (street, housenumber) = addr_kv[str_normalize('Adres')].rsplit(' ',1)
         street = street.strip()
-        nearest = self._findNearest((float(entry['y']), float(entry['x'])), street, housenumber)
+        if street.startswith('ul. '):
+            street = street[4:]
+        point = (float(entry['y']), float(entry['x']))
+        if Point(reversed(point)).within(self.shape):
+            nearest = self._findNearest(point, street, housenumber)
+        else:
+            nearest = None
 
         ret = Address.mappedAddress_kpc(
                 housenumber,
