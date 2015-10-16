@@ -183,8 +183,8 @@ addr_map = {
  'Kościuszki Tadeusza': 'Tadeusza Kościuszki',
  'Kościuszki': 'Tadeusza Kościuszki',
  'Kr. Jadwigi': 'Królowej Jadwigi',
- 'Krasickiego Ignacego': 'Józefa Ignacego Kraszewskiego',
- 'Krasickiego': 'Józefa Ignacego Kraszewskiego',
+ 'Krasickiego Ignacego': 'Józefa Ignacego Krasickiego',
+ 'Krasickiego': 'Józefa Ignacego Krasickiego',
  'Krasińskiego Z.': 'Zygmunta Krasińskiego',
  'Kraszewskiego J. I.': 'Józefa Ignacego Kraszewskiego',
  'Kraszewskiego': 'Józefa Ignacego Kraszewskiego',
@@ -622,6 +622,8 @@ def mapstreet(strname, symul):
                 # remove short version cecha and prepand full version
                 street = "%s %s" % (__CECHA_MAPPING.get(teryt_entry.cecha, '') , strname[len(teryt_entry.cecha):].strip())
                 street = street.strip()
+            if street.upper().startswith('UL.') and teryt_entry.cecha.upper() == 'UL.':
+                street = street[3:].strip()
             if not street.upper().startswith(teryt_entry.cecha.upper()) and \
                 not street.upper().startswith(__CECHA_MAPPING.get(teryt_entry.cecha, '').upper()):
                 __log.debug("Adding TERYT.CECHA=%s to street=%s (addr:street:sym_ul=%s)" % (__CECHA_MAPPING.get(teryt_entry.cecha, ''), street, symul))
