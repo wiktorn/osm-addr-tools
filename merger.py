@@ -299,10 +299,15 @@ class Merger(object):
             if node and node.street and entry.street and node.street != entry.street and \
                 ((node.objtype == 'node' and how_far < 5.0) or (node.objtype == 'way' and (node.contains(entry.center) or how_far < 10.0))):
                 # there is some similar address nearby but with different street name
-                self.__log.warning("Changing street name from %s in import to %s as in OSM (%s), distance=%.2fm",
-                        entry.street, node.street, node.osmid, how_far)
+                log_level = logging.WARNING
+                if max(entry.street.split(' '), key=len) in node.street:
+                    # lower the logging level, is the longest string in entry is contained in replacement value
+                    log_level = logging.DEBUG
+                else:
+                    entry.addFixme('Street name in import source: %s' % (entry.street,))
+                self.__log.log(log_level, "Changing street name from %s in import to %s as in OSM (%s), distance=%.2fm",
+                            entry.street, node.street, node.osmid, how_far)
                 # update street name based on OSM data
-                entry.addFixme('Street name in import source: %s' % (entry.street,))
                 entry.street = node.street
                 # clear symul after name change
                 entry.symul = ""
@@ -311,7 +316,8 @@ class Merger(object):
             if node and node.street == entry.street and node.city == entry.city and node.housenumber != entry.housenumber and \
                 ((node.objtype == 'node' and how_far < 5.0) or (node.objtype == 'way' and (node.contains(entry.center) or how_far < 10.0))):
                 # there is only difference in housenumber, that is similiar
-                self.__log.info("Updating housenumber from %s to %s", node.housenumber, entry.housenumber)
+                if node.housenumber.upper() != entry.housenumber.upper():
+                    self.__log.info("Updating housenumber from %s to %s", node.housenumber, entry.housenumber)
                 if node.housenumber.upper() != entry.housenumber.upper():
                     # if there are some other differences than in case, then add fixme
                     entry.addFixme('House number in OSM: %s' % (node.housenumber,))
@@ -438,6 +444,8 @@ class Merger(object):
         return False
 
     def _do_merge_create_point(self, entry):
+        if not self._import_area_shape.contains(entry.center):
+            self.__log.warning("Imported address %s outside import borders", entry)
         self._create_point(entry)
         return True
 
@@ -701,7 +709,14 @@ out meta bb qt;
 """ % (terc,)
     soup = json.loads(overpass.query(query))
     osmdb = OsmDb(soup)
-    rel = tuple(x for x in soup['elements'] if x['type'] == 'relation')[0]
+    boundaries = tuple(x for x in soup['elements'] if x['type'] == 'relation' and x['tags'].get('teryt:terc', '') == terc)
+    if len(boundaries) > 1:
+        __log.error("More than one relation found with terc: %s. Names: %s. Fix before continuing", terc, ", ".join(map(lambda x: x['tags'].get('name'), boundaries)))
+        sys.exit(1)
+    if len(boundaries) == 1:
+        rel = boundaries[0]
+    else:
+        rel = tuple(x for x in soup['elements'] if x['type'] == 'relation' and x['tags'].get('teryt:terc', '').startswith(terc))[0]
     __log.info("Loading shape of import area - relation id: %s, relation name: %s" , rel['id'], rel['tags'].get('name'))
     return osmdb.get_shape(rel)
 
