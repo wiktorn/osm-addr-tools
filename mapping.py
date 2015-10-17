@@ -19,9 +19,11 @@ addr_map = {
  '9-go Maja': '9 Maja',
  'A. Struga': 'Andrzeja Struga',
  'Abramskiego J. ks.': 'Księdza Jana Abramskiego',
- 'Al. H. Kołłątaja': 'aleja Hugona Kołłątaja',
- 'Al. Spacerowa': 'aleja Spacerowa',
- 'Al. Wodniaków': 'aleja Wodniaków',
+ 'Al. H. Kołłątaja': 'Aleja Hugona Kołłątaja',
+ 'Al. Spacerowa': 'Aleja Spacerowa',
+ 'Al. Wodniaków': 'Aleja Wodniaków',
+ 'A. J. Madalińskiego' : 'Antoniego Józefa Madalińskiego',
+ 'al. Wilanowska': 'Aleja Wilanowska',
  'Andersa Władysława': 'Władysława Andersa',
  'Gen. Władysława Andersa': 'Generała Władysława Andersa',
  'Gen. Jerzego Ziętka': 'Generała Jerzego Ziętka',
@@ -99,6 +101,7 @@ addr_map = {
  'Długosza J.': 'Jana Długosza',
  'Długosza': 'Jana Długosza',
  'F. Szopena': 'Fryderyka Chopina',
+ 'F. Bartoszka': 'Franciszka Bartoszka',
  'Fałata Juliana': 'Juliana Fałata',
  'Fitelberga': 'Grzegorza Fitelberga',
  'Fitio Jerzego': 'Jerzego Fitio',
@@ -166,7 +169,7 @@ addr_map = {
  'Kopernika M.': 'Mikołaja Kopernika',
  'Kopernika Mikołaja': 'Mikołaja Kopernika',
  'Kopernika': 'Mikołaja Kopernika',
- 'Korczaka J. dr': 'doktora Janusza Korczaka',
+ 'Korczaka J. dr': 'Doktora Janusza Korczaka',
  'Korczaka Janusza': 'Janusza Korczaka',
  'Korczaka': 'Janusza Korczaka',
  'Korfantego W.': 'Wojciecha Korfantego',
@@ -201,6 +204,7 @@ addr_map = {
  'Kusocińskiego J.': 'Janusza Kusocińskiego',
  'Kutrzeby Tadeusza': 'Tadeusza Kutrzeby',
  'Kwiatkowskiego Eugeniusza': 'Eugeniusza Kwiatkowskiego',
+ 'L. Narbutta': 'Ludwika Narbutta',
  'Lange Oskara': 'Oskara Lange',
  'Laskonogiego Władysława': 'Władysława Laskonogiego',
  'Lelewela Joachima': 'Joachima Lelewela',
@@ -282,15 +286,15 @@ addr_map = {
  'Picassa Pablo': 'Pablo Picassa',
  'Pieniężnego Seweryna': 'Seweryna Pieniężnego',
  'Pileckiego Witolda': 'Witolda Pileckiego',
- 'Piłsudskiego J. Marsz.': 'marszałka Józefa Piłsudskiego',
- 'Piłsudskiego J. marsz.': 'marszałka Józefa Piłsudskiego',
+ 'Piłsudskiego J. Marsz.': 'Marszałka Józefa Piłsudskiego',
+ 'Piłsudskiego J. marsz.': 'Marszałka Józefa Piłsudskiego',
  'Piłsudskiego J.': 'Józefa Piłsudskiego',
  'Piłsudskiego Józefa': 'Józefa Piłsudskiego',
- 'Piłsudskiego Marszałka': 'marszałka Józefa Piłsudskiego',
+ 'Piłsudskiego Marszałka': 'Marszałka Józefa Piłsudskiego',
  'Piłsudskiego': 'Józefa Piłsudskiego',
  'Plater E.': 'Emilii Plater E.',
  'Pobożnego H.': 'Henryka Pobożnego',
- 'Polipol Aleja': 'aleja Polipol',
+ 'Polipol Aleja': 'Aleja Polipol',
  'Poniatowskiego J.': 'Józefa Poniatowskiego',
  'Popiełuszki Jerzego': 'Jerzego Popiełuszki',
  'Powstańców Wlkp.': 'Powstańców Wielkopolskich',
@@ -317,14 +321,16 @@ addr_map = {
  'Reymonta Władysława': 'Władysława Reymonta',
  'Reymonta': 'Władysława Stanisława Reymonta',
  'Rodziewiczówny Marii': 'Marii Rodziewiczówny',
- 'Roli-Żymierskiego M. marsz.': 'marszałka Michała Roli-Żymierskiego',
+ 'Roli-Żymierskiego M. marsz.': 'Marszałka Michała Roli-Żymierskiego',
  'Roosevelta': 'Franklina Delano Roosevelta',
  'Ruszczyca Ferdynanda': 'Ferdynanda Ruszczyca',
  'Rzeckiego I.': 'Ignacego Rzeckiego',
  'Rzeckiego': 'Ignacego Rzeckiego',
  'Różyckiego Ludomira': 'Ludomira Różyckiego',
+ 'S. Żaryna': 'Stanisława Żaryna',
+ 'S. Bryły': 'Stefana Bryły',
  'Samulowskiego Andrzeja': 'Andrzeja Samulowskiego',
- 'Sanguszki A. ks.': 'księcia Andrzeja Sanguszki',
+ 'Sanguszki A. ks.': 'Księcia Andrzeja Sanguszki',
  'Sawickiej H.': 'Hanki Sawickiej',
  'Sawickiej Hanki': 'Hanki Sawickiej',
  'Sienkiewicza H.': 'Henryka Sienkiewicza',
@@ -333,7 +339,7 @@ addr_map = {
  'Siennickiego Ryszarda': 'Ryszarda Siennickiego',
  'Sierocińskiego Romana': 'Romana Sierocińskiego',
  'Sierpińskiego Wacława': 'Wacława Sierpińskiego',
- 'Sierpińskiego Z. prof.': 'profesora Zbigniewa Sierpińskiego',
+ 'Sierpińskiego Z. prof.': 'Profesora Zbigniewa Sierpińskiego',
  'Sikorskiego W. gen.': 'Generała Władysława Sikorskiego',
  'Sikorskiego W.': 'Generała Władysława Sikorskiego',
  'Sikorskiego Władysława': 'Generała Władysława Sikorskiego',
@@ -365,7 +371,7 @@ addr_map = {
  'Staszica': 'Stanisława Staszica',
  'Steffena Wiktora': 'Wiktora Steffena',
  'Struga Andrzeja': 'Andrzeja Struga',
- 'Struka Księdza': 'księdza Struka',
+ 'Struka Księdza': 'Księdza Struka',
  'Stryjeńskiej Z.': 'Zofii Stryjeńskiej',
  'Stwosza W.': 'Wita Stwosza',
  'Sucharskiego Henryka': 'Henryka Sucharskiego',
@@ -382,6 +388,7 @@ addr_map = {
  'Słowackiego J.': 'Juliusza Słowackiego',
  'Słowackiego Juliusza': 'Juliusza Słowackiego',
  'Słowackiego': 'Juliusza Słowackiego',
+ 'św. Andrzeja Boboli': 'Świętego Andrzeja Boboli',
  'T. Kościuszki': 'Tadeusza Kościuszki',
  'Tarnowskiego Jana': 'Jana Tarnowskiego',
  'Tatarkiewicza Władysława': 'Władysława Tatarkiewicza',
@@ -400,7 +407,7 @@ addr_map = {
  'Tysiąclecia PP': 'Tysiąclecia Państwa Polskiego',
  'W. Jagiełły': 'Władysława Jagiełły',
  'Wallenroda K.': 'Konrada Wallenroda',
- 'Waresiaka E. Ks.': 'księdza Eugeniusza Waresiaka',
+ 'Waresiaka E. Ks.': 'Księdza Eugeniusza Waresiaka',
  'Warskiego Adolfa': 'Adolfa Warskiego',
  'Waryńskiego L.': 'Ludwika Waryńskiego',
  'Waryńskiego Ludwika': 'Ludwika Waryńskiego',
@@ -632,7 +639,11 @@ def mapstreet(strname, symul):
 
     try:
         ret = checkAndAddCecha(addr_map[strname])
-        __log.info("mapping street %s -> %s, TERYT: %s (addr:street:sym_ul=%s) " % (strname, ret, teryt_entry.nazwa if teryt_entry else 'N/A', symul))
+        log_level = logging.INFO
+        if max(strname.split(' '), key=len) in ret:
+            # if longest part of strname is in ret, then lower the log message level
+            log_level = logging.DEBUG
+        __log.log(log_level, "mapping street %s -> %s, TERYT: %s (addr:street:sym_ul=%s) " % (strname, ret, teryt_entry.nazwa if teryt_entry else 'N/A', symul))
         return ret
     except KeyError:
         try:
@@ -642,7 +653,10 @@ def mapstreet(strname, symul):
                 return strname
             ret = checkAndAddCecha(next(iter(ret.keys()))) # check and add for first and only key
             if ret != strname:
-                __log.info("mapping street %s -> %s, TERYT: %s (addr:street:sym_ul=%s) " % (strname, ret, teryt_entry.nazwa if teryt_entry else 'N/A', symul))
+                log_level = logging.INFO
+                if max(strname.split(' '), key=len) in ret:
+                    log_level = logging.DEBUG
+                __log.log(log_level, "mapping street %s -> %s, TERYT: %s (addr:street:sym_ul=%s) " % (strname, ret, teryt_entry.nazwa if teryt_entry else 'N/A', symul))
             return ret
         except KeyError:
             return checkAndAddCecha(strname)
