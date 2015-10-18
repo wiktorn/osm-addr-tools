@@ -616,7 +616,7 @@ class Merger(object):
             addr = self.osmdb.getbyid("%s:%s" % (node['type'], node['id']))[0]
             self.__log.debug("Looking for candidates for: %s", str(addr.entry))
             if addr.only_address_node() and addr.state != 'delete' and (not self._import_area_shape or self._import_area_shape.contains(addr.center)):
-                candidates = list(self.osmdb.nearest(addr.center, num_results=10))
+                candidates = list(self.osmdb.nearest(addr.center, num_results=100)) # need to take into account a large number of candidates, as nodes <-> members of ways are also returned
                 candidates_within = list(
                     filter(
                         lambda x: addr.osmid != x.osmid and x.objtype == 'relation' and addr.center.within(buffer(x.shape, buf)),
@@ -630,6 +630,7 @@ class Merger(object):
                             candidates
                         )
                    )
+
                 if candidates_within:
                     c = candidates_within[0]
                     if c.housenumber and not addr.similar_to(c):
