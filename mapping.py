@@ -19,7 +19,7 @@ addr_map = {
  '9-go Maja': '9 Maja',
  'A. Ciołkosza': 'Adama Ciołkosza',
  'A. Pajdaka': 'Antoniego Pajdaka',
- 'A. Fleminga': 'Aleksandra Fleminga'.
+ 'A. Fleminga': 'Aleksandra Fleminga',
  'A. Vivaldiego': 'Antonia Vivaldiego',
  'A. Kowalczyka': 'Anastazego Kowalczyka',
  'A. Magiera': 'Antoniego Magiera',
