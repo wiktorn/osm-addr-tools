@@ -51,6 +51,7 @@ from utils import parallel_execution, groupby
 import lxml.html
 import lxml.etree
 import rtree
+import functools
 
 
 # stałe
@@ -77,7 +78,14 @@ def wgsTo2180(lon, lat):
 
 def e2180toWGS(lon, lat):
     # returns lon,lat
-    return pyproj.transform(__EPSG2180, __WGS84, lon, lat)
+    return srs_to_wgs('epsg:2180', lon, lat)
+
+@functools.lru_cache(maxsize=None)
+def getProj(srs):
+    return pyproj.Proj(init=srs)
+
+def srs_to_wgs(srs, lon, lat):
+    return pyproj.transform(getProj(srs), __WGS84, lon, lat)
 
 def _filterOnes(lst):
     return list(filter(lambda x: x > 0, lst))
@@ -816,6 +824,85 @@ class WarszawaUM(AbstractImport):
             self.gugik_index.insert(key,  (float(addr.location['lat']), float(addr.location['lon'])))
         return list(filter(self._isEligible, map(self._convertToAddress, parsed['foiarray'])))
 
+class GUGiK_GML(AbstractImport):
+    __log = logging.getLogger(__name__).getChild('GUGiK_GML')
+    __GML_NS = "http://www.opengis.net/gml/3.2"
+    __MUA = "urn:gugik:specyfikacje:gmlas:ewidencjaMiejscowosciUlicAdresow:1.0"
+    __XLINK_HREF = "{http://www.w3.org/1999/xlink}href"
+
+    def __init__(self, fname):
+        self.soup = lxml.etree.fromstring(open(fname, 'rb').read())
+        terc = max(
+            map(
+                lambda x: x.text, 
+                self.soup.find('{%s}featureMembers' % self.__GML_NS).findall(
+                    '{%s}AD_JednostkaAdministracyjna/{%s}idTERYT' % (self.__MUA, self.__MUA)
+                )),
+            key=len
+        )
+        super(GUGiK_GML, self).__init__(terc=terc)
+        self.terc = terc
+
+    def _convertToAddress(self, soup, ulic, miejsc):
+        coords = soup.find('{%s}pozycja/{%s}Point' % (self.__MUA, self.__GML_NS))
+        srs = coords.get('srsName')
+        coords = coords.find('{%s}coordinates' % (self.__GML_NS))
+        coords = srs_to_wgs(srs, *map(float,coords.text.split(coords.get('cs'))))
+
+        ulica = ulic[soup.find('{%s}ulica2' % self.__MUA).get(self.__XLINK_HREF)]
+        miejscowosc = miejsc[soup.find('{%s}miejscowosc' %self.__MUA).get(self.__XLINK_HREF)]
+
+        ret = Address.mappedAddress(
+                soup.find('{%s}numerPorzadkowy' % self.__MUA).text,
+                soup.find('{%s}kodPocztowy' % self.__MUA).text,
+                ulica[1],
+                miejscowosc[1],
+                ulica[0],
+                miejscowosc[0],
+                'emuia.gugik.gov.pl',
+                {'lat': coords[1], 'lon': coords[0]},
+                None,
+        )
+        ret.status = soup.find('{%s}status' % (self.__MUA)).text
+        return ret
+
+    def _isEligible(self, addr):
+        # TODO: check status?
+        if addr.status.upper() not in ('ZATWIERDZONY', 'ISTNIEJACY'):
+            self.__log.debug('Ignoring address %s, because status %s is not ZATWIERDZONY', addr, addr.status.upper())
+            return False
+        if '?' in addr.housenumber or 'bl' in addr.housenumber:
+            self.__log.debug('Ignoring address %s because has strange housenumber: %s', addr, addr.housenumber)
+            return False
+        if not addr.get_point().within(self.shape):
+            # do not report anything about this, this is normal
+            return False
+        return True
+
+    def fetchTiles(self):
+        doc = self.soup.find('{%s}featureMembers' % self.__GML_NS)
+        miejsc = {}
+        for miejscowosc in doc.iterchildren('{%s}AD_Miejscowosc' % self.__MUA):
+            miejsc[miejscowosc.get('{%s}id' % self.__GML_NS)] = (
+                miejscowosc.find('{%s}idTERYT' % self.__MUA).text,
+                miejscowosc.find('{{{0}}}nazwa/{{{0}}}AD_EndonimStandaryzowany[{{{0}}}jezyk="pol"]/{{{0}}}nazwa'.format(self.__MUA)).text
+            )
+
+        ulic = {}
+        for ulica in doc.iterchildren('{%s}AD_Ulica' % self.__MUA):
+            nazwa_ulicy = ulica.find('{{{0}}}nazwa/{{{0}}}AD_NazwaUlicy'.format(self.__MUA))
+            ulic[ulica.get('{%s}id' % self.__GML_NS)] = (
+                nazwa_ulicy.find('{%s}idTERYT' % self.__MUA).text,
+                nazwa_ulicy.find('{%s}nazwaGlownaCzesc' % self.__MUA).text
+            )
+
+        ret = list(filter(
+            self._isEligible,
+            map(partial(self._convertToAddress, ulic=ulic, miejsc=miejsc), doc.iterchildren('{%s}AD_PunktAdresowy' % self.__MUA))
+        ))
+
+        return ret
+
 class AddressEncoder(json.JSONEncoder):
     def default(self, obj):
         if isinstance(obj, Address):
@@ -834,7 +921,7 @@ def get_ssl_no_verify_opener():
 def main():
     parser = argparse.ArgumentParser(description="Downloads data from iMPA and saves in OSM or JSON format. CC-BY-SA 3.0 @ WiktorN. Filename is <gmina>.osm or <gmina>.json")
     parser.add_argument('--output-format', choices=['json', 'osm'],  help='output file format - "json" or "osm", default: osm', default="osm", dest='output_format')
-    parser.add_argument('--source', choices=['impa', 'gugik', 'gisnet', 'warszawa'],  help='input source: "gugik", "impa", "gisnet" or "warszawa". Gugik, gisnet and warszawa requires providing teryt:terc code. Defaults to "impa"', default="impa", dest='source')
+    parser.add_argument('--source', choices=['impa', 'gugik', 'gugik_gml', 'gisnet', 'warszawa'],  help='input source: "gugik", "impa", "gisnet" or "warszawa". Gugik, gisnet and warszawa requires providing teryt:terc code. gugik_gml requires to provide a filename as gmina. Defaults to "impa"', default="impa", dest='source')
     parser.add_argument('--log-level', help='Set logging level (debug=10, info=20, warning=30, error=40, critical=50), default: 20', dest='log_level', default=20, type=int)
     parser.add_argument('--no-mapping', help='Disable mapping of streets and cities', dest='no_mapping', default=False, action='store_const', const=True)
     parser.add_argument('--wms', help='Override WMS address with address points', dest='wms', default=None)
@@ -858,11 +945,13 @@ def main():
             raise Exception("You need to provide service name")
     elif args.source == 'warszawa':
         imp_gen = partial(WarszawaUM, terc=args.terc)
+    elif args.source == 'gugik_gml':
+        imp_gen = partial(GUGiK_GML)
     else:
         raise Exception("Source not supported")
     if args.gmina:
-        rets = parallel_execution(*map(lambda x: lambda: imp_gen(x).getAddresses(), args.gmina))
-        #rets = list(map(lambda x: impa_gen(x).fetchTiles(), args.gmina)) # usefull for debugging
+        #rets = parallel_execution(*map(lambda x: lambda: imp_gen(x).getAddresses(), args.gmina))
+        rets = list(map(lambda x: imp_gen(x).getAddresses(), args.gmina)) # usefull for debugging
     else:
         rets = [imp_gen().getAddresses(),]
     if args.output_format == 'json':
