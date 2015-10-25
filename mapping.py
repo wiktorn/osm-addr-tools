@@ -43,6 +43,8 @@ addr_map = {
  'al. T. Hopfera': 'Aleja Tomasza Hopfera',
  'al. gen. A. Chruściela "Montera"': 'Aleja generała Antoniego Chruściela "Montera"',
  'al. W. Reymonta': 'Aleja Władysława Reymonta',
+ 'al. Jerozolimskie': 'Aleje Jerozolimskie',
+ 'al. Ujazdowskie': 'Aleje Ujazdowskie',
  'A. E. Odyńca': 'Antoniego Edwarda Odyńca',
  'A. Malczewskiego': 'Antoniego Malczewskiego',
  'A. Struga': 'Andrzeja Struga',
