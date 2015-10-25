@@ -825,14 +825,13 @@ def mapstreet(strname, symul):
                 not street.upper().startswith(__CECHA_MAPPING.get(teryt_entry.cecha, '').upper()):
                 __log.debug("Adding TERYT.CECHA=%s to street=%s (addr:street:sym_ul=%s)" % (__CECHA_MAPPING.get(teryt_entry.cecha, ''), street, symul))
                 return "%s %s" % (__CECHA_MAPPING.get(teryt_entry.cecha, ''), street)
-          else:
+        else:
             if street.upper().startswith('AL. '):
                 return 'Aleja ' + street[4:]
             if street.upper().startswith('PL. '):
                 return 'Plac ' + street[4:]
             if street.upper().startswith('UL. '):
                 return street[4:]
-
         return street
 
     try:
