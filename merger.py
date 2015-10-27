@@ -569,10 +569,10 @@ class Merger(object):
     def _merge_one_address(self, building, addr):
         # as we merge only address nodes, do not pass anything else
         fixme = building['tags'].get('fixme', '')
-        for (key, value) in addr.get_tag_soup():
+        for (key, value) in addr.get_tag_soup().items():
             oldval = building['tags'][key]
             if oldval and oldval != value:
-                self.__log.info('Changing tag: %s from %s to %s for address: %s', key, oldval, value, addr)
+                self.__log.info('Changing tag: %s from %s to %s for address: %s', key, oldval, value, addr.entry)
             building['tags'][key] = value
         fixme += addr.getFixme()
         building['tags']['fixme'] = fixme
