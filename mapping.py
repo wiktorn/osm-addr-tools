@@ -33,6 +33,7 @@ addr_map = {
  'A. Einsteina':                        'Alberta Einsteina', 
  'Al. H. Kołłątaja':                    'Aleja Hugona Kołłątaja',
  'al. J. Ch. Szucha':                   'Aleja Jana Chrystiana Szucha',
+ 'Aleja Komisji Edukacji Narodowej ( KEN )': 'Aleja Komisji Edukacji Narodowej',
  'Polipol Aleja':                       'Aleja Polipol',
  'al. T. Hopfera':                      'Aleja Tomasza Hopfera',
  'al. W. Reymonta':	                    'Aleja Władysława Reymonta',
