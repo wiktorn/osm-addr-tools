@@ -594,12 +594,15 @@ class Merger(object):
             if len(nodes) > 0:
                 self._mark_soup_visible(self.osmdb.getbyid(_id)[0])
 
-            # if there is only one candidate, or all candidates are similiar addresses
+            # if there is only one candidate, or all candidates are similiar addresses on same street
             if len(nodes) == 1 or all(map(
-                lambda x: x[0].similar_to(x[1]),
+                lambda x: x[0].similar_to(x[1]) and x[0].street == x[1].street,
                 itertools.combinations(nodes, 2)
                 )):
-                if building['tags'].get('addr:housenumber') and not nodes[0].similar_to(self.osmdb.getbyid("%s:%s" % (building['type'], building['id']))[0]):
+                if building['tags'].get('addr:housenumber') and not (
+                    nodes[0].similar_to(self.osmdb.getbyid("%s:%s" % (building['type'], building['id']))[0]) and
+                    nodes[0].street == self.osmdb.getbyid("%s:%s" % (building['type'], building['id']))[0]
+                    ):
                     # if building has different address, than we want to put
                     self.__log.info("Skipping merging address: %s, as building already has an address: %s.", str(nodes[0].entry), OsmAddress.from_soup(building))
                     for node in nodes:

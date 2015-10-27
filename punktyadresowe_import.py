@@ -227,8 +227,7 @@ class Address(object): #namedtuple('BaseAddress', ['housenumber', 'postcode', 's
             ret &= (other.city == self.city)
         if self.sym_ul and other.sym_ul:
             ret &= (self.sym_ul == other.sym_ul)
-        else:
-            ret &= (self.street == other.street)
+        # skip compare by streets, callers should do this by themselvs
         return ret
 
     def __str__(self):
