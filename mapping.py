@@ -4,7 +4,6 @@
 
 addr_map = {
 # !sort -t : -b -k 2
- 'K. Bronikowskiego'                    'Ksawerego Bronikowskiego',
  '1-ego Maja':                          '1 Maja',
  '1-go Maja':                           '1 Maja',
  '11-go Listopada':                     '11 Listopada',
@@ -413,6 +412,7 @@ addr_map = {
  'Kolumba Krzysztofa':                  'Krzysztofa Kolumba',
  'Bony':                                'Królowej Bony',
  'Kr. Jadwigi':                         'Królowej Jadwigi',
+ 'K. Bronikowskiego':                   'Ksawerego Bronikowskiego',
  'Dunikowskiego K.':                    'Ksawerego Dunikowskiego',
  'Sanguszki A. ks.':                    'Księcia Andrzeja Sanguszki',
  'ks. Adama Opalskiego':                'Księdza Adama Opalskiego',
