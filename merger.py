@@ -568,8 +568,12 @@ class Merger(object):
 
     def _merge_one_address(self, building, addr):
         # as we merge only address nodes, do not pass anything else
-        building['tags'].update(addr.get_tag_soup())
         fixme = building['tags'].get('fixme', '')
+        for (key, value) in addr.get_tag_soup():
+            oldval = building['tags'][key]
+            if oldval and oldval != value:
+                self.__log.info('Changing tag: %s from %s to %s for address: %s', key, oldval, value, addr)
+            building['tags'][key] = value
         fixme += addr.getFixme()
         building['tags']['fixme'] = fixme
         self.osmdb.getbyid("%s:%s" % (building['type'], building['id']))[0].set_state('modify')
