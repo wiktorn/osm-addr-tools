@@ -197,7 +197,7 @@ addr_map = {
  'Okulickiego Niedźwiadka L. gen.':     'Generała Leopolda Okulickiego Niedźwiadka',
  'gen. L. Rayskiego':                   'Generała Ludomiła Rayskiego',
  'M. Zaruskiego':                       'Generała Mariusza Zaruskiego',
- 'gen. M. C. Coopera':                  'Generała Meriana Caldwell Coopera',
+ 'gen. M. C. Coopera':                  'Generała Meriana Caldwella Coopera',
  'Żymierskiego':                        'Generała Michała Roli-Żymierskiego',
  'Tokarzewskiego-Karaszewicza Torwida M. gen.': 'Generała Michała Tadeusz Tokarzewskiego-Karaszewicza Torwida',
  'gen. M. Tokarzewskiego-Karaszewicza': 'Generała Michała Tokarzewskiego-Karaszewicza',
