@@ -700,6 +700,7 @@ def getAddresses(bbox):
     ["building"];
 );
 out meta bb qt;
+<;
 >>;
 out meta bb qt;
 """ % (bbox, bbox, bbox, bbox, bbox,)
