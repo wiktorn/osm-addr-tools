@@ -48,6 +48,7 @@ class OsmAddress(Address):
             self._soup['tags'] = {}
         super(OsmAddress, self).__init__(*args, **kwargs)
         self.state = None
+        self.ref_ways = []
 
     housenumber = create_property_funcs('addr:housenumber')
     postcode = create_property_funcs('addr:postcode')
@@ -60,10 +61,10 @@ class OsmAddress(Address):
 
     def __getitem__(self, key):
         return self._soup[key]
-
+    
     @staticmethod
-    def from_soup(obj, obj_loc_cache=None):
-        cache = obj.get('tags', {})
+    def from_soup(obj, obj_loc_cache=None, ways_for_node=None):
+        tags = obj.get('tags', {})
 
         loc = None
         if obj_loc_cache:
@@ -72,23 +73,25 @@ class OsmAddress(Address):
             loc = get_soup_center(obj)
 
         ret = OsmAddress(
-            housenumber = cache.get('addr:housenumber', ''),
-            postcode    = cache.get('addr:postcode', ''),
-            street      = cache.get('addr:street', ''),
-            city        = cache.get('addr:place', '') if cache.get('addr:place') else cache.get('addr:city', ''),
-            sym_ul      = cache.get('addr:street:sym_ul', ''),
-            simc        = cache.get('addr:city:simc', ''),
-            source      = cache.get('source:addr', ''),
+            housenumber = tags.get('addr:housenumber', ''),
+            postcode    = tags.get('addr:postcode', ''),
+            street      = tags.get('addr:street', ''),
+            city        = tags.get('addr:place', '') if tags.get('addr:place') else tags.get('addr:city', ''),
+            sym_ul      = tags.get('addr:street:sym_ul', ''),
+            simc        = tags.get('addr:city:simc', ''),
+            source      = tags.get('source:addr', ''),
             location    = dict(zip(('lat', 'lon'), loc)),
-            id_         = cache.get('ref:addr', ''),
+            id_         = tags.get('ref:addr', ''),
             soup        = obj
         )
 
-        fixme = cache.get('fixme')
+        fixme = tags.get('fixme')
         if fixme:
             ret.addFixme(fixme)
         if obj.get('action'):
             ret.state = obj['action']
+        if ways_for_node:
+            ret.ref_ways = ways_for_node.get(obj['id'], [])
         return ret
 
     def set_state(self, val):
@@ -97,8 +100,20 @@ class OsmAddress(Address):
         elif val == 'modify' and self.state != 'delete':
             self.state = val
         elif val == 'delete':
-            self.state = val
+            if len(self.ref_ways) > 0:
+                self.state = 'modify'
+                self.housenumber = ''
+                self.postcode = ''
+                self.street = ''
+                self.city = ''
+                self.sym_ul = ''
+                self.simc = ''
+                self.source = ''
+                self.id_ = ''
+            else:
+                self.state = val
         else:
+            raise ValueError('Unkown state %s' % val)
             # mark change
             self.state = self.state
 
@@ -253,7 +268,16 @@ class Merger(object):
         self.impdata = impdata
         self.asis = asis
         obj_loc_cache = prepare_object_pos(asis['elements'])
-        from_soup = functools.partial(OsmAddress.from_soup, obj_loc_cache = obj_loc_cache)
+        ways_for_node = {}
+        for way in filter(lambda x: x['type'] == 'way', asis['elements']):
+            for node in way['nodes']:
+                try:
+                    way_list = ways_for_node[node]
+                except KeyError:
+                    way_list = []
+                    ways_for_node[node] = way_list
+                way_list.append(way['id'])
+        from_soup = functools.partial(OsmAddress.from_soup, obj_loc_cache = obj_loc_cache, ways_for_node=ways_for_node)
         self.osmdb = OsmDb(self.asis, valuefunc=from_soup, indexes={'address': lambda x: x.get_index_key(), 'id': lambda x: x.osmid})
         self._new_nodes = []
         self._updated_nodes = []
@@ -281,6 +305,8 @@ class Merger(object):
 
     def set_state(self, node, value):
         self._state_changes.append(node)
+        for i in node.ref_ways:
+            self._state_changes.append(self.osmdb.getbyid("%s:%s" % ('way', i))[0])
         node.set_state(value)
 
     def _pre_merge(self):
@@ -502,27 +528,27 @@ class Merger(object):
             if not ret:
                 raise ValueError("No object found for key: %s" % (key,))
             return ret
-        def get_reffered(node):
+        def get_referred(node):
             if node['type'] == 'node':
                 return set((('node', node['id']),))
             if node['type'] == 'nd':
                 return set((('node', node['ref']),))
             if node['type'] == 'way':
                 return itertools.chain(
-                    itertools.chain.from_iterable(map(get_reffered, (getbyid("node:%s" % (x,))[0] for x in node['nodes']))),
+                    itertools.chain.from_iterable(map(get_referred, (getbyid("node:%s" % (x,))[0] for x in node['nodes']))),
                     (('way', node['id']),)
                 )
             if node['type'] == 'member':
-                return get_reffered(getbyid("%s:%s" % (node['type'], node['ref']))[0])
+                return get_referred(getbyid("%s:%s" % (node['type'], node['ref']))[0])
             if node['type'] == 'relation':
                 return itertools.chain(
-                    itertools.chain.from_iterable(map(get_reffered, (getbyid("%s:%s" % (x['type'], x['ref']))[0] for x in node['members']))),
+                    itertools.chain.from_iterable(map(get_referred, (getbyid("%s:%s" % (x['type'], x['ref']))[0] for x in node['members']))),
                     (('relation', node['id']),)
                 )
             raise ValueError("Unkown node type: %s" % (node.name))
 
         for i in lst:
-            ret = ret.union(get_reffered(i))
+            ret = ret.union(get_referred(i))
 
         return tuple(map(
             lambda x: getbyid("%s:%s" % (x[0], x[1]))[0],
@@ -698,11 +724,11 @@ def getAddresses(bbox):
   relation
     (%s)
     ["building"];
-);
-out meta bb qt;
-<;
->>;
-out meta bb qt;
+)->.a;
+.a < ->.out;
+.a >> ->.out;
+.a out meta bb qt;
+.out out meta bb qt;
 """ % (bbox, bbox, bbox, bbox, bbox,)
     return json.loads(overpass.query(query))
 
