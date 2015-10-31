@@ -95,6 +95,8 @@ class OsmAddress(Address):
         return ret
 
     def set_state(self, val):
+        if val not in ('visible', 'modify', 'delete'):
+            raise ValueError('Unkown state %s' % val)
         if val == 'visible' and self.state not in ('modify', 'delete'):
             self.state = val
         elif val == 'modify' and self.state != 'delete':
@@ -113,7 +115,6 @@ class OsmAddress(Address):
             else:
                 self.state = val
         else:
-            raise ValueError('Unkown state %s' % val)
             # mark change
             self.state = self.state
 
