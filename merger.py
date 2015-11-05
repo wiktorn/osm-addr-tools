@@ -597,7 +597,7 @@ class Merger(object):
         # as we merge only address nodes, do not pass anything else
         fixme = building['tags'].get('fixme', '')
         for (key, value) in addr.get_tag_soup().items():
-            oldval = building['tags'][key]
+            oldval = building['tags'].get(key)
             if oldval and oldval != value:
                 self.__log.info('Changing tag: %s from %s to %s for address: %s', key, oldval, value, addr.entry)
             building['tags'][key] = value
