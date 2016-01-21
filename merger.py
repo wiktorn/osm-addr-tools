@@ -310,10 +310,18 @@ class Merger(object):
             self._state_changes.append(self.osmdb.getbyid("%s:%s" % ('way', i))[0])
         node.set_state(value)
 
+    def _fix_wesola(self, entry):
+        if entry.get('tags', {}).get('addr:street', "").endswith(' (W)'):
+            entry['tags']['addr:street'] = entry['tags']['addr:street'][:-4]
+            self._state_changes.append(self.osmdb.getbyid("%s:%s" % (entry['type'], entry['id']))[0])
+
     def _pre_merge(self):
+        # for custom fixes
+        #for entry in self.asis['elements']:
+        #    self._fix_wesola(entry)
         def process(entry):
             self._fix_similar_addr(entry)
-            tuple(map(lambda x: x(self, entry), self.pre_func))
+            tuple(map(lambda x: x(entry), self.pre_func))
         self._parallel_process_func(process, self.impdata)
 
     def _fix_similar_addr(self, entry):
