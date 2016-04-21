@@ -582,7 +582,7 @@ class GUGiK(AbstractImport):
         addr_kv = dict(
             (
              str(x.find('strong').find('span').text),
-             str(x.find('span').text)
+             str(x.find('span').text).strip()
             ) for x in desc_soup.find('ul').iterchildren()
         )
 
