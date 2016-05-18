@@ -64,7 +64,9 @@ class OsmAddress(Address):
     
     @staticmethod
     def from_soup(obj, obj_loc_cache=None, ways_for_node=None):
-        tags = obj.get('tags', {})
+        tags = dict(
+            (k, v.strip()) for (k,v) in obj.get('tags', {}).items()
+        )
 
         loc = None
         if obj_loc_cache:
