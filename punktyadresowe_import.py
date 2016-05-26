@@ -154,7 +154,7 @@ class Address(object): #namedtuple('BaseAddress', ['housenumber', 'postcode', 's
     @staticmethod
     def mappedAddress_kpc(*args, **kwargs):
         ret = Address(*args, **kwargs)
-        ret.housenumber = ret.housenumber.replace(' ', '')
+        ret.housenumber = ret.housenumber.strip()
         if ret.street:
             assert ret.street == ret.street.strip()
             newstreet = mapstreet(re.sub(' +', ' ', ret.street), ret.sym_ul)
@@ -560,6 +560,7 @@ class GUGiK(AbstractImport):
     __PRECISION = 10
     __base_url = "http://emuia1.gugik.gov.pl/wmsproxy/emuia/wms?SERVICE=WMS&FORMAT=application/vnd.google-earth.kml+xml&VERSION=1.1.1&SERVICE=WMS&REQUEST=GetMap&LAYERS=emuia:layer_adresy_labels&STYLES=&SRS=EPSG:2180&WIDTH=16000&HEIGHT=16000&BBOX="
     __log = logging.getLogger(__name__).getChild('GUGiK')
+    __NUMER_RE = re.compile('(\d+)\s((?=\d+))')
 
     def __init__(self, terc):
         super(GUGiK, self).__init__(terc=terc)
@@ -587,6 +588,8 @@ class GUGiK(AbstractImport):
         )
 
         coords = soup.find('{http://www.opengis.net/kml/2.2}Point').find('{http://www.opengis.net/kml/2.2}coordinates').text.split(',')
+        # Hack for spaces in EMUiA addresses. Replace them with slash, if they are between numbers
+        addr_kv[str_normalize('NUMER_PORZADKOWY')] = self.__NUMER_RE.sub('\\1/\\2', addr_kv[str_normalize('NUMER_PORZADKOWY')])
         ret = Address.mappedAddress(
                 addr_kv[str_normalize('NUMER_PORZADKOWY')],
                 addr_kv.get(str_normalize('KOD_POCZTOWY')),
