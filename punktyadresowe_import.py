@@ -428,7 +428,7 @@ class iMPA(AbstractImport):
                 return None
             return data[start_pos + len(begin):end_pos]
 
-        if len(init_data) > 0:
+        if len(init_data) > 0 and 'spatialExtent' in init_data:
             self.setBboxFrom2180(init_data['spatialExtent'])
             self.terc = init_data.get('teryt')
             address_layers = list(
@@ -437,6 +437,8 @@ class iMPA(AbstractImport):
                             init_data.get('map', {}).get('services', [{},])
                         )
                 )
+        elif len(init_data) > 0 and 'error' in init_data:
+            raise ValueError(init_data['error'])
         else:
             bbox = extract('"spatialExtent":[', '],"').split(',')
             self.setBboxFrom2180(list(map(float, bbox)))
