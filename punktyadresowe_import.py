@@ -353,7 +353,16 @@ out bb;
 
     def _checkDuplicatesInImport(self, data):
         addr_index = groupby(data, lambda x: (x.city, x.simc, x.housenumber.replace(' ', '').upper(), x.street))
+        # remove duplicates closer than 2m
+        for (addr, occurances) in filter(lambda x: len(x[1]) > 1, addr_index.items()):
+            for (a, b) in filter(lambda x: distance(x[0].center, x[1].center) < 2,
+                    itertools.combinations(occurances, 2)):
+                # if any two duplicates are closer than 2m, remove from data
+                self.__log.info("Removing duplicate address: %s", a)
+                data.remove(a)
 
+        # mark duplicates
+        addr_index = groupby(data, lambda x: (x.city, x.simc, x.housenumber.replace(' ', '').upper(), x.street))
         for (addr, occurances) in filter(lambda x: len(x[1]) > 1, addr_index.items()):
             self.__log.warning("Duplicate addresses in import: %s", occurances[0])
             uid = uuid.uuid4()
@@ -366,8 +375,8 @@ out bb;
                     )
                 ):
                 self.__log.warning("Address points doesn't fit into 100m circle. Points count: %d", len(occurances))
-                for addr in occurances:
-                    addr.addFixme('(distance over 100m, points: %d)' % (len(occurances),))
+                for i in occurances:
+                    i.addFixme('(distance over 100m, points: %d)' % (len(occurances),))
 
     def _checkMixedScheme(self, data):
         dups = groupby(data, lambda x: x.simc, lambda x: bool(x.street))
