@@ -10,13 +10,12 @@ import functools
 from osmdb import OsmDb, get_soup_center, distance, prepare_object_pos
 import json
 from shapely.geometry import Point
-import shapely.geometry.base
 from punktyadresowe_import import iMPA, GUGiK, Address, GISNET, WarszawaUM, GUGiK_GML
 import overpass
-from utils import parallel_map
 from lxml.builder import E
 import lxml.etree
 import converter
+from collections import defaultdict
 
 __log = logging.getLogger(__name__)
 
@@ -271,15 +270,11 @@ class Merger(object):
         self.impdata = impdata
         self.asis = asis
         obj_loc_cache = prepare_object_pos(asis['elements'])
-        ways_for_node = {}
+        ways_for_node = defaultdict(list)
         for way in filter(lambda x: x['type'] == 'way', asis['elements']):
             for node in way['nodes']:
-                try:
-                    way_list = ways_for_node[node]
-                except KeyError:
-                    way_list = []
-                    ways_for_node[node] = way_list
-                way_list.append(way['id'])
+                ways_for_node[node].append(way['id'])
+
         from_soup = functools.partial(OsmAddress.from_soup, obj_loc_cache = obj_loc_cache, ways_for_node=ways_for_node)
         self.osmdb = OsmDb(self.asis, valuefunc=from_soup, indexes={'address': lambda x: x.get_index_key(), 'id': lambda x: x.osmid})
         self._new_nodes = []
@@ -655,7 +650,7 @@ class Merger(object):
                     self._mark_soup_visible(node)
 
     def _prepare_merge_list(self, buf):
-        ret = {}
+        ret = defaultdict(list)
         for node in filter(lambda x: x['type'] == 'node' and x.get('tags', {}).get('addr:housenumber'), self.asis['elements']):
             addr = self.osmdb.getbyid("%s:%s" % (node['type'], node['id']))[0]
             self.__log.debug("Looking for candidates for: %s", str(addr.entry))
@@ -681,12 +676,7 @@ class Merger(object):
                         self.set_state(c, 'visible')
                         self.set_state(addr, 'visible')
                     else:
-                        try:
-                            lst = ret[c.osmid]
-                        except KeyError:
-                            lst = []
-                            ret[c.osmid] = lst
-                        lst.append(addr)
+                        ret[c.osmid].append(addr)
                         self.__log.debug("Found: %s", c.osmid)
         return ret
 
