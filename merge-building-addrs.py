@@ -6,7 +6,7 @@ import logging
 import lxml
 
 from converter import osm_to_json
-from merger import Merger, Address, getAddresses, OsmAddress
+from merger import Merger, Address, get_addresses, OsmAddress
 
 
 def main():

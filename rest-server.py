@@ -3,7 +3,7 @@ import io
 import logging
 import json
 
-from merger import Merger, getAddresses
+from merger import Merger, get_addresses
 from punktyadresowe_import import iMPA
 import logging
 import overpass
@@ -24,7 +24,7 @@ def get_IMPA_Merger(name):
     w = min(map(lambda x: x.center.x, data))
     n = max(map(lambda x: x.center.y, data))
     e = max(map(lambda x: x.center.x, data))
-    addr =  getAddresses(map(str,(s, w, n, e)))
+    addr =  get_addresses(map(str, (s, w, n, e)))
 
     
     m = Merger(data, addr, terc, "%s.e-mapa.net" % name)

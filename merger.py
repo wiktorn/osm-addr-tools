@@ -138,10 +138,10 @@ class OsmAddress(Address):
     def objtype(self):
         return self._soup['type']
 
-    def _getTagVal(self, key):
+    def _get_tag_val(self, key):
         return self._soup.get('tags')
 
-    def _setTagVal(self, key, val):
+    def _set_tag_val(self, key, val):
         """returns True if something was modified"""
         n = self._soup['tags'].get(key)
         if n == val.strip():
@@ -149,7 +149,7 @@ class OsmAddress(Address):
         self._soup['tags'][key] = val.strip()
         return True
 
-    def _removeTag(self, key):
+    def _remove_tag(self, key):
         if key in self._soup['tags']:
             del self._soup['tags'][key]
             return True
@@ -162,11 +162,11 @@ class OsmAddress(Address):
     def osmid(self):
         return "%s:%s" % (self.objtype, self._soup['id'])
 
-    def isEMUiAAddr(self):
+    def is_emuia_addr(self):
         ret = False
         if self.source:
             ret |= ('EMUIA' in self.source.upper())
-        source_addr = self._getTagVal('source')
+        source_addr = self._get_tag_val('source')
         if source_addr:
             ret |= ('EMUIA' in source_addr.upper())
         return ret
@@ -188,7 +188,7 @@ class OsmAddress(Address):
     def get_tag_soup(self):
         return dict((k, v) for (k, v) in self._soup['tags'].items() if v)
 
-    def updateFrom(self, entry):
+    def update_from(self, entry):
         def update(name):
             old = getattr(self, name)
             new = getattr(entry, name)
@@ -214,13 +214,13 @@ class OsmAddress(Address):
         return ret
 
     def to_osm_soup(self):
-        def _removeTag(tags, key):
+        def _remove_tag(tags, key):
             if key in tags:
                 del tags[key]
                 return True
             return False
 
-        def _setTagVal(tags, key, value):
+        def _set_tag_val(tags, key, value):
             n = tags.get(key)
             if n == value.strip():
                 return False
@@ -242,17 +242,17 @@ class OsmAddress(Address):
         ret = False
         if self.housenumber:
             if self.street:
-                ret |= _removeTag(tags, 'addr:place')
+                ret |= _remove_tag(tags, 'addr:place')
             else:
-                ret |= _setTagVal(tags, 'addr:place', self.city)
-                ret |= _removeTag(tags, 'addr:street')
-                ret |= _removeTag(tags, 'addr:city')
+                ret |= _set_tag_val(tags, 'addr:place', self.city)
+                ret |= _remove_tag(tags, 'addr:street')
+                ret |= _remove_tag(tags, 'addr:city')
             if self.getFixme():
-                ret |= _setTagVal(tags, 'fixme', self.getFixme())
-            ret |= _setTagVal(tags, 'addr:postcode', self.postcode)
+                ret |= _set_tag_val(tags, 'fixme', self.getFixme())
+            ret |= _set_tag_val(tags, 'addr:postcode', self.postcode)
         if ret or self.state == 'modify':
             if bool(tags.get('source')) and (tags['source'] == self.source or 'EMUIA' in tags['source'].upper()):
-                _removeTag(tags, 'source')
+                _remove_tag(tags, 'source')
             meta_kv['action'] = 'modify'
         if self.state in ('delete', 'modify'):
             meta_kv['action'] = self.state
@@ -370,7 +370,7 @@ class Merger(object):
         if existing:
             # we have something with this address in db
             # sort by distance
-            emuia_nodes = sorted(tuple(filter(lambda x: x.isEMUiAAddr() and x.only_address_node(), existing)), lambda x: x.distance(entry))
+            emuia_nodes = sorted(tuple(filter(lambda x: x.is_emuia_addr() and x.only_address_node(), existing)), lambda x: x.distance(entry))
 
             # update location of first node if from EMUiA
             if emuia_nodes:
@@ -500,7 +500,7 @@ class Merger(object):
 
     def _update_node(self, node, entry):
         self.__log.debug("Cheking if there is something to update for node %s, address: %s", node.osmid, node.entry)
-        if node.updateFrom(entry):
+        if node.update_from(entry):
             self.__log.debug("Updating node %s using %s", node.osmid, entry)
             self._updated_nodes.append(node)
 
@@ -513,7 +513,7 @@ class Merger(object):
             'lon': entry.location['lon'],
         }
         new = self.osmdb.add_new(soup)
-        new.updateFrom(entry)
+        new.update_from(entry)
         self._new_nodes.append(new)
         # TODO: check that soup gets address tags
         # self.asis['elements'].append(soup)
@@ -728,7 +728,7 @@ class Merger(object):
                                    pretty_print=True, xml_declaration=True, encoding='UTF-8')
 
 
-def getAddresses(bbox):
+def get_addresses(bbox):
     bbox = ",".join(bbox)
     query = """
 [out:json]
@@ -839,9 +839,9 @@ def main():
     log_stderr = logging.StreamHandler()
     log_stderr.setLevel(args.log_level)
 
-    logIO = io.StringIO()
+    log_io = io.StringIO()
 
-    logging.basicConfig(level=10, handlers=[log_stderr, logging.StreamHandler(logIO)])
+    logging.basicConfig(level=10, handlers=[log_stderr, logging.StreamHandler(log_io)])
 
     dataFunc = None
     if args.impa:
@@ -886,7 +886,7 @@ def main():
         w = min(map(lambda x: x.center.x, data))
         n = max(map(lambda x: x.center.y, data))
         e = max(map(lambda x: x.center.x, data))
-        addrFunc = lambda: getAddresses(map(str,(s, w, n, e)))
+        addrFunc = lambda: get_addresses(map(str, (s, w, n, e)))
 
     addr = addrFunc()
 
@@ -904,9 +904,9 @@ def main():
     m.merge()
 
     if args.full_mode:
-        ret = m.get_full_result(logIO)
+        ret = m.get_full_result(log_io)
     else:
-        ret = m.get_incremental_result(logIO)
+        ret = m.get_incremental_result(log_io)
 
     args.output.write(ret)
 
