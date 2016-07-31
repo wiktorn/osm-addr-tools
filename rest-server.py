@@ -5,7 +5,6 @@ import json
 
 from merger import Merger, get_addresses
 from punktyadresowe_import import iMPA
-import logging
 import overpass
 import utils
 
@@ -48,13 +47,13 @@ def fullImport(name):
 
 @app.route("/osm/adresy/merge-addr/<terc>.osm", methods=["GET", ])
 def merge_addr(terc):
-    logIO = io.StringIO()
-    logging.basicConfig(level=10, handlers=[logging.StreamHandler(logIO),])
+    log_io = io.StringIO()
+    logging.basicConfig(level=10, handlers=[logging.StreamHandler(log_io),])
     addr = json.loads(overpass.getAddresses(terc))
     m = Merger([], addr, terc, "emuia.gugik.gov.pl")
     m._create_index()
     m.merge_addresses()
-    return make_response(m.get_incremental_result(logIO), 200)
+    return make_response(m.get_incremental_result(log_io), 200)
 
 if __name__ == '__main__':
     ADMINS = ['logi-osm@vink.pl']

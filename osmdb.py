@@ -138,9 +138,11 @@ class OsmDbEntry(object):
 
 class OsmDb(object):
     __log = logging.getLogger(__name__).getChild('OsmDb')
-    def __init__(self, osmdata, valuefunc=lambda x: x, indexes={}):
+    def __init__(self, osmdata, valuefunc=lambda x: x, indexes=None):
         # assume osmdata is a BeautifulSoup object already
         # do it an assert
+        if not indexes:
+            indexes = {}
         self._osmdata = osmdata
         self.__custom_indexes = dict((x, {}) for x in indexes.keys())
         self._valuefunc=valuefunc
