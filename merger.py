@@ -26,17 +26,25 @@ __log = logging.getLogger(__name__)
 # apt-get install python3-pyproj libspatialindex-dev python3-shapely python3-bs4 python3-lxml
 # easy_install3 Rtree
 
-# TODO: import admin_level=8 for area, and add addr:city if missing for addresses within that area (needs greater refactoring)
-# TODO: check for alone addresses. Look for addresses that have greater minimal distance to greater than ?? avg*5? avg+stddev*3? http://en.wikipedia.org/wiki/Chauvenet%27s_criterion ? http://en.wikipedia.org/wiki/Peirce%27s_criterion ?
+# TODO: import admin_level=8 for area, and add addr:city if missing for addresses within that area
+#       (needs greater refactoring)
+# TODO: check for alone addresses. Look for addresses that have greater minimal distance to greater than ?? avg*5?
+#       avg+stddev*3? http://en.wikipedia.org/wiki/Chauvenet%27s_criterion ?
+#       http://en.wikipedia.org/wiki/Peirce%27s_criterion ?
+
 
 def create_property_funcs(field):
     def getx(self):
         return self._soup['tags'][field]
+
     def setx(self, val):
         self._soup['tags'][field] = val
+
     def delx(self):
         del self._soup['tags'][field]
+
     return property(getx, setx, delx, '%s property' % (field,))
+
 
 class OsmAddress(Address):
     __log = logging.getLogger(__name__).getChild('OsmAddress')
@@ -64,7 +72,7 @@ class OsmAddress(Address):
     @staticmethod
     def from_soup(obj, obj_loc_cache=None, ways_for_node=None):
         tags = dict(
-            (k, v.strip()) for (k,v) in obj.get('tags', {}).items()
+            (k, v.strip()) for (k, v) in obj.get('tags', {}).items()
         )
 
         loc = None
@@ -97,7 +105,7 @@ class OsmAddress(Address):
 
     def set_state(self, val):
         if val not in ('visible', 'modify', 'delete'):
-            raise ValueError('Unkown state %s' % val)
+            raise ValueError('Unknown state %s' % val)
         if val == 'visible' and self.state not in ('modify', 'delete'):
             self.state = val
         elif val == 'modify' and self.state != 'delete':
@@ -157,7 +165,7 @@ class OsmAddress(Address):
     def isEMUiAAddr(self):
         ret = False
         if self.source:
-            ret |= ('EMUIA' in source.upper())
+            ret |= ('EMUIA' in self.source.upper())
         source_addr = self._getTagVal('source')
         if source_addr:
             ret |= ('EMUIA' in source_addr.upper())
@@ -165,7 +173,7 @@ class OsmAddress(Address):
 
     def only_address_node(self):
         # return true, if its a node, has a addr:housenumber,
-        # and consists only of tags listeb below
+        # and consists only of tags listed below
         if self.objtype != 'node':
             return False
         return self.housenumber and set(self._soup['tags'].keys()).issubset(
@@ -314,7 +322,7 @@ class Merger(object):
 
     def _pre_merge(self):
         # for custom fixes
-        #for entry in self.asis['elements']:
+        # for entry in self.asis['elements']:
         #    self._fix_wesola(entry)
         def process(entry):
             self._fix_similar_addr(entry)
@@ -389,7 +397,8 @@ class Merger(object):
         ))
 
     def _do_merge_by_existing(self, entry):
-        existing = tuple(filter(lambda x: self._import_area_shape.contains(x.center), self.osmdb.getbyaddress(entry.get_index_key())))
+        existing = tuple(filter(lambda x: self._import_area_shape.contains(x.center),
+                                self.osmdb.getbyaddress(entry.get_index_key())))
         self.__log.debug("Found %d same addresses", len(existing))
         # create tuples (distance, entry) sorted by distance
         existing = sorted(map(lambda x: (x.distance(entry), x), existing), key=lambda x: x[0])
@@ -397,21 +406,24 @@ class Merger(object):
             # report duplicates
             if len(existing) > 1:
                 self.__log.warning("More than one address node for %s. %s",
-                                entry,
-                                ", ".join("Id: %s, dist: %sm" % (x[1].osmid, str(x[0])) for x in existing)
+                                   entry,
+                                   ", ".join("Id: %s, dist: %sm" % (x[1].osmid, str(x[0])) for x in existing)
                              )
 
             if max(x[0] for x in existing) > 100:
                 for (dist, node) in existing:
                     if dist > 100:
-                        if not (node.objtype in ( 'way', 'relation') and node.contains(entry.center)):
+                        if not (node.objtype in ('way', 'relation') and node.contains(entry.center)):
                             # ignore the distance, if the point is within the node
-                            self.__log.warning("Address (id=%s) %s is %d meters from imported point", node.osmid, entry, dist)
+                            self.__log.warning("Address (id=%s) %s is %d meters from imported point",
+                                               node.osmid, entry, dist)
                             node.addFixme("Node is %d meters away from imported point"  % dist)
                     self.set_state(node, 'visible')
                 if min(x[0] for x in existing) > 50:
-                    if any(map(lambda x: x[1].objtype in ('way', 'relation') and x[1].contains(entry.center), existing)):
-                        # if any of existing addreses is a way/relation within which we have our address
+                    if any(map(
+                            lambda x: x[1].objtype in ('way', 'relation') and x[1].contains(entry.center),
+                            existing)):
+                        # if any of existing addresses is a way/relation within which we have our address
                         # then skip
                         pass
                     else:
@@ -426,7 +438,9 @@ class Merger(object):
     def _do_merge_by_within(self, entry):
         # look for building nearby
         candidates = list(self.osmdb.nearest(entry.center, num_results=10))
-        candidates_within = list(filter(lambda x: x.objtype in ('way', 'relation') and x.contains(entry.center), candidates))
+        candidates_within = list(filter(
+            lambda x: x.objtype in ('way', 'relation') and x.contains(entry.center),
+            candidates))
         self.__log.debug("Found %d buildings containing address", len(candidates_within))
 
         if candidates_within:
@@ -445,8 +459,9 @@ class Merger(object):
                     return True
                 else:
                     if c.similar_to(entry):
-                        self.__log.info("Different street names - import: %s, OSM: %s, address: %s, OSM: %s", entry.street, c.street, entry, c.osmid)
-                    # address within a building that has different address, add a point, maybe building needs spliting
+                        self.__log.info("Different street names - import: %s, OSM: %s, address: %s, OSM: %s",
+                                        entry.street, c.street, entry, c.osmid)
+                    # address within a building that has different address, add a point, maybe building needs splitting
                     self.__log.debug("Adding new node within building with address: %s", entry)
                     self._create_point(entry)
                     return True
@@ -454,8 +469,8 @@ class Merger(object):
 
     def _do_merge_by_nearest(self, entry):
         candidates = list(self.osmdb.nearest(entry.center, num_results=10))
-        candidates_same = list(filter(lambda x: x.housenumber == entry.housenumber and \
-            x.distance(entry) < 2.0, candidates))
+        candidates_same = list(filter(lambda x: x.housenumber == entry.housenumber and
+                                                x.distance(entry) < 2.0, candidates))
         if len(candidates_same) > 0:
             # same location, both are an address, and have same housenumber, can't be coincidence,
             # probably mapper changed something
@@ -469,8 +484,10 @@ class Merger(object):
                 if found:
                     return True
             if any(map(lambda x: x.housenumber and x.city, candidates_same)):
-                self.__log.info("Found probably same address node at (%s, %s). Skipping. Import address is: %s, osm addresses: %s",
-                    entry.location['lon'], entry.location['lat'], entry, ", ".join(map(lambda x: str(x.entry), candidates_same))
+                self.__log.info(
+                    "Found probably same address node at (%s, %s). Skipping. Import address is: %s, osm addresses: %s",
+                    entry.location['lon'], entry.location['lat'], entry, ", ".join(
+                        map(lambda x: str(x.entry), candidates_same))
                 )
                 return True
         return False
@@ -499,7 +516,7 @@ class Merger(object):
         new.updateFrom(entry)
         self._new_nodes.append(new)
         # TODO: check that soup gets address tags
-        #self.asis['elements'].append(soup)
+        # self.asis['elements'].append(soup)
 
     def _mark_soup_visible(self, obj):
         self._soup_visible.append(obj)
@@ -529,11 +546,13 @@ class Merger(object):
 
     def _get_all_reffered_by(self, lst):
         ret = set()
+
         def getbyid(key):
             ret = self.osmdb.getbyid(key)
             if not ret:
                 raise ValueError("No object found for key: %s" % (key,))
             return ret
+
         def get_referred(node):
             if node['type'] == 'node':
                 return set((('node', node['id']),))
@@ -551,7 +570,7 @@ class Merger(object):
                     itertools.chain.from_iterable(map(get_referred, (getbyid("%s:%s" % (x['type'], x['ref']))[0] for x in node['members']))),
                     (('relation', node['id']),)
                 )
-            raise ValueError("Unkown node type: %s" % (node.name))
+            raise ValueError("Unknown node type: %s" % (node.name))
 
         for i in lst:
             ret = ret.union(get_referred(i))
@@ -590,7 +609,7 @@ class Merger(object):
                     # if we are importing from GUGiK, skip points from iMPA
                     # report only points within area of interest
                     self.__log.debug("Marking node to delete - address %s does not exist: %s, %s", addr, node.osmid, str(node.entry))
-                    node.addFixme('Check address existance')
+                    node.addFixme('Check address existence')
                     self.set_state(node, 'visible')
 
     def merge_addresses(self):
@@ -619,14 +638,15 @@ class Merger(object):
             ("%s:%s" % (x['type'], x['id']), x) for x in self.asis['elements'] if x['type'] in ('way', 'relation')
         )
 
-        self.__log.info("Merging %d addresses with buildings", len(tuple(filter(lambda x: len(x[1]) == 1, to_merge.items()))))
+        self.__log.info("Merging %d addresses with buildings",
+                        len(tuple(filter(lambda x: len(x[1]) == 1, to_merge.items()))))
 
         for (_id, nodes) in to_merge.items():
             building = buildings[_id]
             if len(nodes) > 0:
                 self._mark_soup_visible(self.osmdb.getbyid(_id)[0])
 
-            # if there is only one candidate, or all candidates are similiar addresses on same street
+            # if there is only one candidate, or all candidates are similar addresses on same street
             if len(nodes) == 1 or all(map(
                 lambda x: x[0].similar_to(x[1]) and x[0].street == x[1].street,
                 itertools.combinations(nodes, 2)
@@ -634,9 +654,10 @@ class Merger(object):
                 if building['tags'].get('addr:housenumber') and not (
                     nodes[0].similar_to(self.osmdb.getbyid("%s:%s" % (building['type'], building['id']))[0]) and
                     nodes[0].street == self.osmdb.getbyid("%s:%s" % (building['type'], building['id']))[0].street
-                    ):
+                ):
                     # if building has different address, than we want to put
-                    self.__log.info("Skipping merging address: %s, as building already has an address: %s.", str(nodes[0].entry), OsmAddress.from_soup(building))
+                    self.__log.info("Skipping merging address: %s, as building already has an address: %s.",
+                                    str(nodes[0].entry), OsmAddress.from_soup(building))
                     for node in nodes:
                         self._mark_soup_visible(node)
                 else:
@@ -651,21 +672,27 @@ class Merger(object):
 
     def _prepare_merge_list(self, buf):
         ret = defaultdict(list)
-        for node in filter(lambda x: x['type'] == 'node' and x.get('tags', {}).get('addr:housenumber'), self.asis['elements']):
+        for node in filter(
+                lambda x: x['type'] == 'node' and x.get('tags', {}).get('addr:housenumber'),
+                self.asis['elements']):
             addr = self.osmdb.getbyid("%s:%s" % (node['type'], node['id']))[0]
             self.__log.debug("Looking for candidates for: %s", str(addr.entry))
-            if addr.only_address_node() and addr.state != 'delete' and (not self._import_area_shape or self._import_area_shape.contains(addr.center)):
-                candidates = list(self.osmdb.nearest(addr.center, num_results=100)) # need to take into account a large number of candidates, as nodes <-> members of ways are also returned
+            if addr.only_address_node() and addr.state != 'delete' and (
+                        not self._import_area_shape or self._import_area_shape.contains(addr.center)):
+                # need to take into account a large number of candidates, as nodes <-> members of ways are also returned
+                candidates = list(self.osmdb.nearest(addr.center, num_results=100))
                 candidates_within = list(
-                    filter(
-                        lambda x: addr.osmid != x.osmid and x.objtype == 'relation' and addr.center.within(buffer(x.shape, buf)),
-                        candidates
+                    filter(lambda x: addr.osmid != x.osmid
+                    and x.objtype == 'relation' and
+                                     addr.center.within(buffer(x.shape, buf)),
+                           candidates
                     )
                 )
                 if not candidates_within:
                     candidates_within = list(
                         filter(
-                            lambda x: addr.osmid != x.osmid and x.objtype == 'way' and addr.center.within(buffer(x.shape, buf)),
+                            lambda x: addr.osmid != x.osmid and x.objtype == 'way' and addr.center.within(
+                                buffer(x.shape, buf)),
                             candidates
                         )
                    )
@@ -682,20 +709,23 @@ class Merger(object):
 
     def _get_osm_xml(self, nodes, logIO=None):
         return E.osm(
-                        E.note('The data included in this document is from www.openstreetmap.org. The data is made available under ODbL.' + ('\n' + logIO.getvalue() if logIO else '')),
-                        E.meta(osm_base=self.asis['osm3s']['timestamp_osm_base']),
-                        *tuple(map(OsmAddress.to_osm_soup, nodes)),
-                    version='0.6', generator='import adresy merger.py'
+            E.note('The data included in this document is from www.openstreetmap.org. '
+                   'The data is made available under ODbL.' + ('\n' + logIO.getvalue() if logIO else '')),
+            E.meta(osm_base=self.asis['osm3s']['timestamp_osm_base']),
+            *tuple(map(OsmAddress.to_osm_soup, nodes)),
+            version='0.6', generator='import adresy merger.py'
         )
 
     def get_incremental_result(self, logIO=None):
         changes = self._get_all_changed_nodes()
         self.__log.info("Generated %d changes", len(changes))
         nodes = self._get_all_reffered_by(changes + self._get_all_visible())
-        return lxml.etree.tostring(self._get_osm_xml(nodes, logIO), pretty_print=True, xml_declaration=True, encoding='UTF-8')
+        return lxml.etree.tostring(self._get_osm_xml(nodes, logIO),
+                                   pretty_print=True, xml_declaration=True, encoding='UTF-8')
 
     def get_full_result(self, logIO=None):
-        return lxml.etree.tostring(self._get_osm_xml(self._get_all_changed_nodes(), logIO), pretty_print=True, xml_declaration=True, encoding='UTF-8')
+        return lxml.etree.tostring(self._get_osm_xml(self._get_all_changed_nodes(), logIO),
+                                   pretty_print=True, xml_declaration=True, encoding='UTF-8')
 
 
 def getAddresses(bbox):
@@ -733,6 +763,7 @@ def getAddresses(bbox):
 """ % (bbox, bbox, bbox, bbox, bbox,)
     return json.loads(overpass.query(query))
 
+
 def get_boundary_shape(terc):
     query = """
 [out:json]
@@ -745,14 +776,17 @@ out meta bb qt;
 """ % (terc,)
     soup = json.loads(overpass.query(query))
     osmdb = OsmDb(soup)
-    boundaries = tuple(x for x in soup['elements'] if x['type'] == 'relation' and x['tags'].get('teryt:terc', '') == terc)
+    boundaries = tuple(x for x in soup['elements'] if x['type'] == 'relation' and
+                       x['tags'].get('teryt:terc', '') == terc)
     if len(boundaries) > 1:
-        __log.error("More than one relation found with terc: %s. Names: %s. Fix before continuing", terc, ", ".join(map(lambda x: x['tags'].get('name'), boundaries)))
+        __log.error("More than one relation found with terc: %s. Names: %s. Fix before continuing",
+                    terc, ", ".join(map(lambda x: x['tags'].get('name'), boundaries)))
         sys.exit(1)
     if len(boundaries) == 1:
         rel = boundaries[0]
     else:
-        rel = tuple(x for x in soup['elements'] if x['type'] == 'relation' and x['tags'].get('teryt:terc', '').startswith(terc))[0]
+        rel = tuple(x for x in soup['elements'] if x['type'] == 'relation' and
+                    x['tags'].get('teryt:terc', '').startswith(terc))[0]
     __log.info("Loading shape of import area - relation id: %s, relation name: %s" , rel['id'], rel['tags'].get('name'))
     return osmdb.get_shape(rel)
 
@@ -760,6 +794,7 @@ out meta bb qt;
 def buffer(shp, meters=0):
     # 0.0000089831528 is the 1m length in arc degrees of great circle
     return shp.buffer(meters*0.0000089831528)
+
 
 def main():
     # TODO: create mode where no unchanged data are returned (as addresses to be merged with buildings)
@@ -770,20 +805,34 @@ def main():
     3. --import-file and --terc """)
     source_group = parser.add_mutually_exclusive_group(required=True)
     source_group.add_argument('--impa', help='name of iMPA service, use "milawa" when the address is milawa.e-mapa.net')
-    source_group.add_argument('--import-file', type=argparse.FileType("r", encoding='UTF-8'), help='JSON file generated by punktyadresowe_import.py for the area', dest='import_file')
-    source_group.add_argument('--gugik', action='store_const', const=True, dest='gugik', default=False, help='Import address data from gugik. Select area by providing terc option')
+    source_group.add_argument('--import-file', type=argparse.FileType("r", encoding='UTF-8'), dest='import_file',
+                              help='JSON file generated by punktyadresowe_import.py for the area')
+    source_group.add_argument('--gugik', action='store_const', const=True, dest='gugik', default=False,
+                              help='Import address data from gugik. Select area by providing terc option')
     source_group.add_argument('--gugik_gml', help='Import address data from gugik. Provide filename as argument.')
-    source_group.add_argument('--gisnet', help='Import address data from GIS-NET. Use "nowosolna" when the address is nowosolna.gis-net.pl. You need to provide also terc option')
-    source_group.add_argument('--warszawa', action='store_const', const=True, dest='warszawa', default=False, help='Import address data from UM Warszawa. You need to provide terc option')
+    source_group.add_argument('--gisnet',
+                              help='Import address data from GIS-NET. Use "nowosolna" when the address is '
+                                   'nowosolna.gis-net.pl. You need to provide also terc option')
+    source_group.add_argument('--warszawa', action='store_const', const=True, dest='warszawa', default=False,
+                              help='Import address data from UM Warszawa. You need to provide terc option')
     address_group = parser.add_argument_group()
-    address_group.add_argument('--addresses-file', type=argparse.FileType("r", encoding='UTF-8'), help='OSM file with addresses and buildings for imported area', dest='addresses_file')
-    address_group.add_argument('--terc', help='teryt:terc code, for which to download addresses from OSM using Overpass API')
-    parser.add_argument('--output', type=argparse.FileType('w+b'), help='output file with merged data (default: result.osm)', default='result.osm')
-    parser.add_argument('--full', help='Use to output all address data for region, not only modified address data as per default', action='store_const', const=True, dest='full_mode', default=False)
-    parser.add_argument('--no-merge', help='Do not merger addresses with buildings', action='store_const', const=True, dest='no_merge', default=False)
-    parser.add_argument('--log-level', help='Set logging level (debug=10, info=20, warning=30, error=40, critical=50), default: 20', dest='log_level', default=20, type=int)
-    parser.add_argument('--import-wms', help='WMS address for address layer, ex: ' +
-        'http://www.punktyadresowe.pl/cgi-bin/mapserv?map=/home/www/impa2/wms/luban.map . Bounding box is still fetched via iMPA', dest='wms')
+    address_group.add_argument('--addresses-file', type=argparse.FileType("r", encoding='UTF-8'), dest='addresses_file',
+                               help='OSM file with addresses and buildings for imported area')
+    address_group.add_argument('--terc',
+                               help='teryt:terc code, for which to download addresses from OSM using Overpass API')
+
+    parser.add_argument('--output', type=argparse.FileType('w+b'), default='result.osm',
+                        help='output file with merged data (default: result.osm)')
+    parser.add_argument('--full', action='store_const', const=True, dest='full_mode', default=False,
+                        help='Use to output all address data for region, not only modified address data as per default')
+    parser.add_argument('--no-merge', action='store_const', const=True, dest='no_merge', default=False,
+                        help='Do not merger addresses with buildings')
+    parser.add_argument('--log-level', dest='log_level', default=20, type=int,
+                        help='Set logging level (debug=10, info=20, warning=30, error=40, critical=50), default: 20')
+    parser.add_argument('--import-wms', dest='wms',
+                        help='WMS address for address layer, ex: '
+                             'http://www.punktyadresowe.pl/cgi-bin/mapserv?map=/home/www/impa2/wms/luban.map . '
+                             'Bounding box is still fetched via iMPA')
 
     args = parser.parse_args()
 
