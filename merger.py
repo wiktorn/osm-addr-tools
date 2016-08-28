@@ -410,9 +410,9 @@ class Merger(object):
                                    ", ".join("Id: %s, dist: %sm" % (x[1].osmid, str(x[0])) for x in existing)
                              )
 
-            if max(x[0] for x in existing) > 100:
+            if max(x[0] for x in existing) > 50:
                 for (dist, node) in existing:
-                    if dist > 100:
+                    if dist > 50:
                         if not (node.objtype in ('way', 'relation') and node.contains(entry.center)):
                             # ignore the distance, if the point is within the node
                             self.__log.warning("Address (id=%s) %s is %d meters from imported point",
