@@ -1,5 +1,4 @@
 from rtree import index
-from bs4 import BeautifulSoup
 from shapely.geometry import Point, Polygon, LineString
 import shapely
 import utils

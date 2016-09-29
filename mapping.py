@@ -913,7 +913,7 @@ __CECHA_MAPPING = {
 
 def downloadULIC():
     __log.info("Updating ULIC data from TERYT, it may take a while")
-    soup = BeautifulSoup(urlopen("http://www.stat.gov.pl/broker/access/prefile/listPreFiles.jspa"))
+    soup = BeautifulSoup(urlopen("http://www.stat.gov.pl/broker/access/prefile/listPreFiles.jspa"), "lxml")
     fileLocation = soup.find('td', text="Katalog ulic").parent.find_all('a')[1]['href']
     dictionary_zip = zipfile.ZipFile(io.BytesIO(urlopen("http://www.stat.gov.pl/broker/access/prefile/" + fileLocation).read()))
     def get(elem, tag):

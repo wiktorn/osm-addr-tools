@@ -561,7 +561,7 @@ class iMPA(AbstractImport):
             *self.getBbox2180(),
             pointx=0, pointy=0 # sprawdź punkt (0,0) i tak powinno zostać zwrócone wszystko
         )
-        ret = list(map(self._convertToAddress, BeautifulSoup(html).find_all('table')))
+        ret = list(map(self._convertToAddress, BeautifulSoup(html, "xml").find_all('table')))
         return ret
 
 class GUGiK(AbstractImport):
