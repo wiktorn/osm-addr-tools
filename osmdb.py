@@ -252,6 +252,8 @@ class OsmDb(object):
             # inner ways: terc=1014082
             outer = []
             inner = []
+            if 'members' not in soup:
+                raise ValueError("Broken geometry for relation: %s. Relation without members." % (soup['id'],))
             for member in filter(lambda x: x['type'] == 'way', soup['members']):
                 obj = self.__osm_obj[(member['type'], member['ref'])]
                 if member['role'] == 'outer' or not member.get('role'):
