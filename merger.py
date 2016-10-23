@@ -101,6 +101,12 @@ class OsmAddress(Address):
             ret.state = obj['action']
         if ways_for_node:
             ret.ref_ways = ways_for_node.get(obj['id'], [])
+        if tags.get('addr:place') and tags.get('addr:city'):
+            # clear the data in OSM
+            ret.set_state('modify')
+        if tags.get('addr:city') and not tags.get('addr:street'):
+            # clear the data in OSM
+            ret.set_state('modify')
         return ret
 
     def set_state(self, val):
@@ -246,9 +252,10 @@ class OsmAddress(Address):
             else:
                 ret |= _set_tag_val(tags, 'addr:place', self.city)
                 ret |= _remove_tag(tags, 'addr:street')
-                ret |= _remove_tag(tags, 'addr:city')
+                _remove_tag(tags, 'addr:city') # do not change value of ret - this value is always there, as self.city set this
             if self.getFixme():
-                ret |= _set_tag_val(tags, 'fixme', self.getFixme())
+                # presence of only fixme tag is not sufficient to send a change to OSM
+                _set_tag_val(tags, 'fixme', self.getFixme())
             ret |= _set_tag_val(tags, 'addr:postcode', self.postcode)
         if ret or self.state == 'modify':
             if bool(tags.get('source')) and (tags['source'] == self.source or 'EMUIA' in tags['source'].upper()):
@@ -291,6 +298,7 @@ class Merger(object):
         self.pre_func = []
         self.post_func = []
         self._soup_visible = []
+        self._import_area_shape = Point(0,0).buffer(400) # dummy shape covering whole world
         if terc:
             self._import_area_shape = get_boundary_shape(terc)
         self._state_changes = []
@@ -530,6 +538,7 @@ class Merger(object):
         ret.update(dict((x.osmid, x) for x in self._new_nodes))
         self.__log.info("Modified objects: %d", len(ret))
         ret.update(dict((x.osmid, x) for x in self._state_changes))
+        ret.update(dict((x.osmid, x) for x in self.osmdb.get_all_values() if x.state in ('modify', 'delete') and x.osmid not in ret.keys()))
 
         for (_id, i) in ret.items():
             if i in self._updated_nodes:
@@ -542,7 +551,9 @@ class Merger(object):
         return tuple(ret.values())
 
     def _get_all_visible(self):
-        return tuple(self._soup_visible)
+        ret = dict((x.osmid, x) for x in self._soup_visible)
+        ret.update(dict((x.osmid, x) for x in self.osmdb.get_all_values() if x.state == 'visible' and x.osmid not in ret.keys()))
+        return tuple(ret.values())
 
     def _get_all_reffered_by(self, lst):
         ret = set()
@@ -678,7 +689,7 @@ class Merger(object):
             addr = self.osmdb.getbyid("%s:%s" % (node['type'], node['id']))[0]
             self.__log.debug("Looking for candidates for: %s", str(addr.entry))
             if addr.only_address_node() and addr.state != 'delete' and (
-                        not self._import_area_shape or self._import_area_shape.contains(addr.center)):
+                        self._import_area_shape.contains(addr.center)):
                 # need to take into account a large number of candidates, as nodes <-> members of ways are also returned
                 candidates = list(self.osmdb.nearest(addr.center, num_results=100))
                 candidates_within = list(
@@ -711,7 +722,7 @@ class Merger(object):
         return E.osm(
             E.note('The data included in this document is from www.openstreetmap.org. '
                    'The data is made available under ODbL.' + ('\n' + logIO.getvalue() if logIO else '')),
-            E.meta(osm_base=self.asis['osm3s']['timestamp_osm_base']),
+            E.meta(osm_base=self.asis.get('osm3s', {}).get('timestamp_osm_base', '')),
             *tuple(map(OsmAddress.to_osm_soup, nodes)),
             version='0.6', generator='import adresy merger.py'
         )
@@ -724,7 +735,7 @@ class Merger(object):
                                    pretty_print=True, xml_declaration=True, encoding='UTF-8')
 
     def get_full_result(self, logIO=None):
-        return lxml.etree.tostring(self._get_osm_xml(self._get_all_changed_nodes(), logIO),
+        return lxml.etree.tostring(self._get_osm_xml(self.osmdb.get_all_values(), logIO),
                                    pretty_print=True, xml_declaration=True, encoding='UTF-8')
 
 

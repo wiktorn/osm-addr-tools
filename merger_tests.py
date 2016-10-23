@@ -23,28 +23,6 @@ def get_merger(directory):
     m.merge()
     return m
 
-
-
-def my_dict_equals(self, first, second, msg=None):
-    if first.keys() != second.keys():
-        extra_first = first.keys() - second.keys()
-        extra_second = second.keys() - first.keys()
-        raise self.failureException("Dicts have different keys, extra keys in first: {0}, missing keys in first: {1}".format(extra_first, extra_second))
-    
-    for key in first.keys():
-        first_value = first[key]
-        second_value = second[key]
-        if type(first_value) != type(second_value):
-            raise self.failureException("Values at key {0} have different types: {1} != {2}".format(key, type(first_value), type(second_value)))
-
-        if isinstance(first_value, dict):
-            my_dict_equals(self, first_value, second_value, msg)
-        elif isinstance(first_value, list):
-            my_list_equals(self, first_value, second_value, msg)
-        else:
-            self.assertEqual(first_value, second_value, msg)
-
-
 def sorted_addresses(l):
     def sort_key(o):
         return '\127'.join(
@@ -55,15 +33,16 @@ def sorted_addresses(l):
     return sorted(l, key=sort_key) 
 
 def verify(self, expected, actual):
-    first = sorted_addresses(converter.osm_to_json(lxml.etree.parse(expected))['elements'])
-    second = sorted_addresses(converter.osm_to_json(lxml.etree.ElementTree(lxml.etree.fromstring(actual)))['elements'])
     with open("latest_actual.osm", "wb+") as f:
         f.write(actual)
-    self.assertCountEqual(first, second)
+    expected = sorted_addresses(converter.osm_to_json(lxml.etree.parse(expected))['elements'])
+    actual = sorted_addresses(converter.osm_to_json(lxml.etree.ElementTree(lxml.etree.fromstring(actual)))['elements'])
+    self.assertEqual(len(expected), len(actual))
     self.assertEqual(
-        json.dumps(first, sort_keys=True),
-        json.dumps(second, sort_keys=True)
+        json.dumps(expected, sort_keys=True),
+        json.dumps(actual, sort_keys=True)
     )
+    self.assertCountEqual(expected, actual)
 
     
 def make_incremental_test(name, directory):
@@ -83,6 +62,10 @@ def make_full_test(name, directory):
 
 
 class MergerTests(unittest.TestCase):
+    def setUp(self):
+        pass
+        #self.maxDiff = None
+
     def test_sorted_addresses(self):
         test = [
             {
