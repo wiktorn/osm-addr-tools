@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<osm version="0.6" generator="CGImap 0.5.6 (24563 thorn-02.openstreetmap.org)" copyright="OpenStreetMap and contributors" attribution="http://www.openstreetmap.org/copyright" license="http://opendatacommons.org/licenses/odbl/1-0/">
+ <node id="3257264302" visible="true" version="5" changeset="36393838" timestamp="2016-01-05T23:58:58Z" user="maraf24" uid="2098272" lat="52.5512778" lon="21.6236801">
+  <tag k="addr:place" v="Łochow"/>
+  <tag k="addr:city:simc" v="0678794"/>
+  <tag k="addr:housenumber" v="3"/>
+  <tag k="addr:city" v="Gwizdały"/>
+  <tag k="addr:postcode" v="07-130"/>
+  <tag k="addr:street" v="Dębowa"/>
+  <tag k="source:addr" v="lochow.e-mapa.net"/>
+ </node>
+</osm>

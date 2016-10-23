@@ -299,6 +299,7 @@ class Address(object): #namedtuple('BaseAddress', ['housenumber', 'postcode', 's
             'lon': elem.get('lon'),
             'lat': elem.get('lat')
         }
+        tags['id'] = elem.get('id')
         return Address.from_JSON(tags)
 
 class AbstractImport(object):

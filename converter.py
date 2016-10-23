@@ -29,7 +29,7 @@ def osm_to_json(root):
     return {
         'version': osm.get('version'),
         'generator': osm.get('generator'),
-        'elements': [convert_element(x) for x in osm]
+        'elements': [convert_element(x) for x in osm if x.tag in ['node', 'way', 'relation']]
     }
 
 
