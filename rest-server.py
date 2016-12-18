@@ -38,6 +38,10 @@ def differentialImport(name):
     
     return make_response(ret, 200)
 
+@app.route("/osm/adresy/test.osm", methods=["GET",])
+def test_exception():
+    raise ValueError("message")
+
 @app.route("/osm/adresy/iMPA_full/<name>.osm", methods=["GET", ])
 def fullImport(name):
     m = get_IMPA_Merger(name)
@@ -54,6 +58,11 @@ def merge_addr(terc):
     m._create_index()
     m.merge_addresses()
     return make_response(m.get_incremental_result(log_io), 200)
+
+@app.errorhandler(Exception)
+def report_exception(e):
+    app.logger.error(e, exc_info=(type(e), e , e.__traceback__))
+    return make_response("""<?xml version='1.0' encoding='UTF-8'?><osm version="0.6" generator="import adresy merger.py"><node id="-1" lon="19" lat="52"><tag k="fixme" v="%s" /></node></osm>""" % repr(e), 200)
 
 if __name__ == '__main__':
     ADMINS = ['logi-osm@vink.pl']
