@@ -887,6 +887,8 @@ def main():
         dataFunc = lambda: list(map(lambda x: Address.from_JSON(x), json.load(args.import_file)))
 
     data = dataFunc()
+    if len(data) == 0:
+        raise ValueError("No data to import! Check your source")
 
     if args.terc:
         terc = args.terc
