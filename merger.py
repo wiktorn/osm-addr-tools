@@ -365,9 +365,12 @@ class Merger(object):
                 ((node.objtype == 'node' and how_far < 5.0) or (node.objtype == 'way' and (node.contains(entry.center) or how_far < 10.0))):
                 # there is only difference in housenumber, that is similiar
                 if node.housenumber.upper() != entry.housenumber.upper():
-                    self.__log.info("Updating housenumber from %s to %s", node.housenumber, entry.housenumber)
-                if node.housenumber.upper() != entry.housenumber.upper():
+                    clean = lambda x: x.upper().replace(' ', '')
+                    if clean(node.housenumber) == clean(entry.housenumber) and len(node.housenumber) < len(entry.housenumber):
+                        # difference only in spaces, no spaces in OSM do not change address in OSM
+                        return
                     # if there are some other differences than in case, then add fixme
+                    self.__log.info("Updating housenumber from %s to %s", node.housenumber, entry.housenumber)
                     entry.addFixme('House number in OSM: %s' % (node.housenumber,))
                 self.set_state(node, 'visible') # make this *always* visible, to verify, if OSM value is correct. Hope that entry will eventually get merged with node
                 node.housenumber = entry.housenumber
