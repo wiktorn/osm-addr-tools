@@ -1,5 +1,4 @@
 from rtree import index
-from bs4 import BeautifulSoup
 from shapely.geometry import Point, Polygon, LineString
 import shapely
 import utils
@@ -138,9 +137,11 @@ class OsmDbEntry(object):
 
 class OsmDb(object):
     __log = logging.getLogger(__name__).getChild('OsmDb')
-    def __init__(self, osmdata, valuefunc=lambda x: x, indexes={}):
+    def __init__(self, osmdata, valuefunc=lambda x: x, indexes=None):
         # assume osmdata is a BeautifulSoup object already
         # do it an assert
+        if not indexes:
+            indexes = {}
         self._osmdata = osmdata
         self.__custom_indexes = dict((x, {}) for x in indexes.keys())
         self._valuefunc=valuefunc
@@ -250,6 +251,8 @@ class OsmDb(object):
             # inner ways: terc=1014082
             outer = []
             inner = []
+            if 'members' not in soup:
+                raise ValueError("Broken geometry for relation: %s. Relation without members." % (soup['id'],))
             for member in filter(lambda x: x['type'] == 'way', soup['members']):
                 obj = self.__osm_obj[(member['type'], member['ref'])]
                 if member['role'] == 'outer' or not member.get('role'):

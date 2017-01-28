@@ -1,0 +1,22 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<osm generator="import adresy merger.py" version="0.6">
+  <note>The data included in this document is from www.openstreetmap.org. The data is made available under ODbL.</note>
+  <meta osm_base=""/>
+  <node lat="52.5512778" changeset="36393838" user="maraf24" version="5" lon="21.6236801" id="3257264302" timestamp="2016-01-05T23:58:58Z" uid="2098272">
+    <tag v="Dębowa" k="addr:street"/>
+    <tag v="07-130" k="addr:postcode"/>
+    <tag v="lochow.e-mapa.net" k="source:addr"/>
+    <tag v="3" k="addr:housenumber"/>
+    <tag v="0678794" k="addr:city:simc"/>
+    <tag v="Check address existence" k="fixme"/>
+    <tag v="Gwizdały" k="addr:city"/>
+  </node>
+  <node lon="21.62363" action="modify" id="-1" lat="52.55123">
+    <tag v="Dębowa" k="addr:street"/>
+    <tag v="07-130" k="addr:postcode"/>
+    <tag v="lochow.e-mapa.net" k="source:addr"/>
+    <tag v="3" k="addr:housenumber"/>
+    <tag v="0678794" k="addr:city:simc"/>
+    <tag v="Inna nazwa" k="addr:city"/>
+  </node>
+</osm>
