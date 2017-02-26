@@ -403,14 +403,16 @@ out bb;
 
 class iMPA(AbstractImport):
     __log = logging.getLogger(__name__).getChild('iMPA')
+    __USE_GML = False
 
     def __init__(self, gmina=None, wms=None, terc=None):
         self.wms = None
 
         if gmina:
             self._initFromIMPA(gmina)
-
+            self.source = '%s.e-mapa.net' % (gmina,)
         else:
+            self.source = 'www.punktyadresowe.pl'
             if not wms and not terc:
                 raise ValueError("If no gmina provided then wms and terc are required")
             super(iMPA, self).__init__(terc=terc)
@@ -489,7 +491,7 @@ class iMPA(AbstractImport):
             'LAYERS': layer, # było: ulice,punkty
             'QUERY_LAYERS': layer, # było: ulice, punkty
             'FORMAT': 'image/png',
-            'INFO_FORMAT': 'text/html',
+            'INFO_FORMAT': 'application/vnd.ogc.gml' if self.__USE_GML else 'text/html',
             'SRS': 'EPSG:2180',
             'FEATURE_COUNT': '10000000', # wystarczająco dużo, by ogarnąć każdą sytuację
             'WIDTH': 2,
@@ -519,7 +521,7 @@ class iMPA(AbstractImport):
         data = urlopen(url).read()
         return data
 
-    def _convertToAddress(self, soup):
+    def _convertToAddress_html(self, soup):
         kv = dict(zip(
             map(lambda x: str(x.text), soup.find_all('th')),
             map(lambda x: str(x.text), soup.find_all('td'))
@@ -558,13 +560,47 @@ class iMPA(AbstractImport):
             self.__log.error("Exception during point analysis", exc_info=True)
             raise
 
+    def _convertToAddress_gml(self, soup):
+        def get(tag_name):
+            ret = soup.find(tag_name)
+            if ret:
+                return ret.text
+            else:
+                return ''
+
+        try:
+            lon, lat = soup.find('coordinates').text.split(' ')[0].split(',')
+            lon, lat = e2180toWGS(lon, lat)
+
+
+            return Address.mappedAddress(
+                get('numer'),
+                get('kod'),
+                get('ulica'),
+                get('miejscowosc'),
+                get('ulic'),
+                get('simc'),
+                self.source,
+                {'lat': str(lat),
+                 'lon': str(lon)},
+            )
+
+        except:
+            self.__log.error(soup)
+            self.__log.error("Exception during point analysis", exc_info=True)
+            raise
+
+
     def fetchTiles(self):
         html = self.fetchPoint(
             self.wms,
             *self.getBbox2180(),
             pointx=0, pointy=0 # sprawdź punkt (0,0) i tak powinno zostać zwrócone wszystko
         )
-        ret = list(map(self._convertToAddress, BeautifulSoup(html, "xml").find_all('table')))
+        if self.__USE_GML:
+            ret = list(map(self._convertToAddress_gml, BeautifulSoup(html, "xml").find_all('punkty_feature')))
+        else:
+            ret = list(map(self._convertToAddress_html, BeautifulSoup(html, "xml").find_all('table')))
         return ret
 
 class GUGiK(AbstractImport):
