@@ -874,6 +874,7 @@ if sys.version_info.major == 2:
     from urllib2 import urlopen
 else:
     from urllib.request import urlopen
+    from urllib.parse import urlencode
 
 from bs4 import BeautifulSoup
 import io
@@ -913,16 +914,28 @@ __CECHA_MAPPING = {
 
 def downloadULIC():
     __log.info("Updating ULIC data from TERYT, it may take a while")
-    soup = BeautifulSoup(urlopen("http://www.stat.gov.pl/broker/access/prefile/listPreFiles.jspa"), "lxml")
-    fileLocation = soup.find('td', text="Katalog ulic").parent.find_all('a')[1]['href']
-    dictionary_zip = zipfile.ZipFile(io.BytesIO(urlopen("http://www.stat.gov.pl/broker/access/prefile/" + fileLocation).read()))
+    soup = BeautifulSoup(urlopen("http://eteryt.stat.gov.pl/eTeryt/rejestr_teryt/udostepnianie_danych/baza_teryt/uzytkownicy_indywidualni/pobieranie/pliki_pelne.aspx?contrast=default"), "lxml")
+    currentDate = soup.find('input', id='body_TBData')['value']
+    downloadUrl = "http://eteryt.stat.gov.pl/eTeryt/rejestr_teryt/udostepnianie_danych/baza_teryt/uzytkownicy_indywidualni/pobieranie/pliki_pelne.aspx?contrast=default"
+    data = urlencode({
+        '__EVENTTARGET': 'ctl00$body$BULICUrzedowyPobierz',
+        'ctl00$body$TBData': currentDate,
+    }).encode('utf-8')
+    dictionary_zip = zipfile.ZipFile(
+        io.BytesIO(
+            urlopen(
+                 "http://eteryt.stat.gov.pl/eTeryt/rejestr_teryt/udostepnianie_danych/baza_teryt/uzytkownicy_indywidualni/pobieranie/pliki_pelne.aspx?contrast=default", data=data
+                ).read()
+        )
+    )
     def get(elem, tag):
-        col = elem.find("col[@name='%s']" % tag)
+        col = elem.find(tag)
         if col.text:
             return col.text
         return ""
 
-    tree = ET.fromstring(dictionary_zip.read("ULIC.xml"))
+    dicname = [x for x in dictionary_zip.namelist() if x.endswith(".xml")][0]
+    tree = ET.fromstring(dictionary_zip.read(dicname))
     data = tuple(TerytUlicEntry(
                 get(row, "SYM_UL"), 
                 " ".join((get(row, 'NAZWA_2'), get(row,'NAZWA_1'))),
@@ -975,7 +988,12 @@ def storedDict(fetcher, filename):
             'time': 0
         }
     if data['time'] < time.time() - 21*24*60*60:
-        new = fetcher()
+        try:
+            new = fetcher()
+        except:
+            __log.warn("Failed to download dictionary: %s", filename, exc_info=True)
+            __log.warn("Using dictionary from: %s", time.asctime(time.localtime(data['time'])))
+            return data['dct']
         data['dct'] = new
         data['time'] = time.time()
         try:
