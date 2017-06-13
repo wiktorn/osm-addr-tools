@@ -4,3 +4,4 @@ pyproj
 shapely
 Rtree
 flask
+zeep

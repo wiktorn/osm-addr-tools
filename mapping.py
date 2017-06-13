@@ -890,6 +890,9 @@ import xml.etree.ElementTree as ET
 from itertools import groupby
 from collections import namedtuple
 import functools
+import base64
+import zeep
+from zeep.wsse.username import UsernameToken
 
 __log = logging.getLogger(__name__)
 
@@ -914,20 +917,19 @@ __CECHA_MAPPING = {
 
 def downloadULIC():
     __log.info("Updating ULIC data from TERYT, it may take a while")
-    soup = BeautifulSoup(urlopen("http://eteryt.stat.gov.pl/eTeryt/rejestr_teryt/udostepnianie_danych/baza_teryt/uzytkownicy_indywidualni/pobieranie/pliki_pelne.aspx?contrast=default"), "lxml")
-    currentDate = soup.find('input', id='body_TBData')['value']
-    downloadUrl = "http://eteryt.stat.gov.pl/eTeryt/rejestr_teryt/udostepnianie_danych/baza_teryt/uzytkownicy_indywidualni/pobieranie/pliki_pelne.aspx?contrast=default"
-    data = urlencode({
-        '__EVENTTARGET': 'ctl00$body$BULICUrzedowyPobierz',
-        'ctl00$body$TBData': currentDate,
-    }).encode('utf-8')
+    wsdl = 'https://uslugaterytws1.stat.gov.pl/wsdl/terytws1.wsdl'
+    wsse = UsernameToken('osmaddrtools', '#06JWOWutt4')
+
+    client = zeep.Client(wsdl=wsdl, wsse=wsse)
+    data = client.service.PobierzDateAktualnegoKatUlic()
+    dane = client.service.PobierzKatalogULIC(data)
+
+    binary = base64.decodestring(dane.plik_zawartosc.encode('utf-8'))
     dictionary_zip = zipfile.ZipFile(
-        io.BytesIO(
-            urlopen(
-                 "http://eteryt.stat.gov.pl/eTeryt/rejestr_teryt/udostepnianie_danych/baza_teryt/uzytkownicy_indywidualni/pobieranie/pliki_pelne.aspx?contrast=default", data=data
-                ).read()
+        io.BytesIO(binary
         )
     )
+
     def get(elem, tag):
         col = elem.find(tag)
         if col.text:
