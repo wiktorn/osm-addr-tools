@@ -55,7 +55,7 @@ def getAddresses(terc):
 
 __query_ql_tag = """
 [out:%(format)s]
-[timeout:1200]
+[timeout:2400]
 [maxsize:1073741824]
 ;
 area
@@ -86,6 +86,8 @@ def getNodesWaysWithTag(tagname, format="xml"):
 
 __overpassurl = "http://overpass.osm.rambler.ru/cgi/interpreter"
 __overpassurl = "http://overpass-api.de/api/interpreter"
+__overpassurl = "http://api.openstreetmap.fr/oapi/interpreter/"
+__overpassurl = "http://osm-cdn.vink.pl/api/interpreter"
 
 def query(qry):
     # TODO - check if the query succeeded
