@@ -113,7 +113,7 @@ class Address(object): #namedtuple('BaseAddress', ['housenumber', 'postcode', 's
 
     def __init__(self, housenumber='', postcode='', street='', city='', sym_ul='', simc='', source='', location='', id_='', last_change=''):
         self.housenumber = housenumber
-        
+
         if simc and self.__NUMERIC.match(simc):
             self.simc = simc
         else:
@@ -141,6 +141,7 @@ class Address(object): #namedtuple('BaseAddress', ['housenumber', 'postcode', 's
         self._fixme = []
         self.id_ = id_
         self.last_change = last_change
+        self.extra_tags = {}
         assert all(map(lambda x: isinstance(getattr(self, x, ''), str), ('housenumber', 'postcode', 'street', 'city', 'sym_ul', 'simc', 'source')))
         assert isinstance(self.location, dict)
         assert 'lon' in self.location
@@ -195,6 +196,9 @@ class Address(object): #namedtuple('BaseAddress', ['housenumber', 'postcode', 's
         addTag('source:addr', self.source)
         if self._fixme:
             addTag('fixme', self.getFixme())
+        if self.extra_tags:
+            for key, value in self.extra_tags:
+                addTag(key, value)
         return node
 
     def osOsmXML(self, node_id):
@@ -249,7 +253,8 @@ class Address(object): #namedtuple('BaseAddress', ['housenumber', 'postcode', 's
         return tuple(map(str.upper, (self.city.strip(), self.street.strip(), self.housenumber.replace(' ', ''))))
 
     def to_JSON(self):
-        return {
+        ret = self.extra_tags.copy()
+        ret.update({
             'addr:housenumber': self.housenumber,
             'addr:postcode': self.postcode,
             'addr:street': self.street,
@@ -261,8 +266,9 @@ class Address(object): #namedtuple('BaseAddress', ['housenumber', 'postcode', 's
             'fixme': ",".join(self._fixme),
             'id': self.id_,
             'last_change': self.last_change,
-        }
-    
+        })
+        return ret
+
     def to_geoJSON(self):
         return {
             "type": "Feature",
@@ -272,6 +278,12 @@ class Address(object): #namedtuple('BaseAddress', ['housenumber', 'postcode', 's
             },
             "properties": self.to_JSON()
         }
+
+    def add_extra_tag(self, key, value):
+        if key in ['addr:housenumber', 'addr:postcode', 'addr:street', 'addr:city',
+                'addr:street:sym_ul', 'addr:city:simc', 'source:addr', 'addr:place', 'fixme']:
+            raise KeyError("Can't use {0} as extra key".format(key))
+        self.extra_tags[key] = value
 
     @staticmethod
     def from_JSON(obj):
@@ -382,7 +394,7 @@ out bb;
                     i.addFixme('(distance over 100m, points: %d)' % (len(occurances),))
 
     def _checkMixedScheme(self, data):
-        dups = groupby(data, lambda x: x.simc, lambda x: bool(x.street))
+        dups = groupby((x for x in data if x.simc), lambda x: x.simc, lambda x: bool(x.street))
 
         dups_count = dict((k, len(_filterOnes(v))) for k, v in dups.items())
         dups = dict((k, len(_filterOnes(v))/len(v)) for k, v in dups.items())
@@ -816,7 +828,7 @@ class WarszawaUM(AbstractImport):
                 if len(street) > 7 and street[4:] in addr.street:
                     self.__log.debug("Found candidate %d m away. Street names: %s and %s", distance(point, (addr.location['lat'], addr.location['lon'])), street, addr.street)
                     return addr
-                        
+
         ret = lst[0]
         if distance(point, ret.get_point()) > 100:
             self.__log.warn("Distance between address: %s, %s and nearest GUGiK: %s is %d. Not merging with GUGIK", street, housenumber, ret, distance(point, ret.get_point()))
@@ -979,6 +991,89 @@ class GUGiK_GML(AbstractImport):
         ))
 
         return ret
+
+
+class GISON(AbstractImport):
+    __base_url = "http://portal.gison.pl/"
+    # http://portal.gison.pl/brzeznica/
+    # http://portal.gison.pl/brzeznica/js/map_config.js
+    # szukamy: var searchAdminService="administracja.gison.pl/websearch/Handler1.ashx"
+    #           var osmid=-2659216;
+    # http://administracja.gison.pl/websearch/Handler1.ashx?typ=adresygemaOL&osmid=-2659216&maxrows=10000&lang=en&continentCode=&adminCode1=&adminCode2=&adminCode3=&tag=&charset=UTF8&nazwa=
+    __log = logging.getLogger(__name__).getChild('GISON')
+
+    def __init__(self, gmina, terc):
+        super(GISON, self).__init__(terc=terc)
+        self.terc = terc
+        self.gmina = gmina
+        map_config = urlopen(self.__base_url + self.gmina + "/js/map_config.js").read().decode('utf-8')
+        def make_extract(data):
+            def extract(begin, end):
+                start_pos = data.rfind(begin)
+                end_pos = data.find(end, start_pos + 1)
+                if start_pos < 0 or end_pos < 0:
+                    return None
+                return data[start_pos + len(begin):end_pos]
+            return extract
+        map_config_extract = make_extract(map_config)
+        self.searchAdminService = map_config_extract("var searchAdminService=\"", "\"\n")
+        if not self.searchAdminService:
+            raise ValueError("Could not find searchAdminService")
+        self.osmid = map_config_extract("var osmid=-", ";")
+
+    def _convertToAddress(self, addr):
+        # {'lat': 49.96449599576943, 'lng': 19.63283898037835, 'toponymName': 'Adama Gorczyńskiego 1, Brzeźnica', 'fcodeName': 'ul. ', 'obreb': 'null', 'geom': None}
+        street = ""
+        if ',' in addr['toponymName']:
+            streetnumber, city = map(str.strip, addr['toponymName'].rsplit(',', 1))
+            street, housenumber = map(str.strip, streetnumber.rsplit(' ', 1))
+        else:
+            city, housenumber = map(str.strip, addr['toponymName'].rsplit(' ', 1))
+
+        old_housenumber = None
+        if 'stary numer' in city:
+            m = re.search('^([^(]*) \(stary numer: (.+)( \))?$', city)
+            city = m.group(1)
+            old_housenumber = m.group(2)
+        ret = Address.mappedAddress(
+                housenumber,
+                '',
+                street,
+                city,
+                '', # teryt ulicy
+                '', # teryt miejscowosci
+                self.__base_url + self.gmina,
+                {'lat': addr['lat'], 'lon': addr['lng']},
+                '' # identyfikator punktu
+        )
+        if old_housenumber:
+            ret.add_extra_tag('addr:houseumber_old', old_housenumber)
+        return ret
+
+    def fetchTiles(self):
+        maxrows = 20000
+        params = {
+            'osmid': "-" + self.osmid,
+            'typ': 'adresygemaOL',
+            'maxrows': maxrows,
+            'lang': 'en',
+            'continentCode': '',
+            'adminCode1': '',
+            'adminCode2': '',
+            'adminCode3': '',
+            'tag': '',
+            'charset': 'UTF8',
+            'nazwa': ''
+        }
+        resp = urlopen("http://" + self.searchAdminService + '?' + urlencode(params)).read().decode('utf-8')
+        data = json.loads('[' + resp[1:-1] + ']')
+        if len(data[0]['geonames']) != data[0]['totalResultsCount'] or data[0]['totalResultsCount'] == maxrows:
+            raise ValueError("Problem fetching data. {0} available to parse, while totalResulsts is {1}. Maxrows was {2}".format(len(data[0]['geonames']), data[0]['totalResultsCount'], maxrows))
+
+        ret = list(map(self._convertToAddress, data[0]['geonames']))
+        return ret
+
+
 
 class AddressEncoder(json.JSONEncoder):
     def default(self, obj):

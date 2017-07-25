@@ -10,7 +10,7 @@ import functools
 from osmdb import OsmDb, get_soup_center, distance, prepare_object_pos
 import json
 from shapely.geometry import Point
-from punktyadresowe_import import iMPA, GUGiK, Address, GISNET, WarszawaUM, GUGiK_GML
+from punktyadresowe_import import iMPA, GUGiK, Address, GISNET, WarszawaUM, GUGiK_GML, GISON
 import overpass
 from lxml.builder import E
 import lxml.etree
@@ -829,6 +829,9 @@ def main():
                                    'nowosolna.gis-net.pl. You need to provide also terc option')
     source_group.add_argument('--warszawa', action='store_const', const=True, dest='warszawa', default=False,
                               help='Import address data from UM Warszawa. You need to provide terc option')
+    source_group.add_argument('--gison',
+                              help='Import address data from GISON. Use "brzeznica" when the address is '
+                                   'http://portal.gison.pl/brzeznica/. You need to provide also terc option')
     address_group = parser.add_argument_group()
     address_group.add_argument('--addresses-file', type=argparse.FileType("r", encoding='UTF-8'), dest='addresses_file',
                                help='OSM file with addresses and buildings for imported area')
@@ -878,6 +881,11 @@ def main():
         terc = imp.terc
         dataFunc = lambda: imp.getAddresses()
         source_addr = 'emuia.gugik.gov.pl'
+    elif args.gison:
+        imp = GISON(args.gison, args.terc)
+        dataFunc = lambda: imp.getAddresses()
+        terc = args.terc
+        source_addr = 'portal.gison.pl/' + args.gison
     else:
         imp = GUGiK(args.terc)
         dataFunc = lambda: imp.getAddresses()
