@@ -369,7 +369,10 @@ out bb;
     def _checkDuplicatesInImport(self, data):
         addr_index = groupby(data, lambda x: (x.city, x.simc, x.housenumber.replace(' ', '').upper(), x.street))
         # remove duplicates closer than 2m
-        for (addr, occurances) in filter(lambda x: len(x[1]) > 1, addr_index.items()):
+        for (addr, occurances) in sorted(
+                                    filter(lambda x: len(x[1]) > 1, addr_index.items()),
+                                    key=lambda x: str(x[1][0])
+                                  ):
             for (a, b) in filter(lambda x: distance(x[0].center, x[1].center) < 2,
                     itertools.combinations(occurances, 2)):
                 # if any two duplicates are closer than 2m, remove from data
@@ -381,7 +384,10 @@ out bb;
 
         # mark duplicates
         addr_index = groupby(data, lambda x: (x.city, x.simc, x.housenumber.replace(' ', '').upper(), x.street))
-        for (addr, occurances) in filter(lambda x: len(x[1]) > 1, addr_index.items()):
+        for (addr, occurances) in sorted(
+                                    filter(lambda x: len(x[1]) > 1, addr_index.items()),
+                                    key=lambda x: str(x[1][0])
+                                  ):
             self.__log.warning("Duplicate addresses in import: %s", occurances[0])
             uid = uuid.uuid4()
             for i in occurances:
@@ -410,7 +416,7 @@ out bb;
             i.addFixme('Mixed addressing scheme in city - with streets and without. %.1f%% (%d) with streets.' % (dups[i.simc]*100, dups_count[i.simc]))
 
     def getAddresses(self):
-        data = self.fetchTiles()
+        data = list(sorted(self.fetchTiles(), key=lambda x: str(x)))
         self._checkDuplicatesInImport(data)
         self._checkMixedScheme(data)
         return data
