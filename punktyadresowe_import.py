@@ -1006,7 +1006,9 @@ class GISON(AbstractImport):
         super(GISON, self).__init__(terc=terc)
         self.terc = terc
         self.gmina = gmina
-        map_config = urlopen(self.__base_url + self.gmina + "/js/map_config.js").read().decode('utf-8')
+        url = self.__base_url + self.gmina + "/js/map_config.js"
+        self.__log.debug("Fetching configuration from: %s", url)
+        map_config = urlopen(url).read().decode('utf-8')
         def make_extract(data):
             def extract(begin, end):
                 start_pos = data.rfind(begin)
@@ -1020,6 +1022,7 @@ class GISON(AbstractImport):
         if not self.searchAdminService:
             raise ValueError("Could not find searchAdminService")
         self.osmid = map_config_extract("var osmid=-", ";")
+        self.lonlat_conv = lambda x, y: (x, y)
 
     def _convertToAddress(self, addr):
         # {'lat': 49.96449599576943, 'lng': 19.63283898037835, 'toponymName': 'Adama Gorczyńskiego 1, Brzeźnica', 'fcodeName': 'ul. ', 'obreb': 'null', 'geom': None}
@@ -1035,6 +1038,7 @@ class GISON(AbstractImport):
             m = re.search('^([^(]*) \(stary numer: (.+)( \))?$', city)
             city = m.group(1)
             old_housenumber = m.group(2)
+        lon, lat = self.lonlat_conv(addr['lng'], addr['lat'])
         ret = Address.mappedAddress(
                 housenumber,
                 '',
@@ -1043,7 +1047,7 @@ class GISON(AbstractImport):
                 '', # teryt ulicy
                 '', # teryt miejscowosci
                 self.__base_url + self.gmina,
-                {'lat': addr['lat'], 'lon': addr['lng']},
+                {'lat': lat, 'lon': lon},
                 '' # identyfikator punktu
         )
         if old_housenumber:
@@ -1051,6 +1055,13 @@ class GISON(AbstractImport):
         return ret
 
     def fetchTiles(self):
+        def realFetch(params):
+            url = "http://" + self.searchAdminService + '?' + urlencode(params)
+            self.__log.debug("Fetching data from URL: %s", url)
+            resp = urlopen(url).read().decode('utf-8')
+            data = json.loads('[' + resp[1:-1] + ']')
+            return data
+
         maxrows = 20000
         params = {
             'osmid': "-" + self.osmid,
@@ -1065,10 +1076,14 @@ class GISON(AbstractImport):
             'charset': 'UTF8',
             'nazwa': ''
         }
-        resp = urlopen("http://" + self.searchAdminService + '?' + urlencode(params)).read().decode('utf-8')
-        data = json.loads('[' + resp[1:-1] + ']')
+        data = realFetch(params)
         if len(data[0]['geonames']) != data[0]['totalResultsCount'] or data[0]['totalResultsCount'] == maxrows:
-            raise ValueError("Problem fetching data. {0} available to parse, while totalResulsts is {1}. Maxrows was {2}".format(len(data[0]['geonames']), data[0]['totalResultsCount'], maxrows))
+            params['typ'] = 'adresy'
+            data = realFetch(params)
+            # adresy layer uses EPSG:2180, and adresygemaOL uses WGS84/EPSG:4326
+            self.lonlat_conv = e2180toWGS
+            if len(data[0]['geonames']) != data[0]['totalResultsCount'] or data[0]['totalResultsCount'] == maxrows:
+              raise ValueError("Problem fetching data. {0} available to parse, while totalResulsts is {1}. Maxrows was {2}".format(len(data[0]['geonames']), data[0]['totalResultsCount'], maxrows))
 
         ret = list(map(self._convertToAddress, data[0]['geonames']))
         return ret
