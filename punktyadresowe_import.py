@@ -373,7 +373,7 @@ out bb;
                                     filter(lambda x: len(x[1]) > 1, addr_index.items()),
                                     key=lambda x: str(x[1][0])
                                   ):
-            for (a, b) in filter(lambda x: distance(x[0].center, x[1].center) < 2,
+            for (a, b) in filter(lambda x: distance(x[0].center, x[1].center) < 10,
                     itertools.combinations(occurances, 2)):
                 # if any two duplicates are closer than 2m, remove from data
                 self.__log.info("Removing duplicate address: %s", a)
@@ -1086,7 +1086,7 @@ class GISON(AbstractImport):
             'nazwa': ''
         }
         data = realFetch(params)
-        if len(data[0]['geonames']) != data[0]['totalResultsCount'] or data[0]['totalResultsCount'] == maxrows:
+        if len(data[0]['geonames']) != data[0]['totalResultsCount'] or data[0]['totalResultsCount'] == maxrows or data[0]['totalResultsCount'] == 0:
             params['typ'] = 'adresy'
             data = realFetch(params)
             # adresy layer uses EPSG:2180, and adresygemaOL uses WGS84/EPSG:4326
