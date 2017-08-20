@@ -15,7 +15,7 @@ import overpass
 from lxml.builder import E
 import lxml.etree
 import converter
-from collections import defaultdict
+from collections import defaultdict, OrderedDict
 
 __log = logging.getLogger(__name__)
 
@@ -68,7 +68,7 @@ class OsmAddress(Address):
 
     def __getitem__(self, key):
         return self._soup[key]
-    
+
     @staticmethod
     def from_soup(obj, obj_loc_cache=None, ways_for_node=None):
         tags = dict(
@@ -241,7 +241,7 @@ class OsmAddress(Address):
                     return False
 
         s = self._soup
-        meta_kv = dict((k, str(v)) for (k, v) in s.items() if k in ('id', 'version', 'timestamp', 'changeset', 'uid', 'user'))
+        meta_kv = OrderedDict((k, str(v)) for (k, v) in sorted(s.items()) if k in ('id', 'version', 'timestamp', 'changeset', 'uid', 'user'))
         # do not export ref:addr until the discussion will come to conclusion
         tags = dict((k,v.strip()) for (k,v) in s.get('tags', {}).items() if v.strip() and k != 'ref:addr' and k != 'addr:ref')
 
@@ -264,15 +264,36 @@ class OsmAddress(Address):
         if self.state in ('delete', 'modify'):
             meta_kv['action'] = self.state
 
-        tags = tuple(map(lambda x: E.tag(k=x[0], v=x[1]), tags.items()))
+        tags = tuple(map(lambda x: lxml.etree.Element('tag', attrib=OrderedDict((
+                                          ('k', x[0]),
+                                          ('v', x[1])
+                                   ))),
+                         sorted(tags.items())))
         if s['type'] == 'node':
-            root = E.node(*tags, lat=str(s['lat']), lon=str(s['lon']), **meta_kv)
+            root = lxml.etree.Element('node', attrib=OrderedDict((
+              ('lat', str(s['lat'])),
+              ('lon', str(s['lon']))) +
+              tuple(meta_kv.items())
+            ))
+            for i in tags:
+              root.append(i)
         elif s['type'] == 'way':
-            nodes = map(lambda x: E.nd(ref=str(x)), s['nodes'])
-            root = E.way(*itertools.chain(tags, nodes), **meta_kv)
+            root = lxml.etree.Element('way', attrib=meta_kv)
+            for i in tags:
+              root.append(i)
+
+            for i in sorted(s['nodes']):
+              root.makeelement('nd', attrib=OrderedDict({'ref': str(i)}))
+
         elif s['type'] == 'relation':
-            members = map(lambda x: E.member(ref=str(x['ref']), type=x['type'], role=x.get('role', '')), s['members'])
-            root = E.relation(*itertools.chain(tags, members), **meta_kv)
+            root = lxml.etree.Element('relation', attrib=meta_kv)
+
+            for i in sorted(s['members'], key=lambda x: x['ref']):
+              root.makeelement('member', attrib=OrderedDict((
+                ('ref', str(i['ref'])),
+                ('type', i['type']),
+                ('role', i.get('role', ''))
+              )))
         else:
             raise ValueError("Unsupported objtype: %s" % (s.objtype,))
         return root
@@ -543,7 +564,7 @@ class Merger(object):
         ret.update(dict((x.osmid, x) for x in self._state_changes))
         ret.update(dict((x.osmid, x) for x in self.osmdb.get_all_values() if x.state in ('modify', 'delete') and x.osmid not in ret.keys()))
 
-        for (_id, i) in ret.items():
+        for (_id, i) in sorted(ret.items(), key=lambda x: x[0]):
             if i in self._updated_nodes:
                 self.__log.debug("Processing updated node: %s", str(i.entry))
             elif i in self._new_nodes:
@@ -591,7 +612,7 @@ class Merger(object):
 
         return tuple(map(
             lambda x: getbyid("%s:%s" % (x[0], x[1]))[0],
-            ret
+            sorted(ret, key=lambda x: "%s:%s" % (x[0], x[1]))
         ))
 
     def _post_merge(self):
@@ -655,7 +676,7 @@ class Merger(object):
         self.__log.info("Merging %d addresses with buildings",
                         len(tuple(filter(lambda x: len(x[1]) == 1, to_merge.items()))))
 
-        for (_id, nodes) in to_merge.items():
+        for (_id, nodes) in sorted(to_merge.items(), key=lambda x: x[0]):
             building = buildings[_id]
             if len(nodes) > 0:
                 self._mark_soup_visible(self.osmdb.getbyid(_id)[0])
