@@ -374,7 +374,10 @@ out bb;
                     itertools.combinations(occurances, 2)):
                 # if any two duplicates are closer than 2m, remove from data
                 self.__log.info("Removing duplicate address: %s", a)
-                data.remove(a)
+                try:
+                  data.remove(a)
+                except ValueError:
+                  pass # element might have been removed already
 
         # mark duplicates
         addr_index = groupby(data, lambda x: (x.city, x.simc, x.housenumber.replace(' ', '').upper(), x.street))
