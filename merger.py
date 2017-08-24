@@ -282,18 +282,18 @@ class OsmAddress(Address):
             for i in tags:
               root.append(i)
 
-            for i in sorted(s['nodes']):
-              root.makeelement('nd', attrib=OrderedDict({'ref': str(i)}))
+            for i in s['nodes']: # not sorting nodes, as the order defines the way
+              root.append(root.makeelement('nd', attrib=OrderedDict({'ref': str(i)})))
 
         elif s['type'] == 'relation':
             root = lxml.etree.Element('relation', attrib=meta_kv)
 
-            for i in sorted(s['members'], key=lambda x: x['ref']):
-              root.makeelement('member', attrib=OrderedDict((
+            for i in s['members']: # not sorting relation memebers, as this might be important
+              root.append(root.makeelement('member', attrib=OrderedDict((
                 ('ref', str(i['ref'])),
                 ('type', i['type']),
                 ('role', i.get('role', ''))
-              )))
+              ))))
         else:
             raise ValueError("Unsupported objtype: %s" % (s.objtype,))
         return root
