@@ -1098,6 +1098,103 @@ class GISON(AbstractImport):
         return ret
 
 
+class EGeoportal(GUGiK):
+    # parametry do EPSG 2180
+    __MAX_BBOX_X = 20000
+    __MAX_BBOX_Y = 45000
+    __PRECISION = 10
+    __base_url = "http://wms10.e-geoportal.pl/?SERVICE=WMS&VERSION=1.1.1"
+    __base_url_getmap = __base_url + "&REQUEST=GetMap&TRANSPARENT=true&LAYERS={layer:s}&SRS=EPSG:2180&STYLES=&WIDTH=16000&HEIGHT=16000&FORMAT=kml&&BBOX={bbox}"
+
+    __log = logging.getLogger(__name__).getChild('EGeoportal')
+    __NUMER_RE = re.compile('(\d+)\s((?=\d+))')
+
+    def __init__(self, layer, terc):
+        super(GUGiK, self).__init__(terc=terc)
+        self.terc = terc
+        layerList = self.listLayers()
+        if layer not in layerList:
+            raise ValueError("Unknown layer: {0}. Available layers:\n{1}".format(layer, "\n".join(layerList)))
+        self.layer = layer
+
+    def _convertToAddress(self, soup):
+        desc_soup = lxml.html.fromstring(str(soup.find('{http://www.opengis.net/kml/2.2}description').text))
+        addr_kv = dict(
+            (
+             str(x.find('strong').find('span').text),
+             str(x.find('span').text).strip()
+            ) for x in desc_soup.find('ul').iterchildren()
+        )
+
+        coords = soup.find('{http://www.opengis.net/kml/2.2}Point').find('{http://www.opengis.net/kml/2.2}coordinates').text.split(',')
+        # Hack for spaces in EMUiA addresses. Replace them with slash, if they are between numbers
+        addr_kv[str_normalize('nr_budynku')] = self.__NUMER_RE.sub('\\1/\\2', addr_kv[str_normalize('nr_budynku')])
+        addr_street = addr_kv.get(str_normalize('nazwa_ulicy'))
+        addr_teryt_ulicy = addr_kv.get(str_normalize('teryt_ulicy'), '0')
+        addr_teryt_miejscowosci = addr_kv.get(str_normalize('teryt_miejscowosci'))
+        if addr_teryt_ulicy == "0":
+            addr_teryt_ulicy == ""
+        if addr_teryt_miejscowosci == "0":
+            addr_teryt_miejscowosci = ""
+        try:
+            ret = Address.mappedAddress(
+                    addr_kv[str_normalize('nr_budynku')],
+                    addr_kv.get(str_normalize('kod_pocztowy')),
+                    addr_street,
+                    addr_kv[str_normalize('miejscowosc')],
+                    addr_teryt_ulicy,
+                    addr_teryt_miejscowosci,
+                    'e-geoportal.pl/' + self.layer,
+                    {'lat': coords[1], 'lon': coords[0]},
+                    addr_kv.get(str_normalize('id'))
+            )
+        except KeyError as e:
+            self.__log.warning('Not converting address error: {0}, input_data: {1}', str(e), addr_kv)
+            raise
+        return ret
+
+    def _isEligible(self, addr):
+        return True
+
+    def fetchTiles(self):
+        bbox = self.getBbox2180()
+        ret = []
+        for i in self.divideBbox(*bbox):
+            url = self.__base_url_getmap.format(layer=self.layer, bbox=",".join(map(str, i)))
+            self.__log.info("Fetching from e-Geoportal: %s", url)
+
+            opener = get_ssl_no_verify_opener()
+
+            soup = lxml.etree.fromstring(opener.open(url).read())
+            doc = soup.find('{http://www.opengis.net/kml/2.2}Document') # be namespace aware
+            if doc is not None:
+                for addr in soup.findall('.//{http://www.opengis.net/kml/2.2}Placemark'):
+                    if self._isEligible(addr):
+                        try:
+                            ret.append(self._convertToAddress(addr))
+                        except KeyError:
+                            pass
+            else:
+                raise ValueError('No data returned from GUGiK possibly to wrong scale. Check __MAX_BBOX_X, __MAX_BBOX_Y, HEIGHT and WIDTH')
+        # take latest version for each point (version is last element after dot in id_)
+        #ret = [max(v, key=lambda z: z.id_) for  v in groupby(ret, lambda z: z.id_.rsplit('.', 1)[0]).values()]
+        if len(ret) == 0:
+                raise ValueError('No data returned from source')
+        return ret
+
+    def listLayers(self):
+        url = self.__base_url + "&REQUEST=Getcapabilities"
+        opener = get_ssl_no_verify_opener()
+
+        soup = lxml.etree.fromstring(opener.open(url).read())
+        layerNames = sorted(x.text for x  in soup.findall('.//Layer/Name'))
+        return [x for x in layerNames if 'punkt' in x  and not any(
+            query in x for query in ('prognoz', 'archiw', 'budow')
+            )
+        ] + [x for x in layerNames if 'punkt' in x and any(
+            query in x for query in ('prognoz', 'archiw', 'budow')
+            )]
+
 
 class AddressEncoder(json.JSONEncoder):
     def default(self, obj):
@@ -1117,12 +1214,12 @@ def get_ssl_no_verify_opener():
 def main():
     parser = argparse.ArgumentParser(description="Downloads data from iMPA and saves in OSM or JSON format. CC-BY-SA 3.0 @ WiktorN. Filename is <gmina>.osm or <gmina>.json")
     parser.add_argument('--output-format', choices=['json', 'osm'],  help='output file format - "json" or "osm", default: osm', default="osm", dest='output_format')
-    parser.add_argument('--source', choices=['impa', 'gugik', 'gugik_gml', 'gisnet', 'warszawa'],  help='input source: "gugik", "impa", "gisnet" or "warszawa". Gugik, gisnet and warszawa requires providing teryt:terc code. gugik_gml requires to provide a filename as gmina. Defaults to "impa"', default="impa", dest='source')
+    parser.add_argument('--source', choices=['impa', 'gugik', 'gugik_gml', 'gisnet', 'warszawa', 'e-geoportal'],  help='input source: "gugik", "impa", "gisnet" or "warszawa". Gugik, gisnet and warszawa requires providing teryt:terc code. gugik_gml requires to provide a filename as gmina. Defaults to "impa"', default="impa", dest='source')
     parser.add_argument('--log-level', help='Set logging level (debug=10, info=20, warning=30, error=40, critical=50), default: 20', dest='log_level', default=20, type=int)
     parser.add_argument('--no-mapping', help='Disable mapping of streets and cities', dest='no_mapping', default=False, action='store_const', const=True)
     parser.add_argument('--wms', help='Override WMS address with address points', dest='wms', default=None)
     parser.add_argument('--terc', help='teryt:terc code which defines area of operation', dest='terc', default=None)
-    parser.add_argument('gmina', nargs='*',  help='list of iMPA services to download, it will use at most 4 concurrent threads to download and analyse')
+    parser.add_argument('gmina', nargs='?',  help='list of iMPA services to download or e-geoportal layer name')
     args = parser.parse_args()
 
     logging.basicConfig(level=args.log_level)
@@ -1143,13 +1240,18 @@ def main():
         imp_gen = partial(WarszawaUM, terc=args.terc)
     elif args.source == 'gugik_gml':
         imp_gen = partial(GUGiK_GML)
+    elif args.source == 'e-geoportal':
+        imp_gen = partial(EGeoportal, terc=args.terc)
+        if not args.gmina:
+            raise Exception("You need to provide layer name")
     else:
         raise Exception("Source not supported")
     if args.gmina:
         #rets = parallel_execution(*map(lambda x: lambda: imp_gen(x).getAddresses(), args.gmina))
-        rets = list(map(lambda x: imp_gen(x).getAddresses(), args.gmina)) # usefull for debugging
+        ret = imp_gen(args.gmina).getAddresses()
+        #rets = list(map(lambda x: imp_gen(x).getAddresses(), args.gmina)) # usefull for debugging
     else:
-        rets = [imp_gen().getAddresses(),]
+        ret = imp_gen().getAddresses()
     if args.output_format == 'json':
         write_conv_func = lambda x: json.dumps(list(x), cls=AddressEncoder)
         file_suffix = '.json'
@@ -1158,15 +1260,14 @@ def main():
         file_suffix = '.osm'
 
     if args.gmina:
-        for (ret, gmina) in zip(rets, args.gmina):
-            with open(gmina+file_suffix, "w+", encoding='utf-8') as f:
+        with open(args.gmina+file_suffix, "w+", encoding='utf-8') as f:
                 f.write(write_conv_func(ret))
     else:
         fname = 'result.osm'
         if args.terc:
             fname = '%s.osm' % (args.terc,)
         with open(fname, 'w+', encoding='utf-8') as f:
-            f.write(write_conv_func(rets[0]))
+            f.write(write_conv_func(ret))
 
 if __name__ == '__main__':
     main()

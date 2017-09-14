@@ -10,7 +10,7 @@ import functools
 from osmdb import OsmDb, get_soup_center, distance, prepare_object_pos
 import json
 from shapely.geometry import Point
-from punktyadresowe_import import iMPA, GUGiK, Address, GISNET, WarszawaUM, GUGiK_GML, GISON
+from punktyadresowe_import import iMPA, GUGiK, Address, GISNET, WarszawaUM, GUGiK_GML, GISON, EGeoportal
 import overpass
 from lxml.builder import E
 import lxml.etree
@@ -853,6 +853,8 @@ def main():
     source_group.add_argument('--gison',
                               help='Import address data from GISON. Use "brzeznica" when the address is '
                                    'http://portal.gison.pl/brzeznica/. You need to provide also terc option')
+    source_group.add_argument('--egeoportal',
+                              help='Import address data from E-Geoportal. You need to provide terc option as well')
     address_group = parser.add_argument_group()
     address_group.add_argument('--addresses-file', type=argparse.FileType("r", encoding='UTF-8'), dest='addresses_file',
                                help='OSM file with addresses and buildings for imported area')
@@ -885,35 +887,35 @@ def main():
     if args.impa:
         imp = iMPA(args.impa, wms=args.wms)
         terc = imp.terc
-        dataFunc = lambda: imp.getAddresses()
         source_addr = args.impa + '.e-mapa.net'
     elif args.gisnet:
         imp = GISNET(args.gisnet, args.terc)
         terc = args.terc
-        dataFunc = lambda: imp.getAddresses()
         source_addr = args.gisnet + '.gis-net.pl'
     elif args.warszawa:
         imp = WarszawaUM('Warszawa', args.terc)
         terc = args.terc
-        dataFunc = lambda: imp.getAddresses()
         source_addr = 'mapa.um.warszawa.pl'
     elif args.gugik_gml:
         imp = GUGiK_GML(args.gugik_gml)
         terc = imp.terc
-        dataFunc = lambda: imp.getAddresses()
         source_addr = 'emuia.gugik.gov.pl'
     elif args.gison:
         imp = GISON(args.gison, args.terc)
-        dataFunc = lambda: imp.getAddresses()
         terc = args.terc
         source_addr = 'portal.gison.pl/' + args.gison
+    elif args.egeoportal:
+        imp = EGeoportal(args.egeoportal, args.terc)
+        terc = args.terc
+        source_addr = 'e-geportal.pl/' + args.egeoportal
     else:
         imp = GUGiK(args.terc)
-        dataFunc = lambda: imp.getAddresses()
         source_addr = 'emuia.gugik.gov.pl'
 
     if args.import_file:
         dataFunc = lambda: list(map(lambda x: Address.from_JSON(x), json.load(args.import_file)))
+    else:
+        dataFunc = lambda: imp.getAddresses()
 
     data = dataFunc()
     if len(data) == 0:
