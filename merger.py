@@ -287,6 +287,8 @@ class OsmAddress(Address):
 
         elif s['type'] == 'relation':
             root = lxml.etree.Element('relation', attrib=meta_kv)
+            for i in tags:
+              root.append(i)
 
             for i in s['members']: # not sorting relation memebers, as this might be important
               root.append(root.makeelement('member', attrib=OrderedDict((
