@@ -16,14 +16,14 @@ def convert_element(elem):
         if n.tag == 'nd':
             ret['nodes'].append(n.get('ref'))
         if n.tag == 'member':
-            ret['members'].append(n.attrib.copy())
+            ret['members'].append(dict(n.attrib))
     for i in ('tags', 'nodes', 'members'):
         if len(ret[i]) == 0:
             del ret[i]
     return ret
 
 
-def osm_to_json(root):
+def osm_to_json(root: lxml.etree.ElementTree):
     osm = root.getroot()
     assert osm.tag == 'osm'
     return {

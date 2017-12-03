@@ -276,26 +276,26 @@ class OsmAddress(Address):
               tuple(meta_kv.items())
             ))
             for i in tags:
-              root.append(i)
+                root.append(i)
         elif s['type'] == 'way':
             root = lxml.etree.Element('way', attrib=meta_kv)
             for i in tags:
-              root.append(i)
+                root.append(i)
 
             for i in s['nodes']: # not sorting nodes, as the order defines the way
-              root.append(root.makeelement('nd', attrib=OrderedDict({'ref': str(i)})))
+                root.append(root.makeelement('nd', attrib=OrderedDict({'ref': str(i)})))
 
         elif s['type'] == 'relation':
             root = lxml.etree.Element('relation', attrib=meta_kv)
             for i in tags:
-              root.append(i)
+                root.append(i)
 
             for i in s['members']: # not sorting relation memebers, as this might be important
-              root.append(root.makeelement('member', attrib=OrderedDict((
-                ('ref', str(i['ref'])),
-                ('type', i['type']),
-                ('role', i.get('role', ''))
-              ))))
+                root.append(root.makeelement('member', attrib=OrderedDict((
+                    ('ref', str(i['ref'])),
+                    ('type', i['type']),
+                    ('role', i.get('role', ''))
+                ))))
         else:
             raise ValueError("Unsupported objtype: %s" % (s.objtype,))
         return root
@@ -719,11 +719,10 @@ class Merger(object):
                 # need to take into account a large number of candidates, as nodes <-> members of ways are also returned
                 candidates = list(self.osmdb.nearest(addr.center, num_results=100))
                 candidates_within = list(
-                    filter(lambda x: addr.osmid != x.osmid
-                    and x.objtype == 'relation' and
+                    filter(lambda x: addr.osmid != x.osmid and x.objtype == 'relation' and
                                      addr.center.within(buffer(x.shape, buf)),
                            candidates
-                    )
+                           )
                 )
                 if not candidates_within:
                     candidates_within = list(
@@ -958,6 +957,7 @@ def main():
         ret = m.get_incremental_result(log_io)
 
     args.output.write(ret)
+
 
 if __name__ == '__main__':
     main()

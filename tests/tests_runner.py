@@ -3,10 +3,12 @@ import converter
 import os
 import merger
 import lxml.etree
-import json
+import pathlib
+
 
 def osm_xml_to_addresses(filename):
     return osm_xml_etree_to_addresses(lxml.etree.parse(filename))
+
 
 def osm_xml_etree_to_addresses(e):
     return list(
@@ -16,55 +18,56 @@ def osm_xml_etree_to_addresses(e):
         )
     )
 
-def get_merger(directory):
+
+def get_merger(directory: os.PathLike, merge_addresses_with_outlines=True):
     imported = osm_xml_to_addresses(os.path.join(directory, 'imp.xml'))
     osm = converter.osm_to_json(lxml.etree.parse(os.path.join(directory, 'osm.xml')))
     m = merger.Merger(imported, osm, "", "test")
+    if merge_addresses_with_outlines:
+        m.post_func.append(m.merge_addresses)
     m.merge()
     return m
+
 
 def sorted_addresses(l):
     def sort_key(o):
         return '\127'.join(
             map(lambda x: o.get(x, ''),
                 ['addr:city', 'addr:place', 'addr:street', 'addr:housenumber', 'id']
-            )
+                )
         )
-    return sorted(l, key=sort_key) 
 
-def verify(self, expected, actual):
-    with open("latest_actual.osm", "wb+") as f:
-        f.write(actual)
-    expected = sorted_addresses(converter.osm_to_json(lxml.etree.parse(expected))['elements'])
-    actual = sorted_addresses(converter.osm_to_json(lxml.etree.ElementTree(lxml.etree.fromstring(actual)))['elements'])
-    self.assertEqual(len(expected), len(actual))
-    self.assertEqual(
-        json.dumps(expected, sort_keys=True),
-        json.dumps(actual, sort_keys=True)
-    )
-    self.assertCountEqual(expected, actual)
+    return sorted(l, key=sort_key)
 
-    
-def make_incremental_test(name, directory):
+
+def verify(self, expected, actual: bytes):
+    # with open("latest_actual.osm", "wb+") as f:
+    #    f.write(actual)
+    with open(expected, "r", encoding='utf-8') as f:
+        self.assertEqual(f.read(), actual.decode('utf-8'))
+
+
+def make_incremental_test(directory: pathlib.PurePath):
     def f(self):
         ret = get_merger(directory).get_incremental_result()
         verify(self, os.path.join(directory, 'result_incremental.xml'), ret)
-    f.__name__ = name + '_incremental'
+
+    f.__name__ = directory.name + '_incremental'
     return f
 
-def make_full_test(name, directory):
+
+def make_full_test(directory: pathlib.PurePath):
     def f(self):
         ret = get_merger(directory).get_full_result()
         verify(self, os.path.join(directory, 'result_full.xml'), ret)
-    f.__name__ = name + '_full'
-    return f
 
+    f.__name__ = directory.name + '_full'
+    return f
 
 
 class MergerTests(unittest.TestCase):
     def setUp(self):
-        pass
-        #self.maxDiff = None
+        self.maxDiff = None
 
     def test_sorted_addresses(self):
         test = [
@@ -134,9 +137,16 @@ class MergerTests(unittest.TestCase):
         self.assertEqual(sorted_addresses(test), expected)
 
 
-for test in os.listdir('tests'):
-    setattr(MergerTests, 'test_' + test + '_incremental', make_incremental_test(test, os.path.join('tests', test)))
-    setattr(MergerTests, 'test_' + test + '_full', make_full_test(test, os.path.join('tests', test)))
+def __set_tests():
+
+    directory = pathlib.Path(__file__).parent.parent / "testdata"
+    for test in directory.iterdir():
+        if test.is_dir():
+            setattr(MergerTests, 'test_' + test.name + '_incremental', make_incremental_test(test))
+            setattr(MergerTests, 'test_' + test.name + '_full', make_full_test(test))
+
+
+__set_tests()
 
 if __name__ == '__main__':
     unittest.main()

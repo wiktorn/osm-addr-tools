@@ -2,11 +2,11 @@
 <osm version="0.6" generator="import adresy merger.py">
   <note>The data included in this document is from www.openstreetmap.org. The data is made available under ODbL.</note>
   <meta osm_base=""/>
-  <node action="modify" lon="21.6236801" timestamp="2016-01-05T23:58:58Z" version="5" user="maraf24" uid="2098272" changeset="36393838" id="3257264302" lat="52.5512778">
-    <tag k="addr:place" v="Gwizdały"/>
-    <tag k="addr:housenumber" v="3"/>
-    <tag k="source:addr" v="lochow.e-mapa.net"/>
+  <node lat="52.5512778" lon="21.6236801" changeset="36393838" id="3257264302" timestamp="2016-01-05T23:58:58Z" uid="2098272" user="maraf24" version="5" action="modify">
     <tag k="addr:city:simc" v="0678794"/>
+    <tag k="addr:housenumber" v="3"/>
+    <tag k="addr:place" v="Gwizdały"/>
     <tag k="addr:postcode" v="07-130"/>
+    <tag k="source:addr" v="lochow.e-mapa.net"/>
   </node>
 </osm>

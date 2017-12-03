@@ -1,0 +1,148 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<osm version="0.6" generator="Overpass API">
+<note>The data included in this document is from www.openstreetmap.org. The data is made available under ODbL.</note>
+<meta osm_base="2017-12-03T14:30:02Z"/>
+
+  <node id="2883967586" lat="50.5219915" lon="17.2164420" version="1" timestamp="2014-05-27T18:40:53Z" changeset="22587047" uid="1246157" user="Jedrzej Pelka"/>
+  <node id="2883967587" lat="50.5220008" lon="17.2168250" version="1" timestamp="2014-05-27T18:40:53Z" changeset="22587047" uid="1246157" user="Jedrzej Pelka"/>
+  <node id="2883967588" lat="50.5220128" lon="17.2169258" version="1" timestamp="2014-05-27T18:40:53Z" changeset="22587047" uid="1246157" user="Jedrzej Pelka"/>
+  <node id="2883967589" lat="50.5220131" lon="17.2164286" version="1" timestamp="2014-05-27T18:40:53Z" changeset="22587047" uid="1246157" user="Jedrzej Pelka"/>
+  <node id="2883967590" lat="50.5220139" lon="17.2164359" version="1" timestamp="2014-05-27T18:40:53Z" changeset="22587047" uid="1246157" user="Jedrzej Pelka"/>
+  <node id="2883967591" lat="50.5220259" lon="17.2169222" version="1" timestamp="2014-05-27T18:40:53Z" changeset="22587047" uid="1246157" user="Jedrzej Pelka"/>
+  <node id="2883967592" lat="50.5220262" lon="17.2170255" version="1" timestamp="2014-05-27T18:40:53Z" changeset="22587047" uid="1246157" user="Jedrzej Pelka"/>
+  <node id="2883967593" lat="50.5220313" lon="17.2169732" version="1" timestamp="2014-05-27T18:40:53Z" changeset="22587047" uid="1246157" user="Jedrzej Pelka"/>
+  <node id="2883967594" lat="50.5220348" lon="17.2168154" version="1" timestamp="2014-05-27T18:40:53Z" changeset="22587047" uid="1246157" user="Jedrzej Pelka"/>
+  <node id="2883967595" lat="50.5220570" lon="17.2164167" version="1" timestamp="2014-05-27T18:40:53Z" changeset="22587047" uid="1246157" user="Jedrzej Pelka"/>
+  <node id="2883967596" lat="50.5220578" lon="17.2164239" version="1" timestamp="2014-05-27T18:40:53Z" changeset="22587047" uid="1246157" user="Jedrzej Pelka"/>
+  <node id="2883967597" lat="50.5220794" lon="17.2164169" version="1" timestamp="2014-05-27T18:40:53Z" changeset="22587047" uid="1246157" user="Jedrzej Pelka"/>
+  <node id="2883967598" lat="50.5220802" lon="17.2164231" version="1" timestamp="2014-05-27T18:40:53Z" changeset="22587047" uid="1246157" user="Jedrzej Pelka"/>
+  <node id="2883967599" lat="50.5220815" lon="17.2169964" version="1" timestamp="2014-05-27T18:40:53Z" changeset="22587047" uid="1246157" user="Jedrzej Pelka"/>
+  <node id="2883967600" lat="50.5221201" lon="17.2165719" version="1" timestamp="2014-05-27T18:40:53Z" changeset="22587047" uid="1246157" user="Jedrzej Pelka"/>
+  <node id="2883967601" lat="50.5221220" lon="17.2163977" version="1" timestamp="2014-05-27T18:40:53Z" changeset="22587047" uid="1246157" user="Jedrzej Pelka"/>
+  <node id="2883967602" lat="50.5221235" lon="17.2164111" version="1" timestamp="2014-05-27T18:40:53Z" changeset="22587047" uid="1246157" user="Jedrzej Pelka"/>
+  <node id="2883967603" lat="50.5221448" lon="17.2168096" version="1" timestamp="2014-05-27T18:40:53Z" changeset="22587047" uid="1246157" user="Jedrzej Pelka"/>
+  <node id="2883967604" lat="50.5221473" lon="17.2169745" version="1" timestamp="2014-05-27T18:40:53Z" changeset="22587047" uid="1246157" user="Jedrzej Pelka"/>
+  <node id="2883967605" lat="50.5221480" lon="17.2169786" version="1" timestamp="2014-05-27T18:40:53Z" changeset="22587047" uid="1246157" user="Jedrzej Pelka"/>
+  <node id="2883967606" lat="50.5221526" lon="17.2169371" version="1" timestamp="2014-05-27T18:40:53Z" changeset="22587047" uid="1246157" user="Jedrzej Pelka"/>
+  <node id="2883967607" lat="50.5221555" lon="17.2169524" version="1" timestamp="2014-05-27T18:40:53Z" changeset="22587047" uid="1246157" user="Jedrzej Pelka"/>
+  <node id="2883967608" lat="50.5221581" lon="17.2169513" version="1" timestamp="2014-05-27T18:40:53Z" changeset="22587047" uid="1246157" user="Jedrzej Pelka"/>
+  <node id="2883967609" lat="50.5221617" lon="17.2169719" version="1" timestamp="2014-05-27T18:40:53Z" changeset="22587047" uid="1246157" user="Jedrzej Pelka"/>
+  <node id="2883967610" lat="50.5222152" lon="17.2163777" version="1" timestamp="2014-05-27T18:40:53Z" changeset="22587047" uid="1246157" user="Jedrzej Pelka"/>
+  <node id="2883967611" lat="50.5222192" lon="17.2163539" version="1" timestamp="2014-05-27T18:40:53Z" changeset="22587047" uid="1246157" user="Jedrzej Pelka"/>
+  <node id="2883967612" lat="50.5222328" lon="17.2163414" version="1" timestamp="2014-05-27T18:40:53Z" changeset="22587047" uid="1246157" user="Jedrzej Pelka"/>
+  <node id="2883967613" lat="50.5222411" lon="17.2165410" version="1" timestamp="2014-05-27T18:40:53Z" changeset="22587047" uid="1246157" user="Jedrzej Pelka"/>
+  <node id="2883967614" lat="50.5222480" lon="17.2163477" version="1" timestamp="2014-05-27T18:40:53Z" changeset="22587047" uid="1246157" user="Jedrzej Pelka"/>
+  <node id="2883967615" lat="50.5222560" lon="17.2163690" version="1" timestamp="2014-05-27T18:40:53Z" changeset="22587047" uid="1246157" user="Jedrzej Pelka"/>
+  <node id="2883967616" lat="50.5222658" lon="17.2167787" version="1" timestamp="2014-05-27T18:40:53Z" changeset="22587047" uid="1246157" user="Jedrzej Pelka"/>
+  <node id="2883967617" lat="50.5222724" lon="17.2168891" version="1" timestamp="2014-05-27T18:40:53Z" changeset="22587047" uid="1246157" user="Jedrzej Pelka"/>
+  <node id="2883967618" lat="50.5222921" lon="17.2169245" version="1" timestamp="2014-05-27T18:40:53Z" changeset="22587047" uid="1246157" user="Jedrzej Pelka"/>
+  <node id="2883967619" lat="50.5222926" lon="17.2169101" version="1" timestamp="2014-05-27T18:40:53Z" changeset="22587047" uid="1246157" user="Jedrzej Pelka"/>
+  <node id="2883967620" lat="50.5223018" lon="17.2163496" version="1" timestamp="2014-05-27T18:40:53Z" changeset="22587047" uid="1246157" user="Jedrzej Pelka"/>
+  <node id="2883967621" lat="50.5223019" lon="17.2163589" version="1" timestamp="2014-05-27T18:40:53Z" changeset="22587047" uid="1246157" user="Jedrzej Pelka"/>
+  <node id="2883967622" lat="50.5223027" lon="17.2169294" version="1" timestamp="2014-05-27T18:40:53Z" changeset="22587047" uid="1246157" user="Jedrzej Pelka"/>
+  <node id="2883967623" lat="50.5223032" lon="17.2169149" version="1" timestamp="2014-05-27T18:40:53Z" changeset="22587047" uid="1246157" user="Jedrzej Pelka"/>
+  <node id="2883967624" lat="50.5223107" lon="17.2163689" version="1" timestamp="2014-05-27T18:40:53Z" changeset="22587047" uid="1246157" user="Jedrzej Pelka"/>
+  <node id="2883967625" lat="50.5223132" lon="17.2163689" version="1" timestamp="2014-05-27T18:40:53Z" changeset="22587047" uid="1246157" user="Jedrzej Pelka"/>
+  <node id="2883967626" lat="50.5223136" lon="17.2163502" version="1" timestamp="2014-05-27T18:40:53Z" changeset="22587047" uid="1246157" user="Jedrzej Pelka"/>
+  <node id="2883967627" lat="50.5223178" lon="17.2164482" version="1" timestamp="2014-05-27T18:40:53Z" changeset="22587047" uid="1246157" user="Jedrzej Pelka"/>
+  <node id="2883967628" lat="50.5223187" lon="17.2164626" version="1" timestamp="2014-05-27T18:40:53Z" changeset="22587047" uid="1246157" user="Jedrzej Pelka"/>
+  <node id="2883967630" lat="50.5223227" lon="17.2165091" version="1" timestamp="2014-05-27T18:40:53Z" changeset="22587047" uid="1246157" user="Jedrzej Pelka"/>
+  <node id="2883967631" lat="50.5223263" lon="17.2164479" version="1" timestamp="2014-05-27T18:40:53Z" changeset="22587047" uid="1246157" user="Jedrzej Pelka"/>
+  <node id="2883967632" lat="50.5223285" lon="17.2164603" version="1" timestamp="2014-05-27T18:40:53Z" changeset="22587047" uid="1246157" user="Jedrzej Pelka"/>
+  <node id="2883967633" lat="50.5223345" lon="17.2165065" version="1" timestamp="2014-05-27T18:40:53Z" changeset="22587047" uid="1246157" user="Jedrzej Pelka"/>
+  <node id="2883967634" lat="50.5223365" lon="17.2166439" version="1" timestamp="2014-05-27T18:40:54Z" changeset="22587047" uid="1246157" user="Jedrzej Pelka"/>
+  <node id="2883967635" lat="50.5223369" lon="17.2165363" version="1" timestamp="2014-05-27T18:40:54Z" changeset="22587047" uid="1246157" user="Jedrzej Pelka"/>
+  <node id="2883967636" lat="50.5223379" lon="17.2169042" version="1" timestamp="2014-05-27T18:40:54Z" changeset="22587047" uid="1246157" user="Jedrzej Pelka"/>
+  <node id="2883967637" lat="50.5223383" lon="17.2166666" version="1" timestamp="2014-05-27T18:40:54Z" changeset="22587047" uid="1246157" user="Jedrzej Pelka"/>
+  <node id="2883967638" lat="50.5223384" lon="17.2165508" version="1" timestamp="2014-05-27T18:40:54Z" changeset="22587047" uid="1246157" user="Jedrzej Pelka"/>
+  <node id="2883967639" lat="50.5223395" lon="17.2165363" version="1" timestamp="2014-05-27T18:40:54Z" changeset="22587047" uid="1246157" user="Jedrzej Pelka"/>
+  <node id="2883967640" lat="50.5223411" lon="17.2165508" version="1" timestamp="2014-05-27T18:40:54Z" changeset="22587047" uid="1246157" user="Jedrzej Pelka"/>
+  <node id="2883967641" lat="50.5223434" lon="17.2169164" version="1" timestamp="2014-05-27T18:40:54Z" changeset="22587047" uid="1246157" user="Jedrzej Pelka"/>
+  <node id="2883967642" lat="50.5223446" lon="17.2167345" version="1" timestamp="2014-05-27T18:40:54Z" changeset="22587047" uid="1246157" user="Jedrzej Pelka"/>
+  <node id="2883967643" lat="50.5223448" lon="17.2166249" version="1" timestamp="2014-05-27T18:40:54Z" changeset="22587047" uid="1246157" user="Jedrzej Pelka"/>
+  <node id="2883967644" lat="50.5223454" lon="17.2166642" version="1" timestamp="2014-05-27T18:40:54Z" changeset="22587047" uid="1246157" user="Jedrzej Pelka"/>
+  <node id="2883967645" lat="50.5223457" lon="17.2168957" version="1" timestamp="2014-05-27T18:40:54Z" changeset="22587047" uid="1246157" user="Jedrzej Pelka"/>
+  <node id="2883967646" lat="50.5223481" lon="17.2166238" version="1" timestamp="2014-05-27T18:40:54Z" changeset="22587047" uid="1246157" user="Jedrzej Pelka"/>
+  <node id="2883967647" lat="50.5223497" lon="17.2166413" version="1" timestamp="2014-05-27T18:40:54Z" changeset="22587047" uid="1246157" user="Jedrzej Pelka"/>
+  <node id="2883967648" lat="50.5223511" lon="17.2167332" version="1" timestamp="2014-05-27T18:40:54Z" changeset="22587047" uid="1246157" user="Jedrzej Pelka"/>
+  <node id="2883967649" lat="50.5223512" lon="17.2169079" version="1" timestamp="2014-05-27T18:40:54Z" changeset="22587047" uid="1246157" user="Jedrzej Pelka"/>
+  <node id="2883967650" lat="50.5223552" lon="17.2168678" version="1" timestamp="2014-05-27T18:40:54Z" changeset="22587047" uid="1246157" user="Jedrzej Pelka"/>
+  <way id="284675179" version="1" timestamp="2014-05-27T18:40:57Z" changeset="22587047" uid="1246157" user="Jedrzej Pelka">
+    <nd ref="2883967600"/>
+    <nd ref="2883967613"/>
+    <nd ref="2883967616"/>
+    <nd ref="2883967603"/>
+    <nd ref="2883967600"/>
+    <tag k="source:geometry" v="geoportal.gov.pl:ortofoto"/>
+  </way>
+  <way id="284675180" version="2" timestamp="2017-12-02T19:26:03Z" changeset="54279453" uid="1879367" user="Zibi-importy">
+    <nd ref="2883967615"/>
+    <nd ref="2883967621"/>
+    <nd ref="2883967620"/>
+    <nd ref="2883967626"/>
+    <nd ref="2883967625"/>
+    <nd ref="2883967624"/>
+    <nd ref="2883967627"/>
+    <nd ref="2883967631"/>
+    <nd ref="2883967632"/>
+    <nd ref="2883967628"/>
+    <nd ref="2883967630"/>
+    <nd ref="2883967633"/>
+    <nd ref="2883967635"/>
+    <nd ref="2883967639"/>
+    <nd ref="2883967640"/>
+    <nd ref="2883967638"/>
+    <nd ref="2883967643"/>
+    <nd ref="2883967646"/>
+    <nd ref="2883967647"/>
+    <nd ref="2883967634"/>
+    <nd ref="2883967637"/>
+    <nd ref="2883967644"/>
+    <nd ref="2883967648"/>
+    <nd ref="2883967642"/>
+    <nd ref="2883967650"/>
+    <nd ref="2883967645"/>
+    <nd ref="2883967649"/>
+    <nd ref="2883967641"/>
+    <nd ref="2883967636"/>
+    <nd ref="2883967623"/>
+    <nd ref="2883967622"/>
+    <nd ref="2883967618"/>
+    <nd ref="2883967619"/>
+    <nd ref="2883967617"/>
+    <nd ref="2883967606"/>
+    <nd ref="2883967607"/>
+    <nd ref="2883967608"/>
+    <nd ref="2883967609"/>
+    <nd ref="2883967605"/>
+    <nd ref="2883967604"/>
+    <nd ref="2883967599"/>
+    <nd ref="2883967592"/>
+    <nd ref="2883967593"/>
+    <nd ref="2883967591"/>
+    <nd ref="2883967588"/>
+    <nd ref="2883967587"/>
+    <nd ref="2883967594"/>
+    <nd ref="2883967586"/>
+    <nd ref="2883967590"/>
+    <nd ref="2883967589"/>
+    <nd ref="2883967595"/>
+    <nd ref="2883967596"/>
+    <nd ref="2883967597"/>
+    <nd ref="2883967598"/>
+    <nd ref="2883967602"/>
+    <nd ref="2883967601"/>
+    <nd ref="2883967610"/>
+    <nd ref="2883967611"/>
+    <nd ref="2883967612"/>
+    <nd ref="2883967614"/>
+    <nd ref="2883967615"/>
+  </way>
+  <relation id="3776337" version="3" timestamp="2017-12-03T09:17:50Z" changeset="54292108" uid="1879367" user="Zibi-importy">
+    <member type="way" ref="284675180" role="outer"/>
+    <member type="way" ref="284675179" role="inner"/>
+    <tag k="building" v="yes"/>
+    <tag k="type" v="multipolygon"/>
+  </relation>
+
+</osm>
