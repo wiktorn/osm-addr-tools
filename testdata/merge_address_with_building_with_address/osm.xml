@@ -1,34 +1,34 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <osm version='0.6' generator='JOSM'>
-  <node id='-39354' action='modify' lat='52.55089992731' lon='21.62691391839'>
+  <node id='10000100' action='modify' lat='52.55089992731' lon='21.62691391839'>
     <tag k='addr:city' v='Gwizdały' />
     <tag k='addr:housenumber' v='5 a' />
     <tag k='addr:street' v='Dębowa' />
   </node>
-  <node id='-39356' action='modify' lat='52.55100154478' lon='21.62668583701' />
-  <node id='-39358' action='modify' lat='52.55076881428' lon='21.626673288' />
-  <node id='-39360' action='modify' lat='52.55075764605' lon='21.6272334826' />
-  <node id='-39362' action='modify' lat='52.55099037661' lon='21.62724603161' />
-  <node id='-39364' action='modify' lat='52.55134849485' lon='21.62344916113' />
-  <node id='-39366' action='modify' lat='52.55108824961' lon='21.62346748522' />
-  <node id='-39368' action='modify' lat='52.55110342564' lon='21.62405044157' />
-  <node id='-39370' action='modify' lat='52.5513636708' lon='21.62403211748' />
-  <way id='-39372' action='modify'>
-    <nd ref='-39356' />
-    <nd ref='-39358' />
-    <nd ref='-39360' />
-    <nd ref='-39362' />
-    <nd ref='-39356' />
+  <node id='10000101' action='modify' lat='52.55100154478' lon='21.62668583701' />
+  <node id='10000102' action='modify' lat='52.55076881428' lon='21.626673288' />
+  <node id='10000103' action='modify' lat='52.55075764605' lon='21.6272334826' />
+  <node id='10000104' action='modify' lat='52.55099037661' lon='21.62724603161' />
+  <node id='10000105' action='modify' lat='52.55134849485' lon='21.62344916113' />
+  <node id='10000107' action='modify' lat='52.55108824961' lon='21.62346748522' />
+  <node id='10000106' action='modify' lat='52.55110342564' lon='21.62405044157' />
+  <node id='10000108' action='modify' lat='52.5513636708' lon='21.62403211748' />
+  <way id='10000109' action='modify'>
+    <nd ref='10000101' />
+    <nd ref='10000102' />
+    <nd ref='10000103' />
+    <nd ref='10000104' />
+    <nd ref='10000101' />
     <tag k='addr:housenumber' v='5 A' />
     <tag k='addr:street' v='Dębowa' />
     <tag k='building' v='yes' />
   </way>
-  <way id='-39374' action='modify'>
-    <nd ref='-39364' />
-    <nd ref='-39366' />
-    <nd ref='-39368' />
-    <nd ref='-39370' />
-    <nd ref='-39364' />
+  <way id='10000110' action='modify'>
+    <nd ref='10000105' />
+    <nd ref='10000107' />
+    <nd ref='10000106' />
+    <nd ref='10000108' />
+    <nd ref='10000105' />
     <tag k='addr:city' v='Gwizdały' />
     <tag k='addr:city:simc' v='0678794' />
     <tag k='addr:housenumber' v='3' />

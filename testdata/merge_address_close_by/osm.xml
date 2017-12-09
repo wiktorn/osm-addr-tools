@@ -1,7 +1,7 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <osm version='0.6' generator='JOSM'>
   <node id='-39634' action='modify' lat='52.55082874984' lon='21.62694188507'>
-    <tag k='addr:city' v='Sowizdrzały' />
+    <tag k='addr:city' v='Gwizdały' />
     <tag k='addr:housenumber' v='5' />
     <tag k='addr:street' v='dębowa' />
   </node>

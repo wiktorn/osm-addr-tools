@@ -2,6 +2,12 @@
 <osm version="0.6" generator="import adresy merger.py">
   <note>The data included in this document is from www.openstreetmap.org. The data is made available under ODbL.</note>
   <meta osm_base=""/>
+  <node lat="50.5221428704" lon="17.21647412211" id="-1" action="delete">
+    <tag k="addr:city:simc" v="0500949"/>
+    <tag k="addr:housenumber" v="19"/>
+    <tag k="addr:place" v="Rysiowice"/>
+    <tag k="source:addr" v="Tests"/>
+  </node>
   <node lat="50.5219915" lon="17.2164420" changeset="22587047" id="2883967586" timestamp="2014-05-27T18:40:53Z" uid="1246157" user="Jedrzej Pelka" version="1"/>
   <node lat="50.5220008" lon="17.2168250" changeset="22587047" id="2883967587" timestamp="2014-05-27T18:40:53Z" uid="1246157" user="Jedrzej Pelka" version="1"/>
   <node lat="50.5220128" lon="17.2169258" changeset="22587047" id="2883967588" timestamp="2014-05-27T18:40:53Z" uid="1246157" user="Jedrzej Pelka" version="1"/>
@@ -66,6 +72,16 @@
   <node lat="50.5223511" lon="17.2167332" changeset="22587047" id="2883967648" timestamp="2014-05-27T18:40:54Z" uid="1246157" user="Jedrzej Pelka" version="1"/>
   <node lat="50.5223512" lon="17.2169079" changeset="22587047" id="2883967649" timestamp="2014-05-27T18:40:54Z" uid="1246157" user="Jedrzej Pelka" version="1"/>
   <node lat="50.5223552" lon="17.2168678" changeset="22587047" id="2883967650" timestamp="2014-05-27T18:40:54Z" uid="1246157" user="Jedrzej Pelka" version="1"/>
+  <relation changeset="54292108" id="3776337" timestamp="2017-12-03T09:17:50Z" uid="1879367" user="Zibi-importy" version="3" action="modify">
+    <tag k="addr:city:simc" v="0500949"/>
+    <tag k="addr:housenumber" v="19"/>
+    <tag k="addr:place" v="Rysiowice"/>
+    <tag k="building" v="yes"/>
+    <tag k="source:addr" v="Tests"/>
+    <tag k="type" v="multipolygon"/>
+    <member ref="284675180" type="way" role="outer"/>
+    <member ref="284675179" type="way" role="inner"/>
+  </relation>
   <way changeset="22587047" id="284675179" timestamp="2014-05-27T18:40:57Z" uid="1246157" user="Jedrzej Pelka" version="1">
     <tag k="source:geometry" v="geoportal.gov.pl:ortofoto"/>
     <nd ref="2883967600"/>
@@ -137,20 +153,4 @@
     <nd ref="2883967614"/>
     <nd ref="2883967615"/>
   </way>
-  <relation changeset="54292108" id="3776337" timestamp="2017-12-03T09:17:50Z" uid="1879367" user="Zibi-importy" version="3" action="modify">
-    <tag k="addr:city:simc" v="0500949"/>
-    <tag k="addr:housenumber" v="19"/>
-    <tag k="addr:place" v="Rysiowice"/>
-    <tag k="building" v="yes"/>
-    <tag k="source:addr" v="Tests"/>
-    <tag k="type" v="multipolygon"/>
-    <member ref="284675180" type="way" role="outer"/>
-    <member ref="284675179" type="way" role="inner"/>
-  </relation>
-  <node lat="50.5221428704" lon="17.21647412211" id="-1" action="delete">
-    <tag k="addr:city:simc" v="0500949"/>
-    <tag k="addr:housenumber" v="19"/>
-    <tag k="addr:place" v="Rysiowice"/>
-    <tag k="source:addr" v="Tests"/>
-  </node>
 </osm>
