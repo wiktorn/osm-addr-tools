@@ -13,7 +13,7 @@ def osm_xml_to_addresses(filename):
 def osm_xml_etree_to_addresses(e):
     return list(
         map(
-            merger.Address.from_osmXML,
+            merger.Address.from_osm_xml,
             e.getroot().iterchildren()
         )
     )
