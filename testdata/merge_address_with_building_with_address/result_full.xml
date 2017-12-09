@@ -2,7 +2,7 @@
 <osm version="0.6" generator="import adresy merger.py">
   <note>The data included in this document is from www.openstreetmap.org. The data is made available under ODbL.</note>
   <meta osm_base=""/>
-  <node lat="52.55089992731" lon="21.62691391839" id="10000100" action="delete">
+  <node lat="52.55089992731" lon="21.62691391839" id="-10000100" action="delete">
     <tag k="addr:city" v="Gwizdały"/>
     <tag k="addr:city:simc" v="0678794"/>
     <tag k="addr:housenumber" v="5A"/>
@@ -10,15 +10,15 @@
     <tag k="addr:street" v="Dębowa"/>
     <tag k="source:addr" v="lochow.e-mapa.net"/>
   </node>
-  <node lat="52.55100154478" lon="21.62668583701" id="10000101" action="modify"/>
-  <node lat="52.55076881428" lon="21.626673288" id="10000102" action="modify"/>
-  <node lat="52.55075764605" lon="21.6272334826" id="10000103" action="modify"/>
-  <node lat="52.55099037661" lon="21.62724603161" id="10000104" action="modify"/>
-  <node lat="52.55134849485" lon="21.62344916113" id="10000105" action="modify"/>
-  <node lat="52.55110342564" lon="21.62405044157" id="10000106" action="modify"/>
-  <node lat="52.55108824961" lon="21.62346748522" id="10000107" action="modify"/>
-  <node lat="52.5513636708" lon="21.62403211748" id="10000108" action="modify"/>
-  <way id="10000109" action="modify">
+  <node lat="52.55100154478" lon="21.62668583701" id="-10000101"/>
+  <node lat="52.55076881428" lon="21.626673288" id="-10000102"/>
+  <node lat="52.55075764605" lon="21.6272334826" id="-10000103"/>
+  <node lat="52.55099037661" lon="21.62724603161" id="-10000104"/>
+  <node lat="52.55134849485" lon="21.62344916113" id="-10000105"/>
+  <node lat="52.55110342564" lon="21.62405044157" id="-10000106"/>
+  <node lat="52.55108824961" lon="21.62346748522" id="-10000107"/>
+  <node lat="52.5513636708" lon="21.62403211748" id="-10000108"/>
+  <way id="-10000109" action="modify">
     <tag k="addr:city" v="Gwizdały"/>
     <tag k="addr:city:simc" v="0678794"/>
     <tag k="addr:housenumber" v="5A"/>
@@ -26,13 +26,13 @@
     <tag k="addr:street" v="Dębowa"/>
     <tag k="building" v="yes"/>
     <tag k="source:addr" v="lochow.e-mapa.net"/>
-    <nd ref="10000101"/>
-    <nd ref="10000102"/>
-    <nd ref="10000103"/>
-    <nd ref="10000104"/>
-    <nd ref="10000101"/>
+    <nd ref="-10000101"/>
+    <nd ref="-10000102"/>
+    <nd ref="-10000103"/>
+    <nd ref="-10000104"/>
+    <nd ref="-10000101"/>
   </way>
-  <way id="10000110" action="modify">
+  <way id="-10000110">
     <tag k="addr:city" v="Gwizdały"/>
     <tag k="addr:city:simc" v="0678794"/>
     <tag k="addr:housenumber" v="3"/>
@@ -40,10 +40,10 @@
     <tag k="addr:street" v="Dębowa"/>
     <tag k="building" v="yes"/>
     <tag k="source:addr" v="lochow.e-mapa.net"/>
-    <nd ref="10000105"/>
-    <nd ref="10000107"/>
-    <nd ref="10000106"/>
-    <nd ref="10000108"/>
-    <nd ref="10000105"/>
+    <nd ref="-10000105"/>
+    <nd ref="-10000107"/>
+    <nd ref="-10000106"/>
+    <nd ref="-10000108"/>
+    <nd ref="-10000105"/>
   </way>
 </osm>

@@ -18,14 +18,14 @@
     <tag k="addr:street" v="Dębowa"/>
     <tag k="source:addr" v="lochow.e-mapa.net"/>
   </node>
-  <node lat="52.55100154478" lon="21.62668583701" id="-38988" action="modify"/>
-  <node lat="52.55076881428" lon="21.626673288" id="-38989" action="modify"/>
-  <node lat="52.55075764605" lon="21.6272334826" id="-38993" action="modify"/>
-  <node lat="52.55099037661" lon="21.62724603161" id="-38995" action="modify"/>
-  <node lat="52.55134849485" lon="21.62344916113" id="-39006" action="modify"/>
-  <node lat="52.55108824961" lon="21.62346748522" id="-39007" action="modify"/>
-  <node lat="52.55110342564" lon="21.62405044157" id="-39009" action="modify"/>
-  <node lat="52.5513636708" lon="21.62403211748" id="-39011" action="modify"/>
+  <node lat="52.55100154478" lon="21.62668583701" id="-38988"/>
+  <node lat="52.55076881428" lon="21.626673288" id="-38989"/>
+  <node lat="52.55075764605" lon="21.6272334826" id="-38993"/>
+  <node lat="52.55099037661" lon="21.62724603161" id="-38995"/>
+  <node lat="52.55134849485" lon="21.62344916113" id="-39006"/>
+  <node lat="52.55108824961" lon="21.62346748522" id="-39007"/>
+  <node lat="52.55110342564" lon="21.62405044157" id="-39009"/>
+  <node lat="52.5513636708" lon="21.62403211748" id="-39011"/>
   <way id="-38990" action="modify">
     <tag k="addr:city" v="Gwizdały"/>
     <tag k="addr:city:simc" v="0678794"/>

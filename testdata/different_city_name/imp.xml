@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <osm generator="punktyadresowe_import.py" upload="false" version="0.6">
- <node action="modify" id="-7029" lat="52.55123" lon="21.62363" visible="true">
+ <node  id="-7029" lat="52.55123" lon="21.62363" visible="true">
   <tag k="addr:city" v="Inna nazwa"/>
   <tag k="addr:street" v="Dębowa"/>
   <tag k="addr:housenumber" v="3"/>

@@ -1,14 +1,14 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <osm version='0.6' generator='JOSM'>
-  <node id='-38982' action='modify' lat='0.00207899197' lon='-0.01361076297'>
+  <node id='-38982' lat='0.00207899197' lon='-0.01361076297'>
     <tag k='addr:city' v='city' />
     <tag k='addr:housenumber' v='4' />
     <tag k='addr:street' v='street' />
   </node>
-  <node id='-38983' action='modify' lat='0.00207887495' lon='-0.01359984162' />
-  <node id='-38987' action='modify' lat='0.00207137382' lon='-0.01359992199' />
-  <node id='-38989' action='modify' lat='0.00207149084' lon='-0.01361084334' />
-  <way id='-38984' action='modify'>
+  <node id='-38983' lat='0.00207887495' lon='-0.01359984162' />
+  <node id='-38987' lat='0.00207137382' lon='-0.01359992199' />
+  <node id='-38989' lat='0.00207149084' lon='-0.01361084334' />
+  <way id='-38984' >
     <nd ref='-38982' />
     <nd ref='-38983' />
     <nd ref='-38987' />

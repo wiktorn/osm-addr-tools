@@ -1,6 +1,6 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <osm version='0.6' generator='JOSM'>
-  <node id='-47432' action='modify' lat='50.5221428704' lon='17.21647412211'>
+  <node id='-47432' lat='50.5221428704' lon='17.21647412211'>
     <tag k='addr:city:simc' v='0500949' />
     <tag k='addr:housenumber' v='19' />
     <tag k='addr:place' v='Rysiowice' />

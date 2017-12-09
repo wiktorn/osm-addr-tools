@@ -1,15 +1,15 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <osm version='0.6' generator='JOSM'>
-  <node id='-39062' action='modify' lat='52.55089992731' lon='21.62691391839'>
+  <node id='-39062' lat='52.55089992731' lon='21.62691391839'>
     <tag k='addr:city' v='Gwizdały' />
     <tag k='addr:housenumber' v='3' />
     <tag k='addr:street' v='Dębowa' />
   </node>
-  <node id='-39064' action='modify' lat='52.55136810824' lon='21.62376347775' />
-  <node id='-39065' action='modify' lat='52.55126229102' lon='21.6237571206' />
-  <node id='-39067' action='modify' lat='52.55125863708' lon='21.62392162432' />
-  <node id='-39069' action='modify' lat='52.55136445431' lon='21.62392798147' />
-  <node id='3257264302' action='delete' timestamp='2016-01-05T23:58:58Z' uid='2098272' user='maraf24' version='5' changeset='36393838' lat='52.5512778' lon='21.6236801'>
+  <node id='-39064' lat='52.55136810824' lon='21.62376347775' />
+  <node id='-39065' lat='52.55126229102' lon='21.6237571206' />
+  <node id='-39067' lat='52.55125863708' lon='21.62392162432' />
+  <node id='-39069' lat='52.55136445431' lon='21.62392798147' />
+  <node id='3257264302'  timestamp='2016-01-05T23:58:58Z' uid='2098272' user='maraf24' version='5' changeset='36393838' lat='52.5512778' lon='21.6236801'>
     <tag k='addr:city' v='Gwizdały' />
     <tag k='addr:city:simc' v='0678794' />
     <tag k='addr:housenumber' v='3' />
@@ -17,7 +17,7 @@
     <tag k='addr:street' v='Dębowa' />
     <tag k='source:addr' v='lochow.e-mapa.net' />
   </node>
-  <way id='-39066' action='modify'>
+  <way id='-39066' >
     <nd ref='-39064' />
     <nd ref='-39065' />
     <nd ref='-39067' />

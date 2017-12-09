@@ -1,6 +1,6 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <osm version='0.6' upload='false' generator='JOSM'>
-  <node id='-39005' action='modify' lat='52.55123' lon='21.62363'>
+  <node id='-39005' lat='52.55123' lon='21.62363'>
     <tag k='addr:city' v='Gwizdały' />
     <tag k='addr:city:simc' v='0678794' />
     <tag k='addr:housenumber' v='3 a' />

@@ -2,17 +2,17 @@
 <osm version="0.6" generator="import adresy merger.py">
   <note>The data included in this document is from www.openstreetmap.org. The data is made available under ODbL.</note>
   <meta osm_base=""/>
-  <node lat="52.55089992731" lon="21.62691391839" id="-39062" action="modify">
+  <node lat="52.55089992731" lon="21.62691391839" id="-39062">
     <tag k="addr:city" v="Gwizdały"/>
     <tag k="addr:housenumber" v="3"/>
     <tag k="addr:street" v="Dębowa"/>
     <tag k="fixme" v="Node is 225 meters away from imported point"/>
   </node>
-  <node lat="52.55136810824" lon="21.62376347775" id="-39064" action="modify"/>
-  <node lat="52.55126229102" lon="21.6237571206" id="-39065" action="modify"/>
-  <node lat="52.55125863708" lon="21.62392162432" id="-39067" action="modify"/>
-  <node lat="52.55136445431" lon="21.62392798147" id="-39069" action="modify"/>
-  <node lat="52.5512778" lon="21.6236801" changeset="36393838" id="3257264302" timestamp="2016-01-05T23:58:58Z" uid="2098272" user="maraf24" version="5" action="delete">
+  <node lat="52.55136810824" lon="21.62376347775" id="-39064"/>
+  <node lat="52.55126229102" lon="21.6237571206" id="-39065"/>
+  <node lat="52.55125863708" lon="21.62392162432" id="-39067"/>
+  <node lat="52.55136445431" lon="21.62392798147" id="-39069"/>
+  <node lat="52.5512778" lon="21.6236801" changeset="36393838" id="3257264302" timestamp="2016-01-05T23:58:58Z" uid="2098272" user="maraf24" version="5">
     <tag k="addr:city" v="Gwizdały"/>
     <tag k="addr:city:simc" v="0678794"/>
     <tag k="addr:housenumber" v="3"/>
@@ -20,7 +20,7 @@
     <tag k="addr:street" v="Dębowa"/>
     <tag k="source:addr" v="lochow.e-mapa.net"/>
   </node>
-  <way id="-39066" action="modify">
+  <way id="-39066">
     <tag k="addr:city" v="Gwizdały"/>
     <tag k="addr:city:simc" v="0678794"/>
     <tag k="addr:housenumber" v="3"/>

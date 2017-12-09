@@ -1,6 +1,6 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <osm version='0.6' generator='JOSM'>
-  <node id='3257264302' action='modify' timestamp='2016-01-05T23:58:58Z' uid='2098272' user='maraf24' version='5' changeset='36393838' lat='52.55125477111' lon='21.62365474417'>
+  <node id='3257264302' timestamp='2016-01-05T23:58:58Z' uid='2098272' user='maraf24' version='5' changeset='36393838' lat='52.55125477111' lon='21.62365474417'>
     <tag k='addr:city' v='Gwizdały' />
     <tag k='addr:city:simc' v='0678794' />
     <tag k='addr:housenumber' v='3A' />

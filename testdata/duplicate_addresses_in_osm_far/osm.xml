@@ -1,11 +1,11 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <osm version='0.6' generator='JOSM'>
-  <node id='-39044' action='modify' lat='52.55089992731' lon='21.62691391839'>
+  <node id='-39044' lat='52.55089992731' lon='21.62691391839'>
     <tag k='addr:city' v='Gwizdały' />
     <tag k='addr:housenumber' v='3' />
     <tag k='addr:street' v='Dębowa' />
   </node>
-  <node id='3257264302' action='modify' timestamp='2016-01-05T23:58:58Z' uid='2098272' user='maraf24' version='5' changeset='36393838' lat='52.5512778' lon='21.6236801'>
+  <node id='3257264302' timestamp='2016-01-05T23:58:58Z' uid='2098272' user='maraf24' version='5' changeset='36393838' lat='52.5512778' lon='21.6236801'>
     <tag k='addr:city' v='Gwizdały' />
     <tag k='addr:city:simc' v='0678794' />
     <tag k='addr:housenumber' v='3' />
