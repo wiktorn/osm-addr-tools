@@ -1,0 +1,21 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<osm version="0.6" generator="import adresy merger.py">
+  <note>The data included in this document is from www.openstreetmap.org. The data is made available under ODbL.</note>
+  <meta osm_base=""/>
+  <node lat="0.00207899197" lon="-0.01361076297" id="-38982" action="modify"/>
+  <node lat="0.00207887495" lon="-0.01359984162" id="-38983" action="modify"/>
+  <node lat="0.00207137382" lon="-0.01359992199" id="-38987" action="modify"/>
+  <node lat="0.00207149084" lon="-0.01361084334" id="-38989" action="modify"/>
+  <way id="-38984" action="modify">
+    <tag k="addr:city" v="city"/>
+    <tag k="addr:housenumber" v="4"/>
+    <tag k="addr:street" v="street"/>
+    <tag k="building" v="yes"/>
+    <tag k="source:addr" v="unittest"/>
+    <nd ref="-38982"/>
+    <nd ref="-38983"/>
+    <nd ref="-38987"/>
+    <nd ref="-38989"/>
+    <nd ref="-38982"/>
+  </way>
+</osm>

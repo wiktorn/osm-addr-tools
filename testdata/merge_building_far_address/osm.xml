@@ -1,0 +1,34 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<osm version='0.6' generator='JOSM'>
+  <node id='-39096' action='modify' lat='52.55098760768' lon='21.6268463804' />
+  <node id='-39097' action='modify' lat='52.55084555294' lon='21.62681654095' />
+  <node id='-39099' action='modify' lat='52.55082515965' lon='21.62707912241' />
+  <node id='-39101' action='modify' lat='52.55096721445' lon='21.62710896187' />
+  <node id='-39114' action='modify' lat='52.55093881148' lon='21.62689319031'>
+    <tag k='addr:city' v='Gwizdały' />
+    <tag k='addr:city:simc' v='0678794' />
+    <tag k='addr:housenumber' v='3' />
+    <tag k='addr:postcode' v='07-130' />
+    <tag k='addr:street' v='Dębowa' />
+    <tag k='source:addr' v='lochow.e-mapa.net' />
+  </node>
+  <node id='3257264302' action='modify' timestamp='2016-01-05T23:58:58Z' uid='2098272' user='maraf24' version='5' changeset='36393838' lat='52.5512778' lon='21.6236801'>
+    <tag k='addr:city' v='Gwizdały' />
+    <tag k='addr:city:simc' v='0678794' />
+    <tag k='addr:housenumber' v='3' />
+    <tag k='addr:postcode' v='07-130' />
+    <tag k='addr:street' v='Dębowa' />
+    <tag k='source:addr' v='lochow.e-mapa.net' />
+  </node>
+  <way id='-39098' action='modify'>
+    <nd ref='-39096' />
+    <nd ref='-39097' />
+    <nd ref='-39099' />
+    <nd ref='-39101' />
+    <nd ref='-39096' />
+    <tag k='addr:city' v='Gwizdały' />
+    <tag k='addr:housenumber' v='3' />
+    <tag k='addr:street' v='Dębowa' />
+    <tag k='building' v='yes' />
+  </way>
+</osm>

@@ -1,0 +1,27 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<osm version="0.6" generator="import adresy merger.py">
+  <note>The data included in this document is from www.openstreetmap.org. The data is made available under ODbL.</note>
+  <meta osm_base=""/>
+  <node lat="52.55100154478" lon="21.62668583701" id="-39312" action="modify"/>
+  <node lat="52.55076881428" lon="21.626673288" id="-39314" action="modify"/>
+  <node lat="52.55075764605" lon="21.6272334826" id="-39316" action="modify"/>
+  <node lat="52.55099037661" lon="21.62724603161" id="-39318" action="modify"/>
+  <node lat="52.55134849485" lon="21.62344916113" id="-39320" action="modify"/>
+  <node lat="52.55108824961" lon="21.62346748522" id="-39322" action="modify"/>
+  <node lat="52.55110342564" lon="21.62405044157" id="-39324" action="modify"/>
+  <node lat="52.5513636708" lon="21.62403211748" id="-39326" action="modify"/>
+  <way id="-39328" action="modify">
+    <tag k="addr:city" v="Gwizdały"/>
+    <tag k="addr:city:simc" v="0678794"/>
+    <tag k="addr:housenumber" v="5A"/>
+    <tag k="addr:postcode" v="07-130"/>
+    <tag k="addr:street" v="Dębowa"/>
+    <tag k="building" v="yes"/>
+    <tag k="source:addr" v="lochow.e-mapa.net"/>
+    <nd ref="-39312"/>
+    <nd ref="-39314"/>
+    <nd ref="-39316"/>
+    <nd ref="-39318"/>
+    <nd ref="-39312"/>
+  </way>
+</osm>
