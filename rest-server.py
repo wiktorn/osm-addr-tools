@@ -61,7 +61,7 @@ def merge_addr(terc):
 
 @app.errorhandler(Exception)
 def report_exception(e):
-    app.logger.error(e, exc_info=(type(e), e , e.__traceback__))
+    app.logger.error('{0}: {1}'.format(request.path, e), exc_info=(type(e), e, e.__traceback__))
     return make_response("""<?xml version='1.0' encoding='UTF-8'?><osm version="0.6" generator="import adresy merger.py"><node id="-1" lon="19" lat="52"><tag k="fixme" v="%s" /></node></osm>""" % repr(e), 200)
 
 if __name__ == '__main__':
