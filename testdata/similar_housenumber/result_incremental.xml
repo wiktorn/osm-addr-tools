@@ -8,6 +8,7 @@
     <tag k="addr:housenumber" v="3A"/>
     <tag k="addr:postcode" v="07-130"/>
     <tag k="addr:street" v="Dębowa"/>
+    <tag k="fixme" v="House number in OSM: 3 a"/>
     <tag k="source:addr" v="lochow.e-mapa.net"/>
   </node>
 </osm>

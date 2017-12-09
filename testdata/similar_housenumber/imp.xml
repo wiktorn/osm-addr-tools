@@ -3,7 +3,7 @@
   <node id='-39005' lat='52.55123' lon='21.62363'>
     <tag k='addr:city' v='Gwizdały' />
     <tag k='addr:city:simc' v='0678794' />
-    <tag k='addr:housenumber' v='3 a' />
+    <tag k='addr:housenumber' v='3A' />
     <tag k='addr:postcode' v='07-130' />
     <tag k='addr:street' v='Dębowa' />
     <tag k='source:addr' v='lochow.e-mapa.net' />
