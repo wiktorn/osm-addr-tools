@@ -366,38 +366,40 @@ class Merger(object):
         # change housenumbers to values from import
         try:
             node = next(filter(lambda x: entry.similar_to(x), self.osmdb.nearest(entry.center, num_results=10)))
-            how_far = node.distance(entry)
-            if node and node.street and entry.street and node.street != entry.street and \
-                ((node.objtype == 'node' and how_far < 5.0) or (node.objtype == 'way' and (node.contains(entry.center) or how_far < 10.0))):
-                # there is some similar address nearby but with different street name
-                log_level = logging.WARNING
-                if max(entry.street.split(' '), key=len) in node.street:
-                    # lower the logging level, is the longest string in entry is contained in replacement value
-                    log_level = logging.DEBUG
-                else:
-                    entry.addFixme('Street name in import source: %s' % (entry.street,))
-                self.__log.log(log_level, "Changing street name from %s in import to %s as in OSM (%s), distance=%.2fm",
-                            entry.street, node.street, node.osmid, how_far)
-                # update street name based on OSM data
-                entry.street = node.street
-                # clear symul after name change
-                entry.symul = ""
-                self.set_state(node, 'visible') # make this *always* visible, to verify, if OSM value is correct. Hope that entry will eventually get merged with node
-                # and fixme will get updated
-            if node and node.street == entry.street and node.city == entry.city and node.housenumber != entry.housenumber and \
-                ((node.objtype == 'node' and how_far < 5.0) or (node.objtype == 'way' and (node.contains(entry.center) or how_far < 10.0))):
-                # there is only difference in housenumber, that is similiar
-                if node.housenumber.upper() != entry.housenumber.upper():
-                    clean = lambda x: x.upper().replace(' ', '')
-                    if clean(node.housenumber) == clean(entry.housenumber) and len(node.housenumber) < len(entry.housenumber):
-                        # difference only in spaces, no spaces in OSM do not change address in OSM
-                        return
-                    # if there are some other differences than in case, then add fixme
-                    self.__log.info("Updating housenumber from %s to %s", node.housenumber, entry.housenumber)
-                    entry.addFixme('House number in OSM: %s' % (node.housenumber,))
-                self.set_state(node, 'visible') # make this *always* visible, to verify, if OSM value is correct. Hope that entry will eventually get merged with node
-                node.housenumber = entry.housenumber
-        except StopIteration: pass
+        except StopIteration:
+            return
+        how_far = node.distance(entry)
+        if node and node.street and entry.street and node.street != entry.street and \
+            ((node.objtype == 'node' and how_far < 5.0) or (node.objtype == 'way' and (node.contains(entry.center) or how_far < 10.0))):
+            # there is some similar address nearby but with different street name
+            log_level = logging.WARNING
+            if max(entry.street.split(' '), key=len) in node.street:
+                # lower the logging level, is the longest string in entry is contained in replacement value
+                log_level = logging.DEBUG
+            else:
+                entry.addFixme('Street name in import source: %s' % (entry.street,))
+            self.__log.log(log_level, "Changing street name from %s in import to %s as in OSM (%s), distance=%.2fm",
+                        entry.street, node.street, node.osmid, how_far)
+            # update street name based on OSM data
+            entry.street = node.street
+            # clear symul after name change
+            entry.symul = ""
+            self.set_state(node, 'visible') # make this *always* visible, to verify, if OSM value is correct. Hope that entry will eventually get merged with node
+            # and fixme will get updated
+        if node and node.street == entry.street and node.city == entry.city and node.housenumber != entry.housenumber and \
+            ((node.objtype == 'node' and how_far < 5.0) or (node.objtype == 'way' and (node.contains(entry.center) or how_far < 10.0))):
+            # there is only difference in housenumber, that is similiar
+            if node.housenumber.upper() != entry.housenumber.upper():
+                clean = lambda x: x.upper().replace(' ', '')
+                if clean(node.housenumber) == clean(entry.housenumber) and len(node.housenumber) < len(entry.housenumber):
+                    # difference only in spaces, no spaces in OSM do not change address in OSM
+                    return
+                # if there are some other differences than in case, then add fixme
+                self.__log.info("Updating housenumber from %s to %s", node.housenumber, entry.housenumber)
+                entry.addFixme('House number in OSM: %s' % (node.housenumber,))
+            self.set_state(node, 'visible') # make this *always* visible, to verify, if OSM value is correct. Hope that entry will eventually get merged with node
+            node.housenumber = entry.housenumber
+
 
     def _fix_obsolete_emuia(self, entry):
         existing = self.osmdb.getbyaddress(entry.get_index_key())
