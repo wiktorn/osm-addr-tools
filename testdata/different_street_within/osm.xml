@@ -1,0 +1,30 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<osm version='0.6' generator='JOSM'>
+  <node id='-38986' lat='52.55100154478' lon='21.62668583701' />
+  <node id='-38988' lat='52.55076881428' lon='21.626673288' />
+  <node id='-38990' lat='52.55075764605' lon='21.6272334826' />
+  <node id='-38992' lat='52.55099037661' lon='21.62724603161' />
+  <node id='-38994' lat='52.55134849485' lon='21.62344916113' />
+  <node id='-38996' lat='52.55108824961' lon='21.62346748522' />
+  <node id='-38998' lat='52.55110342564' lon='21.62405044157' />
+  <node id='-39000' lat='52.5513636708' lon='21.62403211748' />
+  <way id='-39002'>
+    <nd ref='-38986' />
+    <nd ref='-38988' />
+    <nd ref='-38990' />
+    <nd ref='-38992' />
+    <nd ref='-38986' />
+    <tag k='addr:city' v='Gwizdały' />
+    <tag k='addr:housenumber' v='5' />
+    <tag k='addr:street' v='Debowa' />
+    <tag k='building' v='yes' />
+  </way>
+  <way id='-39004'>
+    <nd ref='-38994' />
+    <nd ref='-38996' />
+    <nd ref='-38998' />
+    <nd ref='-39000' />
+    <nd ref='-38994' />
+    <tag k='building' v='yes' />
+  </way>
+</osm>
