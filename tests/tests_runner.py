@@ -136,6 +136,11 @@ class MergerTests(unittest.TestCase):
         ]
         self.assertEqual(sorted_addresses(test), expected)
 
+    def test_explicit(self):
+        #make_incremental_test(pathlib.Path(__file__).parent.parent / "testdata" / "merge_address_close_by")(self)
+        #make_full_test(pathlib.Path(__file__).parent.parent / "testdata" / "deterministic_order")(self)
+        make_incremental_test(pathlib.Path(__file__).parent.parent / "testdata" / "similar_housenumber")(self)
+
 
 def __set_tests():
 
