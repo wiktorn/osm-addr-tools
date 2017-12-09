@@ -762,8 +762,14 @@ class Merger(object):
                                    pretty_print=True, xml_declaration=True, encoding='UTF-8')
 
     def get_full_result(self, logIO=None):
-        return lxml.etree.tostring(self._get_osm_xml(self.osmdb.get_all_values(), logIO),
-                                   pretty_print=True, xml_declaration=True, encoding='UTF-8')
+        return lxml.etree.tostring(
+            self._get_osm_xml(
+                sorted(self.osmdb.get_all_values(), key=lambda x: x.osmid),
+                logIO),
+            pretty_print=True,
+            xml_declaration=True,
+            encoding='UTF-8'
+        )
 
 
 def get_addresses(bbox):
