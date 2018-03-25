@@ -1,4 +1,4 @@
-from flask import Flask, make_response as _make_response
+from flask import Flask, request, make_response as _make_response
 import io
 import logging
 import json
