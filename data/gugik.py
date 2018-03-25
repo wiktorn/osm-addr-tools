@@ -1,12 +1,12 @@
 import logging
-import math
 import re
 from functools import partial
 
 import lxml.html
+import tqdm
 
-from data.base import AbstractImport, Address, get_ssl_no_verify_opener, srs_to_wgs
-from utils import groupby
+import converters.emuia
+from data.base import AbstractImport, Address, srs_to_wgs, e2180toWGS
 
 
 class GUGiK(AbstractImport):
@@ -26,99 +26,41 @@ class GUGiK(AbstractImport):
         super(GUGiK, self).__init__(terc=terc)
         self.terc = terc
 
-    @staticmethod
-    def divide_bbox(minx, miny, maxx, maxy):
-        """divides bbox to tiles of maximum supported size by EMUiA WMS"""
-        # noinspection PyTypeChecker
-        return [
-            (x / GUGiK.__PRECISION,
-             y / GUGiK.__PRECISION,
-             min(x / GUGiK.__PRECISION + GUGiK.__MAX_BBOX_X, maxx),
-             min(y / GUGiK.__PRECISION + GUGiK.__MAX_BBOX_Y, maxy))
-            for x in range(math.floor(minx * GUGiK.__PRECISION), math.ceil(maxx * GUGiK.__PRECISION),
-                           GUGiK.__MAX_BBOX_X * GUGiK.__PRECISION)
-            for y in range(math.floor(miny * GUGiK.__PRECISION), math.ceil(maxy * GUGiK.__PRECISION),
-                           GUGiK.__MAX_BBOX_Y * GUGiK.__PRECISION)
-        ]
-
-    def _convert_to_address(self, soup) -> Address:
-        desc_soup = lxml.html.fromstring(str(soup.find('{http://www.opengis.net/kml/2.2}description').text))
-        addr_kv = dict(
-            (
-                str(x.find('strong').find('span').text),
-                str(x.find('span').text).strip()
-            ) for x in desc_soup.find('ul').iterchildren()
-        )
-
-        coords = soup.find('{http://www.opengis.net/kml/2.2}Point').find(
-            '{http://www.opengis.net/kml/2.2}coordinates').text.split(',')
-        # Hack for spaces in EMUiA addresses. Replace them with slash, if they are between numbers
-        addr_kv['NUMER_PORZADKOWY'] = self.__NUMER_RE.sub('\\1/\\2',
-                                                                         addr_kv['NUMER_PORZADKOWY'])
+    def _convert_to_address(self, dct) -> Address:
+        coords = e2180toWGS(dct['pktY'], dct['pktX'])
         ret = Address.mapped_address(
-            addr_kv['NUMER_PORZADKOWY'],
-            addr_kv.get('KOD_POCZTOWY'),
-            addr_kv.get('NAZWA_ULICY'),
-            addr_kv['NAZWA_MIEJSCOWOSCI'],
-            addr_kv.get('TERYT_ULICY'),
-            addr_kv.get('TERYT_MIEJSCOWOSCI'),
+            dct['pktNumer'],
+            dct.get('pktKodPocztowy', ""),
+            (dct.get('ulNazwaCzesc', "") + " " + dct.get('ulNazwaGlowna', "")).strip(),
+            dct['miejscNazwa'],
+            dct.get('ulIdTeryt'),
+            dct.get('miejscIdTeryt'),
             'emuia.gugik.gov.pl',
             {'lat': coords[1], 'lon': coords[0]},
-            addr_kv.get('IDENTYFIKATOR_PUNKTU')
+            dct.get('pktEmuiaIIPId', "")
         )
-        ret.status = addr_kv['STATUS']
-        ret.wazny_do = addr_kv.get('WAZNY_DO')
-        ret.status_budynku = addr_kv.get('STATUS_BUDYNKU')
-        if not ret.wazny_do:
-            ret.wazny_do = addr_kv.get('WERSJA_DO')
+        ret.status = dct['pktStatus']
         return ret
 
     def _is_eligible(self, addr: Address) -> bool:
         # TODO: check status?
-        if addr.status.upper() != 'ZATWIERDZONY':
-            self.__log.debug('Ignoring address %s, because status %s is not ZATWIERDZONY', addr, addr.status.upper())
-            return False
-        if addr.wazny_do:
-            self.__log.debug('Ignoring address %s, because it has set WAZNY_DO=%s', addr, addr.wazny_do)
+        if addr.status.upper() != 'ISTNIEJACY':
+            self.__log.debug('Ignoring address %s, because status %s is not ISTNIEJACY', addr, addr.status.upper())
             return False
         if '?' in addr.housenumber or 'bl' in addr.housenumber:
             self.__log.debug('Ignoring address %s because has strange housenumber: %s', addr, addr.housenumber)
             return False
-        if addr.status_budynku and addr.status_budynku.upper() == 'PROGNOZOWANY':
-            self.__log.debug('Ignoring address %s because STATUS_BUDYNKU = %s', addr, addr.status_budynku)
-            return False
-        if not addr.get_point().within(self.shape):
-            # do not report anything about this, this is normal
-            return False
         return True
 
     def fetch_tiles(self):
-        bbox = self.get_bbox_2180()
-        ret = []
-        for i in self.divide_bbox(*bbox):
-            url = GUGiK.__base_url + ",".join(map(str, i))
-            self.__log.info("Fetching from EMUIA: %s", url)
-
-            opener = get_ssl_no_verify_opener()
-
-            soup = lxml.etree.fromstring(opener.open(url).read())
-            doc = soup.find('{http://www.opengis.net/kml/2.2}Document')  # be namespace aware
-            if doc is not None:
-                ret.extend(
-                    filter(
-                        self._is_eligible,
-                        map(
-                            self._convert_to_address,
-                            doc.iterchildren('{http://www.opengis.net/kml/2.2}Placemark')
-                        )
-                    )
+        return [
+            x for x in [
+                self._convert_to_address(x['adres']) for x in tqdm.tqdm(
+                    converters.emuia.get_addresses(self.terc),
+                    desc="Conversion"
                 )
-            else:
-                raise ValueError('No data returned from GUGiK possibly to wrong scale. Check __MAX_BBOX_X,'
-                                 ' __MAX_BBOX_Y, HEIGHT and WIDTH')
-        # take latest version for each point (version is last element after dot in id_)
-        ret = [max(v, key=lambda z: z.id_) for v in groupby(ret, lambda z: z.id_.rsplit('.', 1)[0]).values()]
-        return ret
+            ] if self._is_eligible(x)
+        ]
 
 
 class GUGiK_GML(AbstractImport):

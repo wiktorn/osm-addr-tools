@@ -4,6 +4,8 @@ import re
 from urllib.parse import urlencode
 from urllib.request import urlopen
 
+import tqdm
+
 from data.base import AbstractImport, Address, e2180toWGS
 
 
@@ -107,5 +109,5 @@ class GISON(AbstractImport):
                     "Problem fetching data. {0} available to parse, while totalResulsts is {1}. Maxrows was {2}".format(
                         len(data[0]['geonames']), data[0]['totalResultsCount'], maxrows))
 
-        ret = list(map(self._convert_to_address, data[0]['geonames']))
+        ret = [self._convert_to_address(x) for x in tqdm.tqdm(data[0]['geonames'], desc="Conversion")]
         return ret

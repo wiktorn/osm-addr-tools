@@ -2,6 +2,7 @@ import logging
 import re
 
 import lxml.html
+import tqdm
 
 from data.base import Address, get_ssl_no_verify_opener
 from data.gugik import GUGiK
@@ -70,7 +71,7 @@ class EGeoportal(GUGiK):
     def fetch_tiles(self):
         bbox = self.get_bbox_2180()
         ret = []
-        for i in self.divide_bbox(*bbox):
+        for i in tqdm.tqdm(self.divide_bbox(*bbox), "Download"):
             url = self.__base_url_getmap.format(layer=self.layer, bbox=",".join(map(str, i)))
             self.__log.info("Fetching from e-Geoportal: %s", url)
 

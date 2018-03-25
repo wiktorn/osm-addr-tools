@@ -10,19 +10,20 @@ import sys
 from collections import defaultdict, OrderedDict
 
 import lxml.etree
+import tqdm
 from lxml.builder import E
 from shapely.geometry import Point
 
 import converter
 import overpass
-from osmdb import OsmDb, get_soup_center, distance, prepare_object_pos
+from data.base import Address
 from data.egeoportal import EGeoportal
-from data.gison import GISON
-from data.warszawaum import WarszawaUM
 from data.gisnet import GISNET
+from data.gison import GISON
 from data.gugik import GUGiK, GUGiK_GML
 from data.impa import iMPA
-from data.base import Address
+from data.warszawaum import WarszawaUM
+from osmdb import OsmDb, get_soup_center, distance, prepare_object_pos
 
 __log = logging.getLogger(__name__)
 
@@ -381,7 +382,9 @@ class Merger(object):
             self._fix_similar_addr(entry)
             tuple(map(lambda x: x(entry), self.pre_func))
 
-        self._parallel_process_func(process, self.impdata)
+        for x in tqdm.tqdm(self.impdata, desc="Running pre-merge functions"):
+            process(x)
+
 
     def _fix_similar_addr(self, entry):
         # look for near same address
@@ -448,7 +451,8 @@ class Merger(object):
                     self.set_state(node, 'delete')
 
     def _do_merge(self):
-        self._parallel_process_func(self._do_merge_one, self.impdata)
+        for entry in tqdm.tqdm(self.impdata, desc="Merging"):
+            self._do_merge_one(entry)
 
     def _do_merge_one(self, entry):
         self.__log.debug("Processing address: %s", entry)
@@ -670,11 +674,14 @@ class Merger(object):
     def mark_not_existing(self):
         imp_addr = set(map(lambda x: x.get_index_key(), self.impdata))
         # from all addresses in OsmDb remove those imported
-        to_delete = set(filter(
-            lambda x: any(
-                map(lambda y: self._import_area_shape.contains(y.center), self.osmdb.getbyaddress(x))
-            ),
-            self.osmdb.getalladdress())) - imp_addr
+        to_delete = set(
+            filter(
+                lambda x: any(
+                    map(lambda y: self._import_area_shape.contains(y.center), self.osmdb.getbyaddress(x))
+                ),
+                tqdm.tqdm(self.osmdb.getalladdress(), desc="Looking for not existing addresses")
+            )
+        ) - imp_addr
 
         self.__log.debug("Marking %d not existing addresses", len(to_delete))
         for addr in filter(any, to_delete):  # at least on addr field is filled in
@@ -751,9 +758,12 @@ class Merger(object):
 
     def _prepare_merge_list(self, buf):
         ret = defaultdict(list)
-        for node in filter(
-                lambda x: x['type'] == 'node' and x.get('tags', {}).get('addr:housenumber'),
-                self.asis['elements']):
+        for node in tqdm.tqdm(
+                [
+                    x for x in self.asis['elements'] if
+                    x['type'] == 'node' and x.get('tags', {}).get('addr:housenumber')
+                ],
+                desc="Preparing merge list (buf={})".format(buf)):
             addr = self.osmdb.getbyid("%s:%s" % (node['type'], node['id']))[0]
             self.__log.debug("Looking for candidates for: %s", str(addr.entry))
             if addr.only_address_node() and addr.state != 'delete' and (

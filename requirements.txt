@@ -1,7 +1,10 @@
+requests
 beautifulsoup4
-lxml
-pyproj
-shapely
-Rtree
 flask
+lxml
+protobuf
+pyproj
+Rtree
+shapely
+tqdm
 zeep

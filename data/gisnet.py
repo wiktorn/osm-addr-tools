@@ -2,9 +2,10 @@ import logging
 import math
 
 import lxml.html
+import tqdm
 
-from data.base import AbstractImport, Address, get_ssl_no_verify_opener
-from utils import groupby
+from .base import AbstractImport, Address, get_ssl_no_verify_opener
+from utils.utils import groupby
 
 
 class GISNET(AbstractImport):
@@ -77,7 +78,7 @@ class GISNET(AbstractImport):
     def fetch_tiles(self):
         bbox = self.get_bbox_2180()
         ret = []
-        for i in self.divide_bbox(*bbox):
+        for i in tqdm.tqdm(self.divide_bbox(*bbox), "Download"):
             url = GISNET.__base_url % (self.gmina, self.gmina) + ",".join(map(str, i))
             self.__log.info("Fetching from GISNET: %s", url)
             opener = get_ssl_no_verify_opener()

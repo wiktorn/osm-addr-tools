@@ -13,7 +13,7 @@ from collections import namedtuple
 
 import converters.teryt
 import overpass
-from mapping_custom import addr_map
+from .mapping_custom import addr_map
 
 __log = logging.getLogger(__name__)
 

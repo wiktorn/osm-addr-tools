@@ -3,6 +3,7 @@ import logging
 import re
 
 import rtree
+import tqdm
 from shapely.geometry import Point
 
 from data.base import AbstractImport, Address, get_ssl_no_verify_opener
@@ -110,4 +111,5 @@ class WarszawaUM(AbstractImport):
         for key, addr in enumerate(self.gugik.fetch_tiles()):
             self.gugik_data[key] = addr
             self.gugik_index.insert(key, (float(addr.location['lat']), float(addr.location['lon'])))
-        return list(filter(self._is_eligible, map(self._convert_to_address, parsed['foiarray'])))
+        return [x for x in [self._convert_to_address(x) for x in tqdm.tqdm(parsed['foiarray'],
+                                                                           desc="Conversion")] if self._is_eligible(x)]

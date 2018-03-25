@@ -1,6 +1,8 @@
 import unittest
 import converter
 import os
+
+import data.base
 import merger
 import lxml.etree
 import pathlib
@@ -13,7 +15,7 @@ def osm_xml_to_addresses(filename):
 def osm_xml_etree_to_addresses(e):
     return list(
         map(
-            merger.Address.from_osm_xml,
+            data.base.Address.from_osm_xml,
             e.getroot().iterchildren()
         )
     )

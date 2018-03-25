@@ -13,10 +13,9 @@ from bs4 import BeautifulSoup
 from shapely.geometry import Point
 
 import overpass
-from mapping import mappostcode
 from osmdb import OsmDb, distance
-from ..mapping import mapstreet, mapcity
-from utils import groupby
+from utils.mapping import mapstreet, mapcity, mappostcode
+from utils.utils import groupby
 
 __log = logging.getLogger(__name__)
 __opener = urequest.build_opener()

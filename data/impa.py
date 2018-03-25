@@ -1,11 +1,21 @@
 import json
 import logging
+import tempfile
+import urllib
 from urllib.parse import urlencode
 from urllib.request import urlopen
 
+import tqdm
 from bs4 import BeautifulSoup
 
 from data.base import AbstractImport, Address, e2180toWGS
+
+
+class TqdmUpTo(tqdm.tqdm):
+    def update_to(self, b=1, bsize=1, tsize=None):
+        if tsize is not None:
+            self.total = tsize
+        self.update(b*bsize - self.n)
 
 
 class iMPA(AbstractImport):
@@ -129,7 +139,10 @@ class iMPA(AbstractImport):
             self.__log.warning("JOSM layer: %s?%s&SRS={proj}&WIDTH={width}&HEIGHT={height}&BBOX={bbox}" % (
                 wms_addr, urlencode(josm_wms)))
         self.__log.info(url)
-        data = urlopen(url).read()
+        with tempfile.NamedTemporaryFile() as temp:
+            with TqdmUpTo(unit='B', unit_scale=True, miniters=1, desc="Downloading from iMPA") as t:
+                urllib.request.urlretrieve(url, filename=temp.name, reporthook=t.update_to)
+            data = temp.read()
         return data
 
     def _convert_to_address_html(self, soup):
@@ -208,7 +221,10 @@ class iMPA(AbstractImport):
             pointx=0, pointy=0  # sprawdź punkt (0,0) i tak powinno zostać zwrócone wszystko
         )
         if self.__USE_GML:
-            ret = list(map(self._convert_to_address_gml, BeautifulSoup(html, "xml").find_all('punkty_feature')))
+            ret = [self._convert_to_address_gml(x) for x in tqdm.tqdm(
+                BeautifulSoup(html, "xml").find_all('punkty_feature'), desc="Conversion")
+                   ]
         else:
-            ret = list(map(self._convert_to_address_html, BeautifulSoup(html, "xml").find_all('table')))
+            ret = [self._convert_to_address_html(x) for x in tqdm.tqdm(BeautifulSoup(html, "xml").find_all('table'),
+                                                                       desc="Conversion")]
         return ret

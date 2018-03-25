@@ -1,3 +1,4 @@
+import tqdm
 from rtree import index
 from shapely.geometry import Point, Polygon, LineString
 import shapely
@@ -171,7 +172,7 @@ class OsmDb(object):
         self.__index_entries = {}
         self.__custom_indexes = dict((x, {}) for x in self.__custom_indexes_conf.keys())
 
-        for (key, val) in self.__osm_obj.items():
+        for (key, val) in tqdm.tqdm(self.__osm_obj.items(), desc="Creating index"):
             pos = self.get_shape(val._raw).centroid
             pos = (pos.y, pos.x)
             if pos:
