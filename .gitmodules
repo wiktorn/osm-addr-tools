@@ -1,6 +1,3 @@
-[submodule "converters"]
-	path = converters
-	url = https://github.com/wiktorn/osm-borders.git
 [submodule "osm-borders"]
 	path = osm-borders
 	url = https://github.com/wiktorn/osm-borders.git

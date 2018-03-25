@@ -6,7 +6,8 @@ import logging
 import lxml
 
 from converter import osm_to_json
-from merger import Merger, Address, get_addresses, OsmAddress
+from merger import Merger, get_addresses, OsmAddress
+from data.base import Address
 
 
 def main():
@@ -42,7 +43,7 @@ def main():
     m = Merger(data, addr, args.terc)
     for i in data:
         m._do_merge_create_point(i)
-    m._create_index()
+    m.create_index()
     m.merge_addresses()
     output.write(m.get_incremental_result(logIO))
 

@@ -16,7 +16,13 @@ from shapely.geometry import Point
 import converter
 import overpass
 from osmdb import OsmDb, get_soup_center, distance, prepare_object_pos
-from punktyadresowe_import import iMPA, GUGiK, Address, GISNET, WarszawaUM, GUGiK_GML, GISON, EGeoportal
+from data.egeoportal import EGeoportal
+from data.gison import GISON
+from data.warszawaum import WarszawaUM
+from data.gisnet import GISNET
+from data.gugik import GUGiK, GUGiK_GML
+from data.impa import iMPA
+from data.base import Address
 
 __log = logging.getLogger(__name__)
 
@@ -344,13 +350,13 @@ class Merger(object):
         self._parallel_process_func = parallel_process_func
         self.source_addr = source_addr
 
-    def _create_index(self):
+    def create_index(self):
         self.osmdb.update_index()
 
     def merge(self):
         self.__log.debug("Starting premerger functinos")
         self._pre_merge()
-        self._create_index()
+        self.create_index()
         self.__log.debug("Starting merge functinos")
         self._do_merge()
         self.__log.debug("Starting postmerge functinos")
@@ -653,13 +659,13 @@ class Merger(object):
 
     def _post_merge(self):
         # recreate index
-        self._create_index()
+        self.create_index()
 
         for i in self.post_func:
             i()
-        self._create_index()
+        self.create_index()
         self.mark_not_existing()
-        self._create_index()
+        self.create_index()
 
     def mark_not_existing(self):
         imp_addr = set(map(lambda x: x.get_index_key(), self.impdata))
