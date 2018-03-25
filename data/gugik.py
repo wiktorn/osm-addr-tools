@@ -129,9 +129,6 @@ class GUGiK_GML(AbstractImport):
 
     def __init__(self, fname):
         self.soup = lxml.etree.fromstring(open(fname, 'rb').read())
-        feature_member = self.soup.find('{{{0}}}featureMembers'.format(self.__GML_NS))
-        if not feature_member:
-            feature_member = self.soup.find('{{{0}}}featureMember'.format(self.__GML_NS))
         terc = max(
             (x.text for x in
              self.soup.findall('.//{{{0}}}AD_JednostkaAdministracyjna/{{{0}}}idTERYT'.format(self.__MUA))),
