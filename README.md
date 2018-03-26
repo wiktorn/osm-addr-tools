@@ -15,7 +15,7 @@ Now you can run:
 $ venv/bin/python merger.py --gugik --terc 0601032
 ```
 
-To update:
+To update code:
 ```commandline
 $ git pull
 $ git submodule update --remote

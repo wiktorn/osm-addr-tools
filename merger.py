@@ -351,13 +351,13 @@ class Merger(object):
         self._parallel_process_func = parallel_process_func
         self.source_addr = source_addr
 
-    def create_index(self):
-        self.osmdb.update_index()
+    def create_index(self, message=""):
+        self.osmdb.update_index(message)
 
     def merge(self):
         self.__log.debug("Starting premerger functinos")
         self._pre_merge()
-        self.create_index()
+        self.create_index("[3/11]")
         self.__log.debug("Starting merge functinos")
         self._do_merge()
         self.__log.debug("Starting postmerge functinos")
@@ -382,7 +382,7 @@ class Merger(object):
             self._fix_similar_addr(entry)
             tuple(map(lambda x: x(entry), self.pre_func))
 
-        for x in tqdm.tqdm(self.impdata, desc="Running pre-merge functions"):
+        for x in tqdm.tqdm(self.impdata, desc="[2/11] Running pre-merge functions"):
             process(x)
 
 
@@ -451,7 +451,7 @@ class Merger(object):
                     self.set_state(node, 'delete')
 
     def _do_merge(self):
-        for entry in tqdm.tqdm(self.impdata, desc="Merging"):
+        for entry in tqdm.tqdm(self.impdata, desc="[4/11] Merging"):
             self._do_merge_one(entry)
 
     def _do_merge_one(self, entry):
@@ -663,13 +663,13 @@ class Merger(object):
 
     def _post_merge(self):
         # recreate index
-        self.create_index()
+        self.create_index("[5/11]")
 
         for i in self.post_func:
             i()
-        self.create_index()
+        self.create_index("[9/11]")
         self.mark_not_existing()
-        self.create_index()
+        self.create_index("[11/11]")
 
     def mark_not_existing(self):
         imp_addr = set(map(lambda x: x.get_index_key(), self.impdata))
@@ -679,7 +679,7 @@ class Merger(object):
                 lambda x: any(
                     map(lambda y: self._import_area_shape.contains(y.center), self.osmdb.getbyaddress(x))
                 ),
-                tqdm.tqdm(self.osmdb.getalladdress(), desc="Looking for not existing addresses")
+                tqdm.tqdm(self.osmdb.getalladdress(), desc="[10/11] Looking for not existing addresses")
             )
         ) - imp_addr
 
@@ -699,9 +699,9 @@ class Merger(object):
                     self.set_state(node, 'visible')
 
     def merge_addresses(self):
-        self._merge_addresses_buffer(0)
-        self._merge_addresses_buffer(2)
-        self._merge_addresses_buffer(5)
+        self._merge_addresses_buffer(0, "[6/11]")
+        self._merge_addresses_buffer(2, "[7/11]")
+        self._merge_addresses_buffer(5, "[8/11]")
 
     def _merge_one_address(self, building, addr):
         # as we merge only address nodes, do not pass anything else
@@ -717,9 +717,9 @@ class Merger(object):
         self.set_state(addr, 'delete')
         self._updated_nodes.append(self.osmdb.getbyid("%s:%s" % (building['type'], building['id']))[0])
 
-    def _merge_addresses_buffer(self, buf=0):
+    def _merge_addresses_buffer(self, buf=0, message=""):
         self.__log.info("Merging building with buffer: %d", buf)
-        to_merge = self._prepare_merge_list(buf)
+        to_merge = self._prepare_merge_list(buf, message)
         buildings = dict(
             ("%s:%s" % (x['type'], x['id']), x) for x in self.asis['elements'] if x['type'] in ('way', 'relation')
         )
@@ -756,14 +756,14 @@ class Merger(object):
                 for node in nodes:
                     self._mark_soup_visible(node)
 
-    def _prepare_merge_list(self, buf):
+    def _prepare_merge_list(self, buf, message=""):
         ret = defaultdict(list)
         for node in tqdm.tqdm(
                 [
                     x for x in self.asis['elements'] if
                     x['type'] == 'node' and x.get('tags', {}).get('addr:housenumber')
                 ],
-                desc="Preparing merge list (buf={})".format(buf)):
+                desc="{} Preparing merge list (buf={})".format(message, buf)):
             addr = self.osmdb.getbyid("%s:%s" % (node['type'], node['id']))[0]
             self.__log.debug("Looking for candidates for: %s", str(addr.entry))
             if addr.only_address_node() and addr.state != 'delete' and (
