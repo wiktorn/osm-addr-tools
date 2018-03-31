@@ -7,12 +7,12 @@ import logging
 import pyproj
 
 
-
 __multipliers = {
     'node'    : lambda x: x*3,
     'way'     : lambda x: x*3+1,
     'relation': lambda x: x*3+2,
 }
+
 
 def _get_id(soup):
     """Converts overlapping identifiers for node, ways and relations in single integer space"""
@@ -20,6 +20,8 @@ def _get_id(soup):
 
 
 __position_cache = {}
+
+
 def get_soup_position(soup):
     try:
         return __position_cache[soup['id']]
@@ -27,6 +29,7 @@ def get_soup_position(soup):
         ret = get_soup_position_cached(soup)
         __position_cache[soup['id']] = ret
         return ret
+
 
 def get_soup_position_cached(soup):
     """Extracts position for way/node as bounding box"""
@@ -45,14 +48,17 @@ def get_soup_position_cached(soup):
             raise TypeError("No bounds for ways and relations!")
     raise TypeError("%s not supported" % (soup['type'],))
 
+
 def get_soup_center(soup):
     # lat, lon
     pos = get_soup_position(soup)
     return (pos[0] + pos[2])/2, (pos[1] + pos[3])/2
 
+
 def prepare_object_pos(elem_lst):
     def elem_loc(elm):
-        return (float(elm['lat']), float(elm['lon']))
+        return float(elm['lat']), float(elm['lon'])
+
     def elem_id(elm):
         return "%s:%s" % (elm['type'], elm['id'])
 
@@ -97,6 +103,8 @@ def prepare_object_pos(elem_lst):
     
 
 __geod = pyproj.Geod(ellps="WGS84")
+
+
 def distance(a, b):
     """returns distance betwen a and b points in meters"""
     if isinstance(a, shapely.geometry.base.BaseGeometry):
@@ -136,8 +144,10 @@ class OsmDbEntry(object):
     def contains(self, other):
         return self.shape.contains(other)
 
+
 class OsmDb(object):
     __log = logging.getLogger(__name__).getChild('OsmDb')
+
     def __init__(self, osmdata, valuefunc=lambda x: x, indexes=None):
         # assume osmdata is a BeautifulSoup object already
         # do it an assert
@@ -145,14 +155,18 @@ class OsmDb(object):
             indexes = {}
         self._osmdata = osmdata
         self.__custom_indexes = dict((x, {}) for x in indexes.keys())
-        self._valuefunc=valuefunc
+        self._valuefunc = valuefunc
         self.__custom_indexes_conf = indexes
         self.__cached_shapes = {}
+        self.__index = index.Index()
+        self.__index_entries = {}
+
 
         def makegetfromindex(i):
             def getfromindex(key):
                 return self.__custom_indexes[i].get(key, [])
             return getfromindex
+
         def makegetallindexed(i):
             def getallindexed():
                 return tuple(self.__custom_indexes[i].keys())
@@ -162,17 +176,22 @@ class OsmDb(object):
             setattr(self, 'getby' + i, makegetfromindex(i))
             setattr(self, 'getall' + i, makegetallindexed(i))
 
-        self.__osm_obj = dict(((x['type'], x['id']), OsmDbEntry(self._valuefunc(x), x, self)) for x in self._osmdata['elements'])
-        self.update_index()
+        self.__osm_obj = dict(
+            (
+                (x['type'], x['id']),
+                OsmDbEntry(self._valuefunc(x), x, self)
+            ) for x in self._osmdata['elements']
+        )
+        self.update_index("[1/10]")
 
-    def update_index(self):
+    def update_index(self, message=""):
         self.__log.debug("Recreating index")
 
         self.__index = index.Index()
         self.__index_entries = {}
         self.__custom_indexes = dict((x, {}) for x in self.__custom_indexes_conf.keys())
 
-        for (key, val) in tqdm.tqdm(self.__osm_obj.items(), desc="Creating index"):
+        for (key, val) in tqdm.tqdm(self.__osm_obj.items(), desc="{} Creating index".format(message)):
             pos = self.get_shape(val._raw).centroid
             pos = (pos.y, pos.x)
             if pos:
@@ -308,7 +327,6 @@ class OsmDb(object):
 
         ids = _get_ids(cur_elem)
         while ways:
-            #ids = list(y['ref'] for y in cur_elem._raw.find_all('nd', recursive=False))
             node_ids.extend(ids)
             ways.remove(cur_elem)
             if node_ids[0] == node_ids[-1]:
