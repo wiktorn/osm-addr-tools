@@ -1,3 +1,5 @@
+import collections
+
 import tqdm
 from rtree import index
 from shapely.geometry import Point, Polygon, LineString
@@ -189,7 +191,7 @@ class OsmDb(object):
 
         self.__index = index.Index()
         self.__index_entries = {}
-        self.__custom_indexes = dict((x, {}) for x in self.__custom_indexes_conf.keys())
+        self.__custom_indexes = dict((x, collections.defaultdict(list)) for x in self.__custom_indexes_conf.keys())
 
         for (key, val) in tqdm.tqdm(self.__osm_obj.items(), desc="{} Creating index".format(message)):
             pos = self.get_shape(val._raw).centroid
@@ -200,15 +202,8 @@ class OsmDb(object):
 
                 self.__index_entries[_id] = val
 
-                for j in self.__custom_indexes_conf.keys():
-                    custom_index = self.__custom_indexes[j]
-                    key = self.__custom_indexes_conf[j](val)
-                    try:
-                        entry = custom_index[key]
-                    except KeyError:
-                        entry = []
-                        custom_index[key] = entry
-                    entry.append(val)
+                for custom_index_name, custom_index_func in self.__custom_indexes_conf.items():
+                    self.__custom_indexes[custom_index_name][custom_index_func(val)].append(val)
 
     def add_new(self, new):
         self._osmdata['elements'].append(new)
@@ -225,6 +220,11 @@ class OsmDb(object):
         return map(self.__index_entries.get, 
                    self.__index.nearest(point * 2, num_results)
                )
+
+    def intersects(self, point):
+        if isinstance(point, Point):
+            point = (point.y, point.x)
+        return (self.__index_entries.get(x) for x in self.__index.intersection(point * 2))
 
     def get_shape(self, soup):
         id_ = soup['id']

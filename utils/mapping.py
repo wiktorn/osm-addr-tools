@@ -76,7 +76,7 @@ def stored_dict(fetcher, filename):
     if data['time'] < time.time() - 21 * 24 * 60 * 60:
         try:
             new = fetcher()
-        except:
+        except Exception as e:
             __log.warning("Failed to download dictionary: %s", filename, exc_info=True)
             __log.warning("Using dictionary from: %s", time.asctime(time.localtime(data['time'])))
             return data['dct']
@@ -124,18 +124,20 @@ def mapstreet(strname, symul):
 
     def check_and_add_cecha(street):
         if teryt_entry and teryt_entry.cecha:
-            if street.upper().startswith(teryt_entry.cecha.upper()):
+            if street.upper().startswith(teryt_entry.cecha_orig.upper()):
                 # remove short version cecha and prepand full version
-                street = "%s %s" % (__CECHA_MAPPING.get(teryt_entry.cecha, ''),
-                                    strname[len(teryt_entry.cecha):].strip())
+                street = "%s %s" % (teryt_entry.cecha,
+                                    street[len(teryt_entry.cecha_orig):].strip())
                 street = street.strip()
-            if street.upper().startswith('UL.') and teryt_entry.cecha.upper() == 'UL.':
+            if street.upper().startswith('UL.') and teryt_entry.cecha_orig.upper() == 'UL.':
                 street = street[3:].strip()
+            if street.upper().startswith('Ulica') and teryt_entry.cecha.upper() == 'Ulica':
+                street = street[5:].strip()
             if not street.upper().startswith(teryt_entry.cecha.upper()) and \
-                    not street.upper().startswith(__CECHA_MAPPING.get(teryt_entry.cecha, '').upper()):
+                    not street.upper().startswith(__CECHA_MAPPING.get(teryt_entry.cecha_orig, '').upper()):
                 __log.debug("Adding TERYT.CECHA=%s to street=%s (addr:street:sym_ul=%s)" % (
-                    __CECHA_MAPPING.get(teryt_entry.cecha, ''), street, symul))
-                return "%s %s" % (__CECHA_MAPPING.get(teryt_entry.cecha, ''), street)
+                    __CECHA_MAPPING.get(teryt_entry.cecha_orig, ''), street, symul))
+                return "%s %s" % (__CECHA_MAPPING.get(teryt_entry.cecha_orig, ''), street)
         else:
             if street.upper().startswith('AL. '):
                 return 'Aleja ' + street[4:]
