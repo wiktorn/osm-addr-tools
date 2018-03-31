@@ -390,9 +390,17 @@ class Merger(object):
         # look for near same address
         # change street names to values from OSM
         # change housenumbers to values from import
-        try:
-            node = next(filter(lambda x: entry.similar_to(x), self.osmdb.nearest(entry.center, num_results=10)))
-        except StopIteration:
+        node = next(
+            (
+                x for x in itertools.islice(
+                    (x for x in self.osmdb.nearest(entry.center, num_results=100) if x.housenumber),
+                    0,
+                    10
+                ) if entry.similar_to(x)
+            )
+            , None
+        )
+        if not node:
             return
         how_far = node.distance(entry)
         if node and node.street and entry.street and node.street != entry.street and \
@@ -923,7 +931,7 @@ def main():
                         help='output file with merged data (default: result.osm)')
     parser.add_argument('--full', action='store_const', const=True, dest='full_mode', default=False,
                         help='Use to output all address data for region, not only modified address data as per default')
-    parser.add_argument('--no-merge', action='store_const', const=True, dest='no_merge', default=False,
+    parser.add_argument('--no-merge', action='store_const', const=True, dest='merge_addresses_with_multiple_nodes', default=False,
                         help='Do not merger addresses with buildings')
     parser.add_argument('--log-level', dest='log_level', default=20, type=int,
                         help='Set logging level (debug=10, info=20, warning=30, error=40, critical=50), default: 20')

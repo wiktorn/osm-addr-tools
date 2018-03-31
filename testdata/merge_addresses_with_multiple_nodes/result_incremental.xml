@@ -1,0 +1,67 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<osm version="0.6" generator="import adresy merger.py">
+  <note>The data included in this document is from www.openstreetmap.org. The data is made available under ODbL.</note>
+  <meta osm_base=""/>
+  <node lat="52.27222332" lon="21.01504691" id="-1" action="delete">
+    <tag k="addr:city" v="Warszawa"/>
+    <tag k="addr:city:simc" v="0918123"/>
+    <tag k="addr:housenumber" v="59"/>
+    <tag k="addr:street" v="Jagiellońska"/>
+    <tag k="addr:street:sym_ul" v="07029"/>
+    <tag k="source:addr" v="mapa.um.warszawa.pl"/>
+  </node>
+  <node lat="52.2721565" lon="21.0138241" id="-42482" action="modify"/>
+  <node lat="52.2720056" lon="21.0139157" id="-42483" action="modify"/>
+  <node lat="52.2721005" lon="21.0140453" id="-42484" action="modify"/>
+  <node lat="52.272207" lon="21.0145203" id="-42485" action="modify"/>
+  <node lat="52.2720812" lon="21.0145957" id="-42486" action="modify"/>
+  <node lat="52.2719746" lon="21.0141207" id="-42487" action="modify"/>
+  <node lat="52.2719237" lon="21.0141574" id="-42488" action="modify"/>
+  <node lat="52.2720771" lon="21.0148566" id="-42489" action="modify"/>
+  <node lat="52.2724601" lon="21.0146233" id="-42490" action="modify"/>
+  <node lat="52.2725067" lon="21.0148271" id="-42491" action="modify"/>
+  <node lat="52.2719507" lon="21.0151664" id="-42492" action="modify"/>
+  <node lat="52.2719041" lon="21.0149626" id="-42493" action="modify"/>
+  <node lat="52.271922" lon="21.0149474" id="-42494" action="modify"/>
+  <node lat="52.2718761" lon="21.0147381" id="-42495" action="modify"/>
+  <node lat="52.2718629" lon="21.0146775" id="-42496" action="modify"/>
+  <node lat="52.2717325" lon="21.014083" id="-42497" action="modify"/>
+  <node lat="52.2716998" lon="21.0141014" id="-42498" action="modify"/>
+  <node lat="52.271621" lon="21.0137548" id="-42499" action="modify"/>
+  <node lat="52.2720777" lon="21.0134774" id="-42500" action="modify"/>
+  <way id="-42481" action="modify">
+    <tag k="addr:city" v="Warszawa"/>
+    <tag k="addr:city:simc" v="0918123"/>
+    <tag k="addr:housenumber" v="59"/>
+    <tag k="addr:postcode" v="03-301"/>
+    <tag k="addr:street" v="Jagiellońska"/>
+    <tag k="addr:street:sym_ul" v="07029"/>
+    <tag k="amenity" v="university"/>
+    <tag k="building" v="yes"/>
+    <tag k="fixme" v="Node is 52 meters away from imported point"/>
+    <tag k="name" v="Akademia Leona Koźmińskiego"/>
+    <tag k="name:en" v="Kozminski University"/>
+    <tag k="source:addr" v="mapa.um.warszawa.pl"/>
+    <tag k="website" v="http://www.kozminski.edu.pl/"/>
+    <nd ref="-42482"/>
+    <nd ref="-42483"/>
+    <nd ref="-42484"/>
+    <nd ref="-42485"/>
+    <nd ref="-42486"/>
+    <nd ref="-42487"/>
+    <nd ref="-42488"/>
+    <nd ref="-42489"/>
+    <nd ref="-42490"/>
+    <nd ref="-42491"/>
+    <nd ref="-42492"/>
+    <nd ref="-42493"/>
+    <nd ref="-42494"/>
+    <nd ref="-42495"/>
+    <nd ref="-42496"/>
+    <nd ref="-42497"/>
+    <nd ref="-42498"/>
+    <nd ref="-42499"/>
+    <nd ref="-42500"/>
+    <nd ref="-42482"/>
+  </way>
+</osm>
