@@ -770,21 +770,18 @@ class Merger(object):
                     self._import_area_shape.contains(addr.center)):
                 # need to take into account a large number of candidates, as nodes <-> members of ways are also returned
                 candidates = list(self.osmdb.nearest(addr.center, num_results=100))
-                candidates_within = list(
-                    filter(
-                        lambda x: addr.osmid != x.osmid and x.objtype == 'relation' and addr.center.within(
-                            buffer(x.shape, buf)),
-                        candidates
-                    )
-                )
+                candidates_within = [x for x in candidates if
+                                     x.objtype == 'relation' and
+                                     x.osmid != addr.osmid and
+                                     addr.center.within(buffer(x.shape, buf))
+                                     ]
                 if not candidates_within:
-                    candidates_within = list(
-                        filter(
-                            lambda x: addr.osmid != x.osmid and x.objtype == 'way' and addr.center.within(
-                                buffer(x.shape, buf)),
-                            candidates
-                        )
-                    )
+                    candidates_within = [
+                        x for x in candidates if
+                        x.objtype == 'way' and
+                        x.osmid != addr.osmid and
+                        addr.center.within(buffer(x.shape, buf))
+                    ]
 
                 if candidates_within:
                     c = candidates_within[0]

@@ -29,7 +29,8 @@ class WarszawaUM(AbstractImport):
         super(WarszawaUM, self).__init__(terc=terc)
         self.terc = terc
         self.gmina = gmina
-        self.gugik = GUGiK(terc)
+        # GUGIK dictionary has only whole Warsaw
+        self.gugik = GUGiK("1465011")
         self.gugik_data = {}
         self.gugik_index = rtree.index.Index()
 
