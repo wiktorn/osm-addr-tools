@@ -158,6 +158,7 @@ class OsmAddress(Address):
     def _get_tag_val(self, key):
         return self._soup.get('tags')
 
+
     def _set_tag_val(self, key, val):
         """returns True if something was modified"""
         n = self._soup['tags'].get(key)
@@ -931,7 +932,7 @@ def main():
                         help='output file with merged data (default: result.osm)')
     parser.add_argument('--full', action='store_const', const=True, dest='full_mode', default=False,
                         help='Use to output all address data for region, not only modified address data as per default')
-    parser.add_argument('--no-merge', action='store_const', const=True, dest='merge_addresses_with_multiple_nodes', default=False,
+    parser.add_argument('--no-merge', action='store_const', const=True, dest='no_merge', default=False,
                         help='Do not merger addresses with buildings')
     parser.add_argument('--log-level', dest='log_level', default=20, type=int,
                         help='Set logging level (debug=10, info=20, warning=30, error=40, critical=50), default: 20')
