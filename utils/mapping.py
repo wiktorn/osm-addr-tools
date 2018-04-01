@@ -124,6 +124,9 @@ def mapstreet(strname, symul):
 
     def check_and_add_cecha(street):
         if teryt_entry and teryt_entry.cecha:
+            teryt_nazwa = teryt_entry.nazwa[5:].strip() if \
+                teryt_entry.nazwa.startswith('Ulica') and teryt_entry.cecha.upper() == 'ULICA' \
+                else teryt_entry.nazwa
             if street.upper().startswith(teryt_entry.cecha_orig.upper()):
                 # remove short version cecha and prepand full version
                 street = "%s %s" % (teryt_entry.cecha,
@@ -131,7 +134,7 @@ def mapstreet(strname, symul):
                 street = street.strip()
             if street.upper().startswith('UL.') and teryt_entry.cecha_orig.upper() == 'UL.':
                 street = street[3:].strip()
-            if street.upper().startswith('Ulica') and teryt_entry.cecha.upper() == 'Ulica':
+            if street.upper().startswith('ULICA') and teryt_entry.cecha.upper() == 'ULICA':
                 street = street[5:].strip()
             if not street.upper().startswith(teryt_entry.cecha.upper()) and \
                     not street.upper().startswith(__CECHA_MAPPING.get(teryt_entry.cecha_orig, '').upper()):
@@ -145,7 +148,7 @@ def mapstreet(strname, symul):
                 return 'Plac ' + street[4:]
             if street.upper().startswith('UL. '):
                 return street[4:]
-        return street
+        return max(street, teryt_nazwa, key=lambda x: len(x))
 
     try:
         strname = strname.replace('„', '"').replace('”', '"')
