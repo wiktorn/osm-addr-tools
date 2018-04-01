@@ -123,6 +123,7 @@ def mapstreet(strname, symul):
     teryt_entry = __teryt_ulic.get(symul)
 
     def check_and_add_cecha(street):
+        teryt_nazwa = ""
         if teryt_entry and teryt_entry.cecha:
             teryt_nazwa = teryt_entry.nazwa[5:].strip() if \
                 teryt_entry.nazwa.startswith('Ulica') and teryt_entry.cecha.upper() == 'ULICA' \
