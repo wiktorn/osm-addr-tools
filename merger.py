@@ -788,27 +788,33 @@ class Merger(object):
                         20
                     )
                 )
-                candidates_within = [x for x in candidates if
-                                     x.objtype == 'relation' and
-                                     x.osmid != addr.osmid and
-                                     addr.center.within(buffer(x.shape, buf))
-                                     ]
-                if not candidates_within:
-                    candidates_within = [
+                candidate_within = next(
+                    (
                         x for x in candidates if
-                        x.objtype == 'way' and
+                        x.objtype == 'relation' and
                         x.osmid != addr.osmid and
                         addr.center.within(buffer(x.shape, buf))
-                    ]
+                    ),
+                    None
+                )
+                if not candidate_within:
+                    candidate_within = next(
+                        (
+                            x for x in candidates if
+                            x.objtype == 'way' and
+                            x.osmid != addr.osmid and
+                            addr.center.within(buffer(x.shape, buf))
+                        ),
+                        None
+                    )
 
-                if candidates_within:
-                    c = candidates_within[0]
-                    if c.housenumber and not addr.similar_to(c):
-                        self.set_state(c, 'visible')
+                if candidate_within:
+                    if candidate_within.housenumber and not addr.similar_to(candidate_within):
+                        self.set_state(candidate_within, 'visible')
                         self.set_state(addr, 'visible')
                     else:
-                        ret[c.osmid].append(addr)
-                        self.__log.debug("Found: %s", c.osmid)
+                        ret[candidate_within.osmid].append(addr)
+                        self.__log.debug("Found: %s", candidate_within.osmid)
         return ret
 
     def _get_osm_xml(self, nodes, logIO=None):
