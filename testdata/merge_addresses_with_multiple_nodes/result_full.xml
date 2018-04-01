@@ -2,6 +2,14 @@
 <osm version="0.6" generator="import adresy merger.py">
   <note>The data included in this document is from www.openstreetmap.org. The data is made available under ODbL.</note>
   <meta osm_base=""/>
+  <node lat="52.27222332" lon="21.01504691" id="-1" action="delete">
+    <tag k="addr:city" v="Warszawa"/>
+    <tag k="addr:city:simc" v="0918123"/>
+    <tag k="addr:housenumber" v="59"/>
+    <tag k="addr:street" v="Jagiellońska"/>
+    <tag k="addr:street:sym_ul" v="07029"/>
+    <tag k="source:addr" v="mapa.um.warszawa.pl"/>
+  </node>
   <node lat="52.2721565" lon="21.0138241" id="-42482" action="modify"/>
   <node lat="52.2720056" lon="21.0139157" id="-42483" action="modify"/>
   <node lat="52.2721005" lon="21.0140453" id="-42484" action="modify"/>
