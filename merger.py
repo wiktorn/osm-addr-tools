@@ -964,6 +964,7 @@ def main():
     log_io = io.StringIO()
 
     logging.basicConfig(level=10, handlers=[log_stderr, logging.StreamHandler(log_io)])
+    logging.getLogger("converters").setLevel(logging.INFO)
 
     terc = None
     if args.impa:
