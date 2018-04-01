@@ -777,8 +777,17 @@ class Merger(object):
             self.__log.debug("Looking for candidates for: %s", str(addr.entry))
             if addr.only_address_node() and addr.state != 'delete' and (
                     self._import_area_shape.contains(addr.center)):
-                # need to take into account a large number of candidates, as nodes <-> members of ways are also returned
-                candidates = list(self.osmdb.nearest(addr.center, num_results=100))
+                # do not use nodes as candidates, as they will never match
+                candidates = list(
+                    itertools.islice(
+                        (
+                            x for x in self.osmdb.nearest(addr.center, num_results=1000)
+                            if x.objtype in ('way', 'relation')
+                        ),
+                        0,
+                        20
+                    )
+                )
                 candidates_within = [x for x in candidates if
                                      x.objtype == 'relation' and
                                      x.osmid != addr.osmid and
