@@ -1,0 +1,11 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<osm version='0.6' generator='JOSM'>
+  <node id='-52692' action='modify' lat='52.24298357' lon='21.07373482'>
+    <tag k='addr:city' v='Warszawa' />
+    <tag k='addr:city:simc' v='0918123' />
+    <tag k='addr:housenumber' v='41' />
+    <tag k='addr:street' v='Aleja Jerzego Waszyngtona' />
+    <tag k='addr:street:sym_ul' v='45576' />
+    <tag k='source:addr' v='mapa.um.warszawa.pl' />
+  </node>
+</osm>

@@ -1,0 +1,23 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<osm version='0.6' generator='JOSM'>
+  <node id='-52700' action='modify' lat='52.2428201' lon='21.073027' />
+  <node id='-52701' action='modify' lat='52.2431118' lon='21.0744446' />
+  <node id='-52702' action='modify' lat='52.2432049' lon='21.0743935' />
+  <node id='-52703' action='modify' lat='52.2429131' lon='21.072976' />
+  <way id='-52699' action='modify'>
+    <nd ref='-52700' />
+    <nd ref='-52701' />
+    <nd ref='-52702' />
+    <nd ref='-52703' />
+    <nd ref='-52700' />
+    <tag k='addr:city' v='Warszawa' />
+    <tag k='addr:city:simc' v='0918123' />
+    <tag k='addr:housenumber' v='41' />
+    <tag k='addr:postcode' v='04-015' />
+    <tag k='addr:street' v='Aleja Jerzego Waszyngtona' />
+    <tag k='addr:street:sym_ul' v='23739' />
+    <tag k='building' v='residential' />
+    <tag k='building:levels' v='8' />
+    <tag k='source:addr' v='mapa.um.warszawa.pl' />
+  </way>
+</osm>
