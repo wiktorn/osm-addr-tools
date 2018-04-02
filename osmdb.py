@@ -1,8 +1,11 @@
+import functools
+
 import collections
 
 import tqdm
 from rtree import index
 from shapely.geometry import Point, Polygon, LineString
+import shapely.ops
 import shapely
 import utils
 import logging
@@ -106,6 +109,8 @@ def prepare_object_pos(elem_lst):
 
 __geod = pyproj.Geod(ellps="WGS84")
 
+_epsg_2180_to_4326 = functools.partial(pyproj.transform, pyproj.Proj(init='epsg:2180'), pyproj.Proj(init='epsg:4326'))
+_epsg_4326_to_2180 = functools.partial(pyproj.transform, pyproj.Proj(init='epsg:4326'), pyproj.Proj(init='epsg:2180'))
 
 def distance(a, b):
     """returns distance betwen a and b points in meters"""
@@ -145,6 +150,18 @@ class OsmDbEntry(object):
 
     def contains(self, other):
         return self.shape.contains(other)
+
+    def buffered_shape(self, buffer: int) -> shapely.geometry.base.BaseGeometry:
+        """
+        :param buffer: buffer in meters -
+        :return: object extended in each direction by buffer
+
+        Uses EPSG:2180 (PUWG) to get estimated 1 m = 1 unit, so buffer will actually extend objects by one meter
+        Warning: This will work only in Poland
+        """
+        ret = shapely.ops.transform(_epsg_4326_to_2180, self.shape).buffer(buffer)
+        return shapely.ops.transform(_epsg_2180_to_4326, ret)
+
 
 
 class OsmDb(object):

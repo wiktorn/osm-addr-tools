@@ -752,7 +752,6 @@ class Merger(object):
             if len(nodes) > 0:
                 self._mark_soup_visible(self.osmdb.getbyid(_id)[0])
 
-            # if there is only one candidate, or all candidates are similar addresses on same street
             self._merge_building_with_addresses(_id, building, nodes)
 
     def _merge_building_with_addresses(self, _id: str, building: typing.Dict[str, typing.Any],
@@ -765,8 +764,7 @@ class Merger(object):
                 lambda x: x[0].similar_to(x[1]) and x[0].street == x[1].street,
                 itertools.combinations(nodes, 2)
         )):
-            # one candidate or all candidates have the same address (so we threat all the same as one)
-
+            # if there is only one candidate, or all candidates are similar addresses on same street
             if building_tag('addr:housenumber') and not (
                     nodes[0].similar_to(self.osmdb.getbyid("%s:%s" % (building['type'], building['id']))[0]) and
                     nodes[0].street == self.osmdb.getbyid("%s:%s" % (building['type'], building['id']))[0].street
@@ -835,7 +833,7 @@ class Merger(object):
                         x for x in candidates if
                         x.objtype == 'relation' and
                         x.osmid != addr.osmid and
-                        addr.center.within(buffer(x.shape, buf))
+                        addr.center.within(x.buffered_shape(buf))
                     ),
                     None
                 )
@@ -845,7 +843,7 @@ class Merger(object):
                             x for x in candidates if
                             x.objtype == 'way' and
                             x.osmid != addr.osmid and
-                            addr.center.within(buffer(x.shape, buf))
+                            addr.center.within(x.buffered_shape(buf))
                         ),
                         None
                     )
