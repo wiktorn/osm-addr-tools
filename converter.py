@@ -1,7 +1,8 @@
 import lxml.etree
 import json
 
-def convert_element(elem):
+
+def convert_element(elem: lxml.etree.ElementBase):
     ret = {
         'type': elem.tag,
         'tags': {},
@@ -17,6 +18,8 @@ def convert_element(elem):
             ret['nodes'].append(n.get('ref'))
         if n.tag == 'member':
             ret['members'].append(dict(n.attrib))
+        if n.tag == 'bounds':
+            ret['bounds'] = dict(n.attrib)
     for i in ('tags', 'nodes', 'members'):
         if len(ret[i]) == 0:
             del ret[i]
