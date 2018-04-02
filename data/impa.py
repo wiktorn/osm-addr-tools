@@ -225,6 +225,6 @@ class iMPA(AbstractImport):
                 BeautifulSoup(html, "xml").find_all('punkty_feature'), desc="Conversion")
                    ]
         else:
-            ret = [self._convert_to_address_html(x) for x in tqdm.tqdm(BeautifulSoup(html, "xml").find_all('table'),
+            ret = [self._convert_to_address_html(x) for x in tqdm.tqdm(BeautifulSoup(html, "lxml").find_all('table'),
                                                                        desc="Conversion")]
         return ret

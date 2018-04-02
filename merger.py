@@ -492,7 +492,17 @@ class Merger(object):
             if max(x[0] for x in existing) > 50:
                 for (dist, node) in existing:
                     if dist > 50:
-                        if not (node.objtype in ('way', 'relation') and node.contains(entry.center)):
+                        if not (
+                                (node.objtype in ('way', 'relation') and node.contains(entry.center)) or
+                                # if node is within other way/relation with the same address do not mark it if the way
+                                # is not away more than 50 to avoid to many warnings
+                                node.objtype == 'node' and any(
+                                    (
+                                        (x.contains(node.center) and x.distance(entry) <= 50) for (_, x) in existing if
+                                        x.objtype in ('way', 'relation')
+                                    )
+                                )
+                        ):
                             # ignore the distance, if the point is within the node
                             self.__log.warning("Address (id=%s) %s is %d meters from imported point",
                                                node.osmid, entry, dist)

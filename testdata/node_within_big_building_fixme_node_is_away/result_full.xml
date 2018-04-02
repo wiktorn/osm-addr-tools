@@ -1,0 +1,32 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<osm version="0.6" generator="import adresy merger.py">
+  <note>The data included in this document is from www.openstreetmap.org. The data is made available under ODbL.</note>
+  <meta osm_base=""/>
+  <node lat="52.3359938" lon="20.9509343" id="-65969" action="delete">
+    <tag k="addr:city" v="Warszawa"/>
+    <tag k="addr:housenumber" v="1"/>
+    <tag k="addr:postcode" v="03-142"/>
+    <tag k="addr:street" v="Mariana Wyrzykowskiego"/>
+    <tag k="source:addr" v="mapa.um.warszawa.pl"/>
+  </node>
+  <node lat="52.3357359" lon="20.9514677" id="-65970" action="modify"/>
+  <node lat="52.3362348" lon="20.9507038" id="-65971" action="modify"/>
+  <node lat="52.3361415" lon="20.9505668" id="-65972" action="modify"/>
+  <node lat="52.3356489" lon="20.9513307" id="-65973" action="modify"/>
+  <way id="-65968" action="modify">
+    <tag k="addr:city" v="Warszawa"/>
+    <tag k="addr:city:simc" v="0918123"/>
+    <tag k="addr:housenumber" v="1"/>
+    <tag k="addr:postcode" v="03-142"/>
+    <tag k="addr:street" v="Mariana Wyrzykowskiego"/>
+    <tag k="addr:street:sym_ul" v="48722"/>
+    <tag k="building" v="apartments"/>
+    <tag k="building:levels" v="8"/>
+    <tag k="source:addr" v="mapa.um.warszawa.pl"/>
+    <nd ref="-65970"/>
+    <nd ref="-65971"/>
+    <nd ref="-65972"/>
+    <nd ref="-65973"/>
+    <nd ref="-65970"/>
+  </way>
+</osm>

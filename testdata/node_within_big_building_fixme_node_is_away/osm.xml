@@ -1,0 +1,28 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<osm version='0.6' generator='JOSM'>
+  <node id='-65969' action='modify' lat='52.3359938' lon='20.9509343'>
+    <tag k='addr:city' v='Warszawa' />
+    <tag k='addr:housenumber' v='1' />
+    <tag k='addr:postcode' v='03-142' />
+    <tag k='addr:street' v='Mariana Wyrzykowskiego' />
+    <tag k='source:addr' v='mapa.um.warszawa.pl' />
+  </node>
+  <node id='-65970' action='modify' lat='52.3357359' lon='20.9514677' />
+  <node id='-65971' action='modify' lat='52.3362348' lon='20.9507038' />
+  <node id='-65972' action='modify' lat='52.3361415' lon='20.9505668' />
+  <node id='-65973' action='modify' lat='52.3356489' lon='20.9513307' />
+  <way id='-65968' action='modify'>
+    <nd ref='-65970' />
+    <nd ref='-65971' />
+    <nd ref='-65972' />
+    <nd ref='-65973' />
+    <nd ref='-65970' />
+    <tag k='addr:city' v='Warszawa' />
+    <tag k='addr:housenumber' v='1' />
+    <tag k='addr:place' v='Warszawa' />
+    <tag k='addr:postcode' v='03-142' />
+    <tag k='addr:street' v='Mariana Wyrzykowskiego' />
+    <tag k='building' v='apartments' />
+    <tag k='building:levels' v='8' />
+  </way>
+</osm>
