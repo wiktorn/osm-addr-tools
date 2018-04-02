@@ -47,7 +47,7 @@ def get_soup_position_cached(soup):
                     )
                 )
         else:
-            raise TypeError("No bounds for ways and relations!")
+            raise TypeError("OSM Data doesn't contain bounds for ways and relations!")
     raise TypeError("%s not supported" % (soup['type'],))
 
 
