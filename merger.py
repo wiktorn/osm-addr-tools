@@ -359,7 +359,7 @@ class Merger(object):
     def merge(self):
         self.__log.debug("Starting premerger functinos")
         self._pre_merge()
-        self.create_index("[3/11]")
+        self.create_index("[3/12]")
         self.__log.debug("Starting merge functinos")
         self._do_merge()
         self.__log.debug("Starting postmerge functinos")
@@ -384,7 +384,7 @@ class Merger(object):
             self._fix_similar_addr(entry)
             tuple(map(lambda x: x(entry), self.pre_func))
 
-        for x in tqdm.tqdm(self.impdata, desc="[2/11] Running pre-merge functions"):
+        for x in tqdm.tqdm(self.impdata, desc="[2/12] Running pre-merge functions"):
             process(x)
 
 
@@ -461,7 +461,7 @@ class Merger(object):
                     self.set_state(node, 'delete')
 
     def _do_merge(self):
-        for entry in tqdm.tqdm(self.impdata, desc="[4/11] Merging"):
+        for entry in tqdm.tqdm(self.impdata, desc="[4/12] Merging"):
             self._do_merge_one(entry)
 
     def _do_merge_one(self, entry):
@@ -690,13 +690,14 @@ class Merger(object):
 
     def _post_merge(self):
         # recreate index
-        self.create_index("[5/11]")
-
+        self.create_index("[5/12]")
+        self.handle_street_name_changes()
+        self.create_index("[6/12]")
         for i in self.post_func:
             i()
-        self.create_index("[9/11]")
+        self.create_index("[11/12]")
         self.mark_not_existing()
-        self.create_index("[11/11]")
+        self.create_index("[12/12]")
 
     def mark_not_existing(self):
         imp_addr = set(map(lambda x: x.get_index_key(), self.impdata))
@@ -706,7 +707,7 @@ class Merger(object):
                 lambda x: any(
                     map(lambda y: self._import_area_shape.contains(y.center), self.osmdb.getbyaddress(x))
                 ),
-                tqdm.tqdm(self.osmdb.getalladdress(), desc="[10/11] Looking for not existing addresses")
+                tqdm.tqdm(self.osmdb.getalladdress(), desc="[10/12] Looking for not existing addresses")
             )
         ) - imp_addr
 
@@ -726,9 +727,9 @@ class Merger(object):
                     self.set_state(node, 'visible')
 
     def merge_addresses(self):
-        self._merge_addresses_buffer(0, "[6/11]")
-        self._merge_addresses_buffer(2, "[7/11]")
-        self._merge_addresses_buffer(5, "[8/11]")
+        self._merge_addresses_buffer(0, "[7/12]")
+        self._merge_addresses_buffer(2, "[8/12]")
+        self._merge_addresses_buffer(5, "[9/12]")
 
     def _merge_one_address(self, building: typing.Dict[str, typing.Any], addr: OsmDbEntry):
         # as we merge only address nodes, do not pass anything else
@@ -788,20 +789,6 @@ class Merger(object):
                 for node in nodes:
                     self._merge_one_address(building, node)
                 return
-
-        # building has address, check if this is name change
-        if len(nodes) == 1:
-            node = nodes[0]
-
-            if building_tag('addr:housenumber').upper().replace(' ', '') == \
-                    nodes[0].housenumber.upper().replace(' ', '') and \
-                    building_tag('addr:city') == node.city and \
-                    building_tag('addr:street') != node.street and \
-                    node.sym_ul:
-                building['tags']['fixme'] = (building_tag('fixme') +
-                                             ' Street name in OSM: ' +
-                                             building_tag('addr:street')).strip()
-                self._merge_one_address(building, node)
 
         if len(nodes) > 1:
             for node in nodes:
@@ -885,6 +872,39 @@ class Merger(object):
             xml_declaration=True,
             encoding='UTF-8'
         )
+
+    def handle_street_name_changes(self):
+        """
+            If the imported point is within a building, that has the same housenumber and city, and there is symul
+            in imported data, then update the street name from imported point
+        """
+        for entry in self.impdata:
+            candidate = next(
+                (
+                    x for x in itertools.chain(
+                    itertools.islice(
+                        (x for x in self.osmdb.nearest(entry.center, num_results=1000) if x.objtype == 'relation'),
+                        0,
+                        20
+                    ),
+                    itertools.islice(
+                        (x for x in self.osmdb.nearest(entry.center, num_results=1000) if x.objtype == 'way'),
+                        0,
+                        20
+                    )
+                ) if x.contains(entry.center)
+                ),
+                None
+            )
+            if candidate and candidate.housenumber.upper().replace(' ', '') == \
+                    entry.housenumber.upper().replace(' ', '') and candidate.city == entry.city and \
+                    candidate.street != entry.street and entry.sym_ul:
+                candidate.add_fixme('Street name in OSM: ' + candidate.street)
+                candidate.update_from(entry)
+                self._updated_nodes.append(candidate)
+
+
+
 
 
 def get_addresses(bbox):

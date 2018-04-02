@@ -1,0 +1,62 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<osm version="0.6" generator="import adresy merger.py">
+  <note>The data included in this document is from www.openstreetmap.org. The data is made available under ODbL.</note>
+  <meta osm_base=""/>
+  <node lat="52.30455125" lon="20.98610369" id="-1" action="modify">
+    <tag k="addr:city" v="Warszawa"/>
+    <tag k="addr:city:simc" v="0918123"/>
+    <tag k="addr:housenumber" v="35"/>
+    <tag k="addr:street" v="Dorodna"/>
+    <tag k="addr:street:sym_ul" v="04125"/>
+    <tag k="source:addr" v="mapa.um.warszawa.pl"/>
+  </node>
+  <node lat="52.3042635" lon="20.9868795" id="-103082">
+    <tag k="addr:city" v="Warszawa"/>
+    <tag k="addr:city:simc" v="0918123"/>
+    <tag k="addr:housenumber" v="35A"/>
+    <tag k="addr:postcode" v="03-199"/>
+    <tag k="addr:street" v="Modlińska"/>
+    <tag k="addr:street:sym_ul" v="13171"/>
+    <tag k="source:addr" v="mapa.um.warszawa.pl"/>
+  </node>
+  <node lat="52.3041648" lon="20.9865291" id="-103083">
+    <tag k="addr:city" v="Warszawa"/>
+    <tag k="addr:city:simc" v="0918123"/>
+    <tag k="addr:housenumber" v="35"/>
+    <tag k="addr:postcode" v="03-195"/>
+    <tag k="addr:street" v="Dorodna"/>
+    <tag k="addr:street:sym_ul" v="04125"/>
+    <tag k="fixme" v="Node is 51 meters away from imported point"/>
+    <tag k="source:addr" v="mapa.um.warszawa.pl"/>
+  </node>
+  <node lat="52.3042804" lon="20.9867997" id="-103085"/>
+  <node lat="52.3040572" lon="20.9870981" id="-103086"/>
+  <node lat="52.3036887" lon="20.9863608" id="-103087"/>
+  <node lat="52.3039119" lon="20.9860624" id="-103088"/>
+  <node lat="52.30438751" lon="20.9861076" id="-2" action="modify">
+    <tag k="addr:city" v="Warszawa"/>
+    <tag k="addr:city:simc" v="0918123"/>
+    <tag k="addr:housenumber" v="35A"/>
+    <tag k="addr:street" v="Dorodna"/>
+    <tag k="addr:street:sym_ul" v="04125"/>
+    <tag k="source:addr" v="mapa.um.warszawa.pl"/>
+  </node>
+  <way id="-103084">
+    <tag k="addr:city" v="Warszawa"/>
+    <tag k="addr:city:simc" v="0918123"/>
+    <tag k="addr:housenumber" v="35"/>
+    <tag k="addr:postcode" v="03-199"/>
+    <tag k="addr:street" v="Modlińska"/>
+    <tag k="addr:street:sym_ul" v="13171"/>
+    <tag k="building" v="yes"/>
+    <tag k="name" v="Lidl"/>
+    <tag k="opening_hours" v="Mo-Sa 07:00-22:00; Su 09:00-19:00"/>
+    <tag k="shop" v="supermarket"/>
+    <tag k="source:addr" v="mapa.um.warszawa.pl"/>
+    <nd ref="-103085"/>
+    <nd ref="-103086"/>
+    <nd ref="-103087"/>
+    <nd ref="-103088"/>
+    <nd ref="-103085"/>
+  </way>
+</osm>

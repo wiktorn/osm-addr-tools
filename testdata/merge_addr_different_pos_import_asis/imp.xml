@@ -1,0 +1,35 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<osm version='0.6' generator='JOSM'>
+  <node id='-103095' action='modify' lat='52.30406639' lon='20.98704234'>
+    <tag k='addr:city' v='Warszawa' />
+    <tag k='addr:city:simc' v='0918123' />
+    <tag k='addr:housenumber' v='35' />
+    <tag k='addr:street' v='Modlińska' />
+    <tag k='addr:street:sym_ul' v='13171' />
+    <tag k='source:addr' v='mapa.um.warszawa.pl' />
+  </node>
+  <node id='-103096' action='modify' lat='52.30455125' lon='20.98610369'>
+    <tag k='addr:city' v='Warszawa' />
+    <tag k='addr:city:simc' v='0918123' />
+    <tag k='addr:housenumber' v='35' />
+    <tag k='addr:street' v='Dorodna' />
+    <tag k='addr:street:sym_ul' v='04125' />
+    <tag k='source:addr' v='mapa.um.warszawa.pl' />
+  </node>
+  <node id='-103097' action='modify' lat='52.30438751' lon='20.9861076'>
+    <tag k='addr:city' v='Warszawa' />
+    <tag k='addr:city:simc' v='0918123' />
+    <tag k='addr:housenumber' v='35A' />
+    <tag k='addr:street' v='Dorodna' />
+    <tag k='addr:street:sym_ul' v='04125' />
+    <tag k='source:addr' v='mapa.um.warszawa.pl' />
+  </node>
+  <node id='-103098' action='modify' lat='52.30424849' lon='20.98682895'>
+    <tag k='addr:city' v='Warszawa' />
+    <tag k='addr:city:simc' v='0918123' />
+    <tag k='addr:housenumber' v='35A' />
+    <tag k='addr:street' v='Modlińska' />
+    <tag k='addr:street:sym_ul' v='13171' />
+    <tag k='source:addr' v='mapa.um.warszawa.pl' />
+  </node>
+</osm>
