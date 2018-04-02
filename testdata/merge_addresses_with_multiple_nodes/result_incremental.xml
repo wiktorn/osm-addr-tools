@@ -38,7 +38,6 @@
     <tag k="addr:street:sym_ul" v="07029"/>
     <tag k="amenity" v="university"/>
     <tag k="building" v="yes"/>
-    <tag k="fixme" v="Node is 52 meters away from imported point"/>
     <tag k="name" v="Akademia Leona Koźmińskiego"/>
     <tag k="name:en" v="Kozminski University"/>
     <tag k="source:addr" v="mapa.um.warszawa.pl"/>

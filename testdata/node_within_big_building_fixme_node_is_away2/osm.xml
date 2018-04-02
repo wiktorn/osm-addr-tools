@@ -1,0 +1,28 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<osm version='0.6' generator='JOSM'>
+  <node id='-66424' action='modify' lat='52.3134722' lon='21.0113388' />
+  <node id='-66425' action='modify' lat='52.3135308' lon='21.011543' />
+  <node id='-66426' action='modify' lat='52.3128662' lon='21.0120532' />
+  <node id='-66427' action='modify' lat='52.312807' lon='21.0118468' />
+  <node id='-66428' action='modify' lat='52.3129062' lon='21.0117706' />
+  <node id='-66429' action='modify' lat='52.3124963' lon='21.0103421' />
+  <node id='-66430' action='modify' lat='52.312909' lon='21.0100252' />
+  <node id='-66431' action='modify' lat='52.3133196' lon='21.011456' />
+  <way id='-66423' action='modify'>
+    <nd ref='-66424' />
+    <nd ref='-66425' />
+    <nd ref='-66426' />
+    <nd ref='-66427' />
+    <nd ref='-66428' />
+    <nd ref='-66429' />
+    <nd ref='-66430' />
+    <nd ref='-66431' />
+    <nd ref='-66424' />
+    <tag k='addr:city' v='Warszawa' />
+    <tag k='addr:housenumber' v='19' />
+    <tag k='addr:postcode' v='03-236' />
+    <tag k='addr:street' v='Annopol' />
+    <tag k='building' v='industrial' />
+    <tag k='name' v='TNT Express Worldwide Poland' />
+  </way>
+</osm>

@@ -494,14 +494,21 @@ class Merger(object):
                 for (dist, node) in existing:
                     if dist > 50:
                         if not (
-                                (node.objtype in ('way', 'relation') and node.contains(entry.center)) or
-                                # if node is within other way/relation with the same address do not mark it if the way
-                                # is not away more than 50 to avoid to many warnings
-                                node.objtype == 'node' and any(
-                                    (
-                                        (x.contains(node.center) and x.distance(entry) <= 50) for (_, x) in existing if
-                                        x.objtype in ('way', 'relation')
-                                    )
+                                (
+                                        node.objtype in ('way', 'relation') and
+                                        node.buffered_shape(50).contains(entry.center)
+                                ) or (
+                                        # if node is within other way/relation with the same address do not mark it if
+                                        # the way is not away more than 50 to avoid to many warnings
+                                        node.objtype == 'node' and any(
+                                            (
+                                                    (
+                                                            node.within(x.shape) and
+                                                            x.buffered_shape(50).contains(entry.center)
+                                                    )
+                                                    for (_, x) in existing if x.objtype in ('way', 'relation')
+                                            )
+                                        )
                                 )
                         ):
                             # ignore the distance, if the point is within the node
