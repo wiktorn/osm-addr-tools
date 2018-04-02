@@ -1,0 +1,11 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<osm version='0.6' generator='JOSM'>
+  <node id='-76328' action='modify' lat='52.31619153' lon='20.95484353'>
+    <tag k='addr:city' v='Warszawa' />
+    <tag k='addr:city:simc' v='0918123' />
+    <tag k='addr:housenumber' v='9' />
+    <tag k='addr:street' v='Józsefa Antalla' />
+    <tag k='addr:street:sym_ul' v='44493' />
+    <tag k='source:addr' v='mapa.um.warszawa.pl' />
+  </node>
+</osm>
