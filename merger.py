@@ -840,7 +840,7 @@ class Merger(object):
                         x for x in candidates if
                         x.objtype == 'relation' and
                         x.osmid != addr.osmid and
-                        addr.center.within(x.buffered_shape(buf))
+                        addr.center.within(x.buffered_shape(buf) if buf else x.shape)
                     ),
                     None
                 )
@@ -850,7 +850,7 @@ class Merger(object):
                             x for x in candidates if
                             x.objtype == 'way' and
                             x.osmid != addr.osmid and
-                            addr.center.within(x.buffered_shape(buf))
+                            addr.center.within(x.buffered_shape(buf) if buf else x.shape)
                         ),
                         None
                     )
