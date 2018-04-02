@@ -1,0 +1,14 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<osm version="0.6" generator="import adresy merger.py">
+  <note>The data included in this document is from www.openstreetmap.org. The data is made available under ODbL.</note>
+  <meta osm_base=""/>
+  <node lat="52.3355525" lon="21.0051819" id="-89768" action="modify">
+    <tag k="addr:city" v="Warszawa"/>
+    <tag k="addr:city:simc" v="0918123"/>
+    <tag k="addr:housenumber" v="14"/>
+    <tag k="addr:postcode" v="03-016"/>
+    <tag k="addr:street" v="Ciupagi"/>
+    <tag k="addr:street:sym_ul" v="03109"/>
+    <tag k="source:addr" v="mapa.um.warszawa.pl"/>
+  </node>
+</osm>
