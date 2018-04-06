@@ -409,22 +409,10 @@ class Merger(object):
                 ((node.objtype == 'node' and how_far < 5.0) or (
                         node.objtype == 'way' and (node.contains(entry.center) or how_far < 10.0))):
             # there is some similar address nearby but with different street name
-            log_level = logging.WARNING
-            if max(entry.street.split(' '), key=len) in node.street:
-                # lower the logging level, is the longest string in entry is contained in replacement value
-                log_level = logging.DEBUG
-            else:
-                entry.add_fixme('Street name in import source: %s' % (entry.street,))
-            self.__log.log(log_level, "Changing street name from %s in import to %s as in OSM (%s), distance=%.2fm",
-                           entry.street, node.street, node.osmid, how_far)
-            # update street name based on OSM data
-            entry.street = node.street
-            # clear symul after name change
-            entry.symul = ""
-            # make this *always* visible, to verify, if OSM value is correct. Hope that entry will
-            # eventually get merged with node
-            self.set_state(node, 'visible')
-            # and fixme will get updated
+            #entry.add_fixme('Street name in OSM: ' + node.street)
+            #node.add_fixme('Street name in OSM: ' + node.street)
+            #node.street = entry.street
+            pass
         if node and node.street == entry.street and node.city == entry.city and \
                 node.housenumber != entry.housenumber and ((node.objtype == 'node' and how_far < 5.0) or (
                 node.objtype == 'way' and (node.contains(entry.center) or how_far < 10.0))):
@@ -580,8 +568,9 @@ class Merger(object):
                 if node.similar_to(entry):
                     found = True
                     self.__log.debug("Updating near node from: %s to %s", node.entry, entry)
+                    # as node.similar_to(entry) only changes in street might happened
+                    node.add_fixme("Street name in OSM: " + node.street)
                     self._update_node(node, entry)
-                    entry.add_fixme("Node updated from nearest node")
                 if found:
                     return True
             if any(map(lambda x: x.housenumber and x.city, candidates_same)):
@@ -878,6 +867,15 @@ class Merger(object):
             If the imported point is within a building, that has the same housenumber and city, and there is symul
             in imported data, then update the street name from imported point
         """
+        def try_name_change(osm_addr, imp_addr) -> bool:
+            if osm_addr and osm_addr.housenumber.upper().replace(' ', '') == \
+                    imp_addr.housenumber.upper().replace(' ', '') and osm_addr.city == imp_addr.city and \
+                    osm_addr.street != imp_addr.street and imp_addr.sym_ul:
+                osm_addr.add_fixme('Street name in OSM: ' + osm_addr.street)
+                osm_addr.update_from(imp_addr)
+                self._updated_nodes.append(osm_addr)
+                return True
+
         for entry in self.impdata:
             candidate = next(
                 (
@@ -896,12 +894,16 @@ class Merger(object):
                 ),
                 None
             )
-            if candidate and candidate.housenumber.upper().replace(' ', '') == \
-                    entry.housenumber.upper().replace(' ', '') and candidate.city == entry.city and \
-                    candidate.street != entry.street and entry.sym_ul:
-                candidate.add_fixme('Street name in OSM: ' + candidate.street)
-                candidate.update_from(entry)
-                self._updated_nodes.append(candidate)
+
+            if not try_name_change(candidate, entry):
+                # try to find node
+                candidate = next(
+                    (x for x in self.osmdb.nearest(entry.center, num_results=1000)
+                     if x.objtype == 'node' and x.housenumber and distance(x.center, entry.center) < 10),
+                    None
+                )
+                try_name_change(candidate, entry)
+
 
 
 

@@ -196,8 +196,8 @@ class Address(object):
             ret &= True
         else:
             ret &= (other.city == self.city)
-        if self.sym_ul and other.sym_ul:
-            ret &= (self.sym_ul == other.sym_ul)
+        #if self.sym_ul and other.sym_ul:
+        #    ret &= (self.sym_ul == other.sym_ul)
         # skip compare by streets, callers should do this by themselvs
         return ret
 
