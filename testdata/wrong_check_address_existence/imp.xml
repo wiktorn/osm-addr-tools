@@ -1,0 +1,35 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<osm version='0.6' generator='JOSM'>
+  <node id='-49606' lat='52.26929013' lon='20.93720729'>
+    <tag k='addr:city' v='Warszawa' />
+    <tag k='addr:city:simc' v='0918123' />
+    <tag k='addr:housenumber' v='17' />
+    <tag k='addr:street' v='Zgrupowania AK &quot;Żmija&quot;' />
+    <tag k='addr:street:sym_ul' v='44855' />
+    <tag k='source:addr' v='mapa.um.warszawa.pl' />
+  </node>
+  <node id='-49607' lat='52.26877706' lon='20.93708828'>
+    <tag k='addr:city' v='Warszawa' />
+    <tag k='addr:city:simc' v='0918123' />
+    <tag k='addr:housenumber' v='17A' />
+    <tag k='addr:street' v='Zgrupowania AK &quot;Żmija&quot;' />
+    <tag k='addr:street:sym_ul' v='44855' />
+    <tag k='source:addr' v='mapa.um.warszawa.pl' />
+  </node>
+  <node id='-49608' lat='52.26939755' lon='20.93680211'>
+    <tag k='addr:city' v='Warszawa' />
+    <tag k='addr:city:simc' v='0918123' />
+    <tag k='addr:housenumber' v='19' />
+    <tag k='addr:street' v='Zgrupowania AK &quot;Żmija&quot;' />
+    <tag k='addr:street:sym_ul' v='44855' />
+    <tag k='source:addr' v='mapa.um.warszawa.pl' />
+  </node>
+  <node id='-49609' lat='52.26950388' lon='20.93630245'>
+    <tag k='addr:city' v='Warszawa' />
+    <tag k='addr:city:simc' v='0918123' />
+    <tag k='addr:housenumber' v='19A' />
+    <tag k='addr:street' v='Zgrupowania AK &quot;Żmija&quot;' />
+    <tag k='addr:street:sym_ul' v='44855' />
+    <tag k='source:addr' v='mapa.um.warszawa.pl' />
+  </node>
+</osm>
