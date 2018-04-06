@@ -1,0 +1,123 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<osm version='0.6' generator='JOSM'>
+  <node id='-49656' lat='52.2692897' lon='20.9372'>
+    <tag k='addr:city' v='Warszawa' />
+    <tag k='addr:city:simc' v='0918123' />
+    <tag k='addr:housenumber' v='17' />
+    <tag k='addr:postcode' v='01-875' />
+    <tag k='addr:street' v='Zgrupowania Żmija' />
+    <tag k='addr:street:sym_ul' v='32607' />
+    <tag k='source:addr' v='mapa.um.warszawa.pl' />
+  </node>
+  <node id='-49658' lat='52.269504' lon='20.9362955'>
+    <tag k='addr:city' v='Warszawa' />
+    <tag k='addr:city:simc' v='0918123' />
+    <tag k='addr:housenumber' v='19A' />
+    <tag k='addr:postcode' v='01-875' />
+    <tag k='addr:street' v='Zgrupowania Żmija' />
+    <tag k='addr:street:sym_ul' v='32607' />
+    <tag k='source:addr' v='mapa.um.warszawa.pl' />
+  </node>
+  <node id='-49659' lat='52.2687768' lon='20.9370805'>
+    <tag k='addr:city' v='Warszawa' />
+    <tag k='addr:city:simc' v='0918123' />
+    <tag k='addr:housenumber' v='17A' />
+    <tag k='addr:postcode' v='01-875' />
+    <tag k='addr:street' v='Zgrupowania Żmija' />
+    <tag k='addr:street:sym_ul' v='32607' />
+    <tag k='source:addr' v='mapa.um.warszawa.pl' />
+  </node>
+  <node id='-49660' lat='52.2692368' lon='20.937676' />
+  <node id='-49661' lat='52.2691764' lon='20.9376374' />
+  <node id='-49662' lat='52.2691881' lon='20.9376064' />
+  <node id='-49663' lat='52.2691646' lon='20.9375664' />
+  <node id='-49664' lat='52.2691808' lon='20.9375365' />
+  <node id='-49665' lat='52.2691578' lon='20.937481' />
+  <node id='-49666' lat='52.26912' lon='20.9375266' />
+  <node id='-49667' lat='52.2686998' lon='20.9372503' />
+  <node id='-49668' lat='52.268667' lon='20.9371377' />
+  <node id='-49669' lat='52.2686998' lon='20.9370545' />
+  <node id='-49670' lat='52.2686703' lon='20.9369821' />
+  <node id='-49671' lat='52.2687409' lon='20.9366951' />
+  <node id='-49672' lat='52.2688689' lon='20.936781' />
+  <node id='-49673' lat='52.268795' lon='20.9370626' />
+  <node id='-49674' lat='52.2688131' lon='20.9371404' />
+  <node id='-49675' lat='52.2691365' lon='20.9373255' />
+  <node id='-49676' lat='52.2691857' lon='20.9373013' />
+  <node id='-49677' lat='52.2694253' lon='20.9363062' />
+  <node id='-49678' lat='52.2694024' lon='20.9362257' />
+  <node id='-49679' lat='52.2693728' lon='20.9362016' />
+  <node id='-49680' lat='52.2693646' lon='20.9362445' />
+  <node id='-49681' lat='52.2692152' lon='20.936148' />
+  <node id='-49682' lat='52.269253' lon='20.9360246' />
+  <node id='-49683' lat='52.2692251' lon='20.9360058' />
+  <node id='-49684' lat='52.2692349' lon='20.9359629' />
+  <node id='-49685' lat='52.2692218' lon='20.9359522' />
+  <node id='-49686' lat='52.2692399' lon='20.9358824' />
+  <node id='-49687' lat='52.2693449' lon='20.9359495' />
+  <node id='-49688' lat='52.2693383' lon='20.9359763' />
+  <node id='-49689' lat='52.2694729' lon='20.9360675' />
+  <node id='-49690' lat='52.2694844' lon='20.936148' />
+  <node id='-49691' lat='52.2695189' lon='20.936148' />
+  <node id='-49692' lat='52.2695435' lon='20.9362606' />
+  <node id='-49693' lat='52.2695222' lon='20.9362794' />
+  <node id='-49694' lat='52.2695386' lon='20.9363411' />
+  <node id='-49695' lat='52.2692809' lon='20.9374006' />
+  <node id='-49696' lat='52.2692005' lon='20.9374837' />
+  <node id='-49697' lat='52.2692109' lon='20.9375215' />
+  <node id='-49698' lat='52.2692323' lon='20.9375204' />
+  <node id='-49699' lat='52.2692401' lon='20.9375714' />
+  <node id='-49700' lat='52.2692616' lon='20.93758' />
+  <way id='-49657'>
+    <nd ref='-49660' />
+    <nd ref='-49661' />
+    <nd ref='-49662' />
+    <nd ref='-49663' />
+    <nd ref='-49664' />
+    <nd ref='-49665' />
+    <nd ref='-49666' />
+    <nd ref='-49667' />
+    <nd ref='-49668' />
+    <nd ref='-49669' />
+    <nd ref='-49670' />
+    <nd ref='-49671' />
+    <nd ref='-49672' />
+    <nd ref='-49673' />
+    <nd ref='-49674' />
+    <nd ref='-49675' />
+    <nd ref='-49676' />
+    <nd ref='-49677' />
+    <nd ref='-49678' />
+    <nd ref='-49679' />
+    <nd ref='-49680' />
+    <nd ref='-49681' />
+    <nd ref='-49682' />
+    <nd ref='-49683' />
+    <nd ref='-49684' />
+    <nd ref='-49685' />
+    <nd ref='-49686' />
+    <nd ref='-49687' />
+    <nd ref='-49688' />
+    <nd ref='-49689' />
+    <nd ref='-49690' />
+    <nd ref='-49691' />
+    <nd ref='-49692' />
+    <nd ref='-49693' />
+    <nd ref='-49694' />
+    <nd ref='-49695' />
+    <nd ref='-49696' />
+    <nd ref='-49697' />
+    <nd ref='-49698' />
+    <nd ref='-49699' />
+    <nd ref='-49700' />
+    <nd ref='-49660' />
+    <tag k='addr:city' v='Warszawa' />
+    <tag k='addr:city:simc' v='0918123' />
+    <tag k='addr:housenumber' v='19' />
+    <tag k='addr:postcode' v='01-875' />
+    <tag k='addr:street' v='Zgrupowania Żmija' />
+    <tag k='addr:street:sym_ul' v='32607' />
+    <tag k='building' v='yes' />
+    <tag k='source:addr' v='mapa.um.warszawa.pl' />
+  </way>
+</osm>
