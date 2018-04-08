@@ -2,14 +2,6 @@
 <osm version="0.6" generator="import adresy merger.py">
   <note>The data included in this document is from www.openstreetmap.org. The data is made available under ODbL.</note>
   <meta osm_base=""/>
-  <node lat="52.26939755" lon="20.93680211" id="-1" action="modify">
-    <tag k="addr:city" v="Warszawa"/>
-    <tag k="addr:city:simc" v="0918123"/>
-    <tag k="addr:housenumber" v="19"/>
-    <tag k="addr:street" v="Zgrupowania AK &quot;Żmija&quot;"/>
-    <tag k="addr:street:sym_ul" v="44855"/>
-    <tag k="source:addr" v="mapa.um.warszawa.pl"/>
-  </node>
   <node lat="52.2692897" lon="20.9372" id="-49656" action="modify">
     <tag k="addr:city" v="Warszawa"/>
     <tag k="addr:city:simc" v="0918123"/>

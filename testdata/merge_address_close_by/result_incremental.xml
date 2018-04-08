@@ -7,8 +7,8 @@
     <tag k="addr:city:simc" v="0678794"/>
     <tag k="addr:housenumber" v="5"/>
     <tag k="addr:postcode" v="07-130"/>
-    <tag k="addr:street" v="dębowa"/>
-    <tag k="fixme" v="Street name in import source: Dębowa"/>
+    <tag k="addr:street" v="Dębowa"/>
+    <tag k="fixme" v="Street name in OSM: dębowa"/>
     <tag k="source:addr" v="lochow.e-mapa.net"/>
   </node>
 </osm>

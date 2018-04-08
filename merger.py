@@ -411,8 +411,12 @@ class Merger(object):
             # there is some similar address nearby but with different street name
             #entry.add_fixme('Street name in OSM: ' + node.street)
             #node.add_fixme('Street name in OSM: ' + node.street)
-            #node.street = entry.street
-            pass
+            if node.objtype == 'node':
+                node.add_fixme('Street name in OSM: ' + node.street)
+                node.entry.street = entry.street
+                self.set_state(node, 'modify')
+
+
         if node and node.street == entry.street and node.city == entry.city and \
                 node.housenumber != entry.housenumber and ((node.objtype == 'node' and how_far < 5.0) or (
                 node.objtype == 'way' and (node.contains(entry.center) or how_far < 10.0))):
@@ -428,8 +432,8 @@ class Merger(object):
                 entry.add_fixme('House number in OSM: %s' % (node.housenumber,))
             # make this *always* visible, to verify, if OSM value is correct. Hope that entry will
             # eventually get merged with node
-            self.set_state(node, 'visible')
-            node.housenumber = entry.housenumber
+            self.set_state(node, 'modify')
+            node.entry.housenumber = entry.housenumber
 
     def _fix_obsolete_emuia(self, entry):
         existing = self.osmdb.getbyaddress(entry.get_index_key())
@@ -548,7 +552,8 @@ class Merger(object):
                                         entry.street, c.street, entry, c.osmid)
                     # address within a building that has different address, add a point, maybe building needs splitting
                     self.__log.debug("Adding new node within building with address: %s", entry)
-                    self._create_point(entry)
+                    if not self.handle_one_street_name_change(c, entry):
+                        self._create_point(entry)
                     return True
         return False
 
@@ -862,19 +867,21 @@ class Merger(object):
             encoding='UTF-8'
         )
 
+    def handle_one_street_name_change(self, osm_addr, imp_addr) -> bool:
+        if osm_addr and osm_addr.housenumber.upper().replace(' ', '') == \
+                imp_addr.housenumber.upper().replace(' ', '') and osm_addr.city == imp_addr.city and \
+                osm_addr.street != imp_addr.street and imp_addr.sym_ul:
+            osm_addr.add_fixme('Street name in OSM: ' + osm_addr.street)
+            osm_addr.update_from(imp_addr)
+            self._updated_nodes.append(osm_addr)
+            return True
+
+
     def handle_street_name_changes(self):
         """
             If the imported point is within a building, that has the same housenumber and city, and there is symul
             in imported data, then update the street name from imported point
         """
-        def try_name_change(osm_addr, imp_addr) -> bool:
-            if osm_addr and osm_addr.housenumber.upper().replace(' ', '') == \
-                    imp_addr.housenumber.upper().replace(' ', '') and osm_addr.city == imp_addr.city and \
-                    osm_addr.street != imp_addr.street and imp_addr.sym_ul:
-                osm_addr.add_fixme('Street name in OSM: ' + osm_addr.street)
-                osm_addr.update_from(imp_addr)
-                self._updated_nodes.append(osm_addr)
-                return True
 
         for entry in self.impdata:
             candidate = next(
@@ -895,14 +902,14 @@ class Merger(object):
                 None
             )
 
-            if not try_name_change(candidate, entry):
+            if not self.handle_one_street_name_change(candidate, entry):
                 # try to find node
                 candidate = next(
                     (x for x in self.osmdb.nearest(entry.center, num_results=1000)
                      if x.objtype == 'node' and x.housenumber and distance(x.center, entry.center) < 10),
                     None
                 )
-                try_name_change(candidate, entry)
+                self.handle_one_street_name_change(candidate, entry)
 
 
 
