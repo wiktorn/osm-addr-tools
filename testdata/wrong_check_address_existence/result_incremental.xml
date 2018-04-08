@@ -10,34 +10,34 @@
     <tag k="addr:street:sym_ul" v="44855"/>
     <tag k="source:addr" v="mapa.um.warszawa.pl"/>
   </node>
-  <node lat="52.2692897" lon="20.9372" id="-49656" action="modify">
+  <node lat="52.2692897" lon="20.9372" id="-49656">
     <tag k="addr:city" v="Warszawa"/>
     <tag k="addr:city:simc" v="0918123"/>
     <tag k="addr:housenumber" v="17"/>
     <tag k="addr:postcode" v="01-875"/>
-    <tag k="addr:street" v="Zgrupowania AK &quot;Żmija&quot;"/>
-    <tag k="addr:street:sym_ul" v="44855"/>
-    <tag k="fixme" v="Street name in OSM: Zgrupowania Żmija"/>
+    <tag k="addr:street" v="Zgrupowania Żmija"/>
+    <tag k="addr:street:sym_ul" v="32607"/>
+    <tag k="fixme" v="Check address existence"/>
     <tag k="source:addr" v="mapa.um.warszawa.pl"/>
   </node>
-  <node lat="52.269504" lon="20.9362955" id="-49658" action="modify">
+  <node lat="52.269504" lon="20.9362955" id="-49658">
     <tag k="addr:city" v="Warszawa"/>
     <tag k="addr:city:simc" v="0918123"/>
     <tag k="addr:housenumber" v="19A"/>
     <tag k="addr:postcode" v="01-875"/>
-    <tag k="addr:street" v="Zgrupowania AK &quot;Żmija&quot;"/>
-    <tag k="addr:street:sym_ul" v="44855"/>
-    <tag k="fixme" v="Street name in OSM: Zgrupowania Żmija"/>
+    <tag k="addr:street" v="Zgrupowania Żmija"/>
+    <tag k="addr:street:sym_ul" v="32607"/>
+    <tag k="fixme" v="Check address existence"/>
     <tag k="source:addr" v="mapa.um.warszawa.pl"/>
   </node>
-  <node lat="52.2687768" lon="20.9370805" id="-49659" action="modify">
+  <node lat="52.2687768" lon="20.9370805" id="-49659">
     <tag k="addr:city" v="Warszawa"/>
     <tag k="addr:city:simc" v="0918123"/>
     <tag k="addr:housenumber" v="17A"/>
     <tag k="addr:postcode" v="01-875"/>
-    <tag k="addr:street" v="Zgrupowania AK &quot;Żmija&quot;"/>
-    <tag k="addr:street:sym_ul" v="44855"/>
-    <tag k="fixme" v="Street name in OSM: Zgrupowania Żmija"/>
+    <tag k="addr:street" v="Zgrupowania Żmija"/>
+    <tag k="addr:street:sym_ul" v="32607"/>
+    <tag k="fixme" v="Check address existence"/>
     <tag k="source:addr" v="mapa.um.warszawa.pl"/>
   </node>
   <node lat="52.2692368" lon="20.937676" id="-49660"/>
