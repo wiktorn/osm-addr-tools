@@ -8,6 +8,7 @@
     <tag k="addr:housenumber" v="3"/>
     <tag k="addr:postcode" v="07-130"/>
     <tag k="addr:street" v="Dębowa"/>
+    <tag k="addr:street:sym_ul" v="1"/>
     <tag k="source:addr" v="lochow.e-mapa.net"/>
   </node>
   <node lat="52.55084272266" lon="21.62709655529" id="-2" action="modify">
@@ -16,6 +17,7 @@
     <tag k="addr:housenumber" v="7"/>
     <tag k="addr:postcode" v="07-130"/>
     <tag k="addr:street" v="Dębowa"/>
+    <tag k="addr:street:sym_ul" v="1"/>
     <tag k="source:addr" v="lochow.e-mapa.net"/>
   </node>
   <node lat="52.5512123374" lon="21.62388564415" id="-3" action="modify">
@@ -24,6 +26,7 @@
     <tag k="addr:housenumber" v="3"/>
     <tag k="addr:postcode" v="07-130"/>
     <tag k="addr:street" v="Klonowa"/>
+    <tag k="addr:street:sym_ul" v="2"/>
     <tag k="source:addr" v="lochow.e-mapa.net"/>
   </node>
   <node lat="52.55100154478" lon="21.62668583701" id="-38986"/>
@@ -39,9 +42,10 @@
     <tag k="addr:city:simc" v="0678794"/>
     <tag k="addr:housenumber" v="5"/>
     <tag k="addr:postcode" v="07-130"/>
-    <tag k="addr:street" v="Debowa"/>
+    <tag k="addr:street" v="Dębowa"/>
+    <tag k="addr:street:sym_ul" v="1"/>
     <tag k="building" v="yes"/>
-    <tag k="fixme" v="Street name in import source: Dębowa"/>
+    <tag k="fixme" v="Street name in OSM: Debowa"/>
     <tag k="source:addr" v="lochow.e-mapa.net"/>
     <nd ref="-38986"/>
     <nd ref="-38988"/>

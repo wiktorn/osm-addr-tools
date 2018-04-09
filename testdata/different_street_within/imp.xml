@@ -6,6 +6,7 @@
     <tag k='addr:housenumber' v='3' />
     <tag k='addr:postcode' v='07-130' />
     <tag k='addr:street' v='Dębowa' />
+    <tag k='addr:street:sym_ul' v='1' />
     <tag k='source:addr' v='lochow.e-mapa.net' />
   </node>
   <node id='-39085' lat='52.55082916868' lon='21.62693069171'>
@@ -14,6 +15,7 @@
     <tag k='addr:housenumber' v='5' />
     <tag k='addr:postcode' v='07-130' />
     <tag k='addr:street' v='Dębowa' />
+    <tag k='addr:street:sym_ul' v='1' />
     <tag k='source:addr' v='lochow.e-mapa.net' />
   </node>
   <node id='-39161' action='modify' lat='52.55084272266' lon='21.62709655529'>
@@ -22,6 +24,7 @@
     <tag k='addr:housenumber' v='7' />
     <tag k='addr:postcode' v='07-130' />
     <tag k='addr:street' v='Dębowa' />
+    <tag k='addr:street:sym_ul' v='1' />
     <tag k='source:addr' v='lochow.e-mapa.net' />
   </node>
   <node id='-39164' action='modify' lat='52.5512123374' lon='21.62388564415'>
@@ -30,6 +33,7 @@
     <tag k='addr:housenumber' v='3' />
     <tag k='addr:postcode' v='07-130' />
     <tag k='addr:street' v='Klonowa' />
+    <tag k='addr:street:sym_ul' v='2' />
     <tag k='source:addr' v='lochow.e-mapa.net' />
   </node>
 </osm>
