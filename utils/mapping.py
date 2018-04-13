@@ -128,6 +128,9 @@ def mapstreet(strname, symul):
             teryt_nazwa = teryt_entry.nazwa[5:].strip() if \
                 teryt_entry.nazwa.startswith('Ulica') and teryt_entry.cecha.upper() == 'ULICA' \
                 else teryt_entry.nazwa
+
+            if teryt_nazwa.upper().startswith('ALEJA ALEJE'):
+                teryt_nazwa = teryt_nazwa[6:]
             if street.upper().startswith(teryt_entry.cecha_orig.upper()):
                 # remove short version cecha and prepand full version
                 street = "%s %s" % (teryt_entry.cecha,
@@ -137,6 +140,7 @@ def mapstreet(strname, symul):
                 street = street[3:].strip()
             if street.upper().startswith('ULICA') and teryt_entry.cecha.upper() == 'ULICA':
                 street = street[5:].strip()
+
             if not street.upper().startswith(teryt_entry.cecha.upper()) and \
                     not street.upper().startswith(__CECHA_MAPPING.get(teryt_entry.cecha_orig, '').upper()):
                 __log.debug("Adding TERYT.CECHA=%s to street=%s (addr:street:sym_ul=%s)" % (

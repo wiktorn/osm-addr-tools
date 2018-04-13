@@ -2,6 +2,10 @@ import unittest
 
 from utils.mapping import mapstreet
 
+import logging
+
+logging.basicConfig(level=logging.DEBUG)
+
 
 class TestStreetMapping(unittest.TestCase):
     def test_plac_sloneczny(self):
@@ -15,3 +19,6 @@ class TestStreetMapping(unittest.TestCase):
 
     def test_waszyngtona_no_simc(self):
         self.assertEqual("Aleja J. Waszyngtona", mapstreet("Aleja J. Waszyngtona", "xxx"))
+
+    def test_jerozolimskie(self):
+        self.assertEqual("Aleje Jerozolimskie", mapstreet("Aleje Jerozolimskie", "45207"))
