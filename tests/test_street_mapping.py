@@ -4,7 +4,7 @@ from utils.mapping import mapstreet
 
 import logging
 
-logging.basicConfig(level=logging.DEBUG)
+#logging.basicConfig(level=logging.DEBUG)
 
 
 class TestStreetMapping(unittest.TestCase):
@@ -21,4 +21,4 @@ class TestStreetMapping(unittest.TestCase):
         self.assertEqual("Aleja J. Waszyngtona", mapstreet("Aleja J. Waszyngtona", "xxx"))
 
     def test_jerozolimskie(self):
-        self.assertEqual("Aleje Jerozolimskie", mapstreet("Aleje Jerozolimskie", "45207"))
+        self.assertEqual("Aleje Jerozolimskie", mapstreet("Al. Jerozolimskie", "45207"))

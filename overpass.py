@@ -49,6 +49,7 @@ __query_terc = """
 # remember to add it (bb before qt) by hand 
 __overpass_ql_terc = """[out:json][timeout:600];area["boundary"="administrative"]["admin_level"="7"]["teryt:terc"~"^%s"]["type"="boundary"]->.boundryarea;(node(area.boundryarea)["addr:housenumber"];way(area.boundryarea)["addr:housenumber"];way(area.boundryarea)["building"];relation(area.boundryarea)["addr:housenumber"];relation(area.boundryarea)["building"];);out meta bb qt;>;out meta bb qt;"""
 
+
 def getAddresses(terc):
     return query(__overpass_ql_terc % (terc,))
 
@@ -75,13 +76,14 @@ area
 out;
 """
 
+
 def getNodesWaysWithTags(taglist, format="xml"):
     tags = "\n\t".join(map(lambda x: '["' + x + '"]', taglist))
     return query(__query_ql_tag % {'tags': tags, 'format': format})
 
+
 def getNodesWaysWithTag(tagname, format="xml"):
     return getNodesWaysWithTags([tagname, ], format)
-
 
 
 __overpassurl = "http://overpass.osm.rambler.ru/cgi/interpreter"
@@ -89,11 +91,16 @@ __overpassurl = "http://overpass-api.de/api/interpreter"
 __overpassurl = "http://api.openstreetmap.fr/oapi/interpreter/"
 __overpassurl = "http://osm-cdn.vink.pl/api/interpreter"
 
+
+def get_url_for_query(qry: str):
+    return __overpassurl + '?' + urlencode({'data': qry.replace('\t', '').replace('\n', '')})
+
+
 def query(qry):
     # TODO - check if the query succeeded
     __log.debug("Query %s , server: %s", qry, __overpassurl)
-    url = __overpassurl + '?' + urlencode({'data': qry.replace('\t', '').replace('\n', '')})
-    return urlopen(url).read().decode('utf-8')
+    return urlopen(get_url_for_query(qry)).read().decode('utf-8')
+
 
 def main():
     parser = argparse.ArgumentParser(description='Fetches addresses for given teryt:terc from OSM')
@@ -102,6 +109,7 @@ def main():
     args = parser.parse_args()
     ret = getAddresses(args.terc)
     args.output.write(ret)
+
 
 if __name__ == '__main__':
     main()

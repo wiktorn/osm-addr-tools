@@ -1,15 +1,19 @@
 # # -*- coding: UTF-8 -*-
 # TODO:
 # - add warning, when street exists as a part of name in sym_ul dictionary or in ULIC
+import collections
 import functools
-import json
 import logging
 import os
 import pickle
 import tempfile
 import threading
 import time
+import urllib.request
 from collections import namedtuple
+
+import tqdm
+import lxml.etree
 
 import converters.teryt
 import overpass
@@ -37,31 +41,80 @@ __CECHA_MAPPING = {
 }
 
 
+__query_ql_tag = """
+[out:%(format)s]
+[timeout:2400]
+[maxsize:1073741824]
+;
+area
+  ["boundary"="administrative"]
+  ["admin_level"="2"]
+  ["name"="Polska"]
+  ["type"="boundary"]
+->.boundryarea;
+(
+  node
+    (area.boundryarea)
+    %(tags)s;
+  way
+    (area.boundryarea)
+    %(tags)s;
+);
+out;
+"""
+
+
+class TqdmUpTo(tqdm.tqdm):
+    def update_to(self, b=1, bsize=1, tsize=None):
+        if tsize is not None:
+            self.total = tsize
+        self.update(b*bsize - self.n)
+
+
+def lxml_iter_cleaner(iter):
+    for ret in iter:
+        yield ret
+        elem = ret[1]
+        while elem.getprevious() is not None:
+            del elem.getparent()[0]
+
+
+def get_nodes_ways_with_tags(taglist, format="xml") -> str:
+    tags = "\n\t".join(map(lambda x: '["' + x + '"]', taglist))
+    return overpass.get_url_for_query(__query_ql_tag % {'tags': tags, 'format': format})
+
+
+def get_nodes_ways_with_tag(tagname, format="xml") -> str:
+    return get_nodes_ways_with_tags([tagname, ], format)
+
+
 def get_dict(keyname, valuename, coexitingtags=None):
     __log.info("Updating %s data from OSM, it may take a while", keyname)
     tags = [keyname, valuename]
     if coexitingtags:
         tags.extend(coexitingtags)
-    soup = json.loads(overpass.getNodesWaysWithTags(tags, 'json'))
-    ret = {}
-    for tag in soup['elements']:
-        symul = tag['tags'][keyname]
-        street = tag['tags'][valuename]
-        if street:
-            try:
-                entry = ret[symul]
-            except KeyError:
-                entry = {}
-                ret[symul] = entry
-            try:
-                entry[street] += 1
-            except KeyError:
-                entry[street] = 1
-    # ret = dict(symul, dict(street, count))
+
+    with tempfile.NamedTemporaryFile() as temp_file:
+        with TqdmUpTo(unit='B', unit_scale=True, miniters=1,
+                      desc="Retriving {} -> {} from Overpass".format(keyname, valuename)) as t:
+            urllib.request.urlretrieve(get_nodes_ways_with_tags(tags, 'xml'), filename=temp_file.name, reporthook=t.update_to)
+
+        ret = collections.defaultdict(lambda: collections.defaultdict(int))
+        for (_, elem) in tqdm.tqdm(
+                lxml_iter_cleaner(
+                    lxml.etree.iterparse(temp_file.name, events=('end',), tag=('node', 'way'))
+                ),
+                desc="Converting {} -> {}".format(keyname, valuename)
+        ):
+            tags = dict((x.get('k'), x.get('v')) for x in elem.iter('tag') if x.get('k') in (keyname, valuename))
+            value = tags[valuename]
+            if value:
+                ret[tags[keyname]][value] += 1
+
     inconsistent = dict((x[0], x[1].keys()) for x in filter(lambda x: len(x[1]) > 1, ret.items()))
-    for (symul, streetlst) in inconsistent.items():
-        __log.info("Inconsitent mapping for %s = %s, values: %s", keyname, symul, ", ".join(streetlst))
-    return ret
+    for (key, values) in inconsistent.items():
+        __log.info("Inconsitent mapping for %s = %s, values: %s", keyname, key, ", ".join(values))
+    return dict((k, dict(v)) for (k, v) in ret.items())
 
 
 def stored_dict(fetcher, filename):
@@ -87,6 +140,7 @@ def stored_dict(fetcher, filename):
                 pickle.dump(data, f)
         except:
             __log.debug("Can't write file: %s", filename, exc_info=True)
+            os.unlink(filename)
     return data['dct']
 
 
