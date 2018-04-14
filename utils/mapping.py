@@ -1,6 +1,8 @@
 # # -*- coding: UTF-8 -*-
 # TODO:
 # - add warning, when street exists as a part of name in sym_ul dictionary or in ULIC
+import string
+
 import collections
 import functools
 import logging
@@ -185,6 +187,10 @@ def mapstreet(strname, symul):
 
             if teryt_nazwa.upper().startswith('ALEJA ALEJE'):
                 teryt_nazwa = teryt_nazwa[6:]
+
+            if street.upper() == street and street.upper() == teryt_nazwa.upper():
+                street = teryt_nazwa
+
             if street.upper().startswith(teryt_entry.cecha_orig.upper()):
                 # remove short version cecha and prepand full version
                 street = "%s %s" % (teryt_entry.cecha,
@@ -201,6 +207,8 @@ def mapstreet(strname, symul):
                     __CECHA_MAPPING.get(teryt_entry.cecha_orig, ''), street, symul))
                 return "%s %s" % (__CECHA_MAPPING.get(teryt_entry.cecha_orig, ''), street)
         else:
+            if street.upper() == street:
+                street = string.capwords(street)
             if street.upper().startswith('AL. '):
                 return 'Aleja ' + street[4:]
             if street.upper().startswith('PL. '):
@@ -234,6 +242,8 @@ def mapstreet(strname, symul):
                            strname,
                            teryt_entry.nazwa if teryt_entry else 'N/A',
                            ", ".join(ret))
+                if strname.upper() == strname:
+                    strname = string.capwords(strname)
                 return strname
             ret = check_and_add_cecha(next(iter(ret.keys())))  # check and add for first and only key
             if ret != strname:
