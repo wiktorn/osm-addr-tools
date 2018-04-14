@@ -2,6 +2,23 @@
 <osm version="0.6" generator="import adresy merger.py">
   <note>The data included in this document is from www.openstreetmap.org. The data is made available under ODbL.</note>
   <meta osm_base=""/>
+  <node lat="52.269160252526696" lon="20.936862084727693" id="-1">
+    <tag k="addr:city" v="Warszawa"/>
+    <tag k="addr:city:simc" v="0918123"/>
+    <tag k="addr:housenumber" v="19"/>
+    <tag k="addr:postcode" v="01-875"/>
+    <tag k="addr:street" v="Zgrupowania Żmija"/>
+    <tag k="addr:street:sym_ul" v="32607"/>
+    <tag k="fixme" v="Check address existence"/>
+  </node>
+  <node lat="52.26939755" lon="20.93680211" id="-2" action="modify">
+    <tag k="addr:city" v="Warszawa"/>
+    <tag k="addr:city:simc" v="0918123"/>
+    <tag k="addr:housenumber" v="19"/>
+    <tag k="addr:street" v="Zgrupowania AK &quot;Żmija&quot;"/>
+    <tag k="addr:street:sym_ul" v="44855"/>
+    <tag k="source:addr" v="mapa.um.warszawa.pl"/>
+  </node>
   <node lat="52.2692897" lon="20.9372" id="-49656" action="modify">
     <tag k="addr:city" v="Warszawa"/>
     <tag k="addr:city:simc" v="0918123"/>
@@ -73,16 +90,8 @@
   <node lat="52.2692323" lon="20.9375204" id="-49698"/>
   <node lat="52.2692401" lon="20.9375714" id="-49699"/>
   <node lat="52.2692616" lon="20.93758" id="-49700"/>
-  <way id="-49657" action="modify">
-    <tag k="addr:city" v="Warszawa"/>
-    <tag k="addr:city:simc" v="0918123"/>
-    <tag k="addr:housenumber" v="19"/>
-    <tag k="addr:postcode" v="01-875"/>
-    <tag k="addr:street" v="Zgrupowania AK &quot;Żmija&quot;"/>
-    <tag k="addr:street:sym_ul" v="44855"/>
+  <way id="-49657">
     <tag k="building" v="yes"/>
-    <tag k="fixme" v="Street name in OSM: Zgrupowania Żmija"/>
-    <tag k="source:addr" v="mapa.um.warszawa.pl"/>
     <nd ref="-49660"/>
     <nd ref="-49661"/>
     <nd ref="-49662"/>

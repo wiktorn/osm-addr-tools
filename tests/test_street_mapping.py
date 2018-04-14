@@ -32,3 +32,7 @@ class TestStreetMapping(unittest.TestCase):
     def test_jerozolimskie(self):
         self.assertEqual("Aleje Jerozolimskie", mapstreet("Al. Jerozolimskie", ""))
 
+    def test_sloneczny_sto_case(self):
+        self.assertEqual("Słoneczny Stok", mapstreet("SŁONECZNY STOK", "20264"))
+
+

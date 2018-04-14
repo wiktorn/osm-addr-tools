@@ -11,6 +11,7 @@ import typing
 from collections import defaultdict, OrderedDict
 
 import lxml.etree
+import rtree
 import tqdm
 from lxml.builder import E
 from shapely.geometry import Point
@@ -323,7 +324,7 @@ class Merger(object):
     __log = logging.getLogger(__name__).getChild('Merger')
 
     def __init__(self,
-                 impdata,
+                 impdata: typing.List[Address],
                  asis,
                  terc,
                  source_addr,
@@ -340,6 +341,11 @@ class Merger(object):
         from_soup = functools.partial(OsmAddress.from_soup, obj_loc_cache=obj_loc_cache, ways_for_node=ways_for_node)
         self.osmdb = OsmDb(self.asis, valuefunc=from_soup,
                            indexes={'address': lambda x: x.get_index_key(), 'id': lambda x: x.osmid})
+        self.imp_obj_by_id = dict(zip(itertools.count(), self.impdata))
+        self.imp_index = rtree.index.Index()
+        for (key, value) in self.imp_obj_by_id.items():
+            self.imp_index.insert(key, (value.center.y, value.center.x))
+        self.address_index = dict((x.get_index_key(), x) for x in self.impdata)
         self._new_nodes = []
         self._updated_nodes = []
         self._node_id = 0
@@ -387,7 +393,6 @@ class Merger(object):
         for x in tqdm.tqdm(self.impdata, desc="[2/12] Running pre-merge functions"):
             process(x)
 
-
     def _fix_similar_addr(self, entry):
         # look for near same address
         # change street names to values from OSM
@@ -409,13 +414,10 @@ class Merger(object):
                 ((node.objtype == 'node' and how_far < 5.0) or (
                         node.objtype == 'way' and (node.contains(entry.center) or how_far < 10.0))):
             # there is some similar address nearby but with different street name
-            #entry.add_fixme('Street name in OSM: ' + node.street)
-            #node.add_fixme('Street name in OSM: ' + node.street)
             if node.objtype == 'node':
                 node.add_fixme('Street name in OSM: ' + node.street)
                 node.entry.street = entry.street
                 self.set_state(node, 'modify')
-
 
         if node and node.street == entry.street and node.city == entry.city and \
                 node.housenumber != entry.housenumber and ((node.objtype == 'node' and how_far < 5.0) or (
@@ -519,6 +521,29 @@ class Merger(object):
                         self.__log.debug("Creating address node, as closest address is farther than 50m")
                         self._create_point(entry)
                         return True
+
+            building = next(
+                (x for (_, x) in existing if x.objtype in ('way', 'relation' and x.contains(entry.center))),
+                None
+            )
+
+            if building:
+                # there is existing building with same address that contains processed entry
+                building_center = (building.center.y, building.center.x) * 2
+                if any(
+                    building.contains(x.center) for x in (
+                            self.imp_obj_by_id[x] for x in self.imp_index.nearest(building_center, 20)
+                    ) if x != entry
+                ):
+                    # we have more than one address within this building
+                    # clear address from the building and create point
+                    self._create_point(entry)
+                    building._raw['tags'] = dict(
+                        (key, "" if (key.startswith('addr:') or key == 'source:addr') else value)
+                        for key, value in building._raw['tags'].items()
+                    )
+                    self.set_state(building, "modify")
+                    return True
             # update data only on first duplicate, rest - leave to OSM-ers
             self._update_node(existing[0][1], entry)
             return True
@@ -526,10 +551,16 @@ class Merger(object):
 
     def _do_merge_by_within(self, entry):
         # look for building nearby
-        candidates = list(self.osmdb.nearest(entry.center, num_results=10))
-        candidates_within = list(filter(
-            lambda x: x.objtype in ('way', 'relation') and x.contains(entry.center),
-            candidates))
+        candidates_within = list(
+            itertools.islice(
+                (
+                    x for x in self.osmdb.nearest(entry.center, num_results=100)
+                    if x.objtype in ('way', 'relation') and x.contains(entry.center)
+                ),
+                0,
+                10
+            )
+        )
         self.__log.debug("Found %d buildings containing address", len(candidates_within))
 
         if candidates_within:
@@ -547,12 +578,30 @@ class Merger(object):
                     self._update_node(c, entry)
                     return True
                 else:
-                    if c.similar_to(entry):
-                        self.__log.info("Different street names - import: %s, OSM: %s, address: %s, OSM: %s",
-                                        entry.street, c.street, entry, c.osmid)
-                    # address within a building that has different address, add a point, maybe building needs splitting
-                    self.__log.debug("Adding new node within building with address: %s", entry)
-                    if not self.handle_one_street_name_change(c, entry):
+                    c_center = (c.center.y, c.center.x) * 2
+                    if any(
+                        # check if there is any other imported point within candidate
+                        c.contains(x.center) for x in (
+                                self.imp_obj_by_id[x] for x in self.imp_index.nearest(c_center, 10)
+                        ) if x != entry
+                    ) or not self.handle_one_street_name_change(c, entry):
+                        if not c.get_index_key() in self.address_index:
+                            # create address point from building only if the address on building is different
+                            # than addresses in import
+                            new_entry = self.osmdb.add_new({
+                                'type': 'node',
+                                'id': self._get_node_id(),
+                                'lat': c.center.y,
+                                'lon': c.center.x,
+                                'tags': dict((key, value) for key, value in c._raw['tags'].items()
+                                             if key.startswith('addr:') or key == 'source:adr')
+                            })
+                            self._new_nodes.append(new_entry)
+                        # remove address from building
+                        c._raw['tags'] = dict(
+                            (key, "" if (key.startswith('addr:') or key == 'source:addr') else value)
+                            for key, value in c._raw['tags'].items()
+                        )
                         self._create_point(entry)
                     return True
         return False
@@ -876,7 +925,6 @@ class Merger(object):
             self._updated_nodes.append(osm_addr)
             return True
 
-
     def handle_street_name_changes(self):
         """
             If the imported point is within a building, that has the same housenumber and city, and there is symul
@@ -887,17 +935,17 @@ class Merger(object):
             candidate = next(
                 (
                     x for x in itertools.chain(
-                    itertools.islice(
-                        (x for x in self.osmdb.nearest(entry.center, num_results=1000) if x.objtype == 'relation'),
-                        0,
-                        20
-                    ),
-                    itertools.islice(
-                        (x for x in self.osmdb.nearest(entry.center, num_results=1000) if x.objtype == 'way'),
-                        0,
-                        20
-                    )
-                ) if x.contains(entry.center)
+                        itertools.islice(
+                            (x for x in self.osmdb.nearest(entry.center, num_results=1000) if x.objtype == 'relation'),
+                            0,
+                            20
+                        ),
+                        itertools.islice(
+                            (x for x in self.osmdb.nearest(entry.center, num_results=1000) if x.objtype == 'way'),
+                            0,
+                            20
+                        )
+                    ) if x.contains(entry.center)
                 ),
                 None
             )

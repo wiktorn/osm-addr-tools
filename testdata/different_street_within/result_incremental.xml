@@ -11,22 +11,19 @@
     <tag k="addr:street:sym_ul" v="1"/>
     <tag k="source:addr" v="lochow.e-mapa.net"/>
   </node>
-  <node lat="52.55084272266" lon="21.62709655529" id="-2" action="modify">
+  <node lat="52.55087959542965" lon="21.626959659817015" id="-2">
+    <tag k="addr:city" v="Gwizdały"/>
+    <tag k="addr:housenumber" v="5"/>
+    <tag k="addr:street" v="Debowa"/>
+    <tag k="fixme" v="Check address existence"/>
+  </node>
+  <node lat="52.55082916868" lon="21.62693069171" id="-3" action="modify">
     <tag k="addr:city" v="Gwizdały"/>
     <tag k="addr:city:simc" v="0678794"/>
-    <tag k="addr:housenumber" v="7"/>
+    <tag k="addr:housenumber" v="5"/>
     <tag k="addr:postcode" v="07-130"/>
     <tag k="addr:street" v="Dębowa"/>
     <tag k="addr:street:sym_ul" v="1"/>
-    <tag k="source:addr" v="lochow.e-mapa.net"/>
-  </node>
-  <node lat="52.5512123374" lon="21.62388564415" id="-3" action="modify">
-    <tag k="addr:city" v="Gwizdały"/>
-    <tag k="addr:city:simc" v="0678794"/>
-    <tag k="addr:housenumber" v="3"/>
-    <tag k="addr:postcode" v="07-130"/>
-    <tag k="addr:street" v="Klonowa"/>
-    <tag k="addr:street:sym_ul" v="2"/>
     <tag k="source:addr" v="lochow.e-mapa.net"/>
   </node>
   <node lat="52.55100154478" lon="21.62668583701" id="-38986"/>
@@ -37,16 +34,26 @@
   <node lat="52.55108824961" lon="21.62346748522" id="-38996"/>
   <node lat="52.55110342564" lon="21.62405044157" id="-38998"/>
   <node lat="52.5513636708" lon="21.62403211748" id="-39000"/>
-  <way id="-39002" action="modify">
+  <node lat="52.55084272266" lon="21.62709655529" id="-4" action="modify">
     <tag k="addr:city" v="Gwizdały"/>
     <tag k="addr:city:simc" v="0678794"/>
-    <tag k="addr:housenumber" v="5"/>
+    <tag k="addr:housenumber" v="7"/>
     <tag k="addr:postcode" v="07-130"/>
     <tag k="addr:street" v="Dębowa"/>
     <tag k="addr:street:sym_ul" v="1"/>
-    <tag k="building" v="yes"/>
-    <tag k="fixme" v="Street name in OSM: Debowa"/>
     <tag k="source:addr" v="lochow.e-mapa.net"/>
+  </node>
+  <node lat="52.5512123374" lon="21.62388564415" id="-5" action="modify">
+    <tag k="addr:city" v="Gwizdały"/>
+    <tag k="addr:city:simc" v="0678794"/>
+    <tag k="addr:housenumber" v="3"/>
+    <tag k="addr:postcode" v="07-130"/>
+    <tag k="addr:street" v="Klonowa"/>
+    <tag k="addr:street:sym_ul" v="2"/>
+    <tag k="source:addr" v="lochow.e-mapa.net"/>
+  </node>
+  <way id="-39002">
+    <tag k="building" v="yes"/>
     <nd ref="-38986"/>
     <nd ref="-38988"/>
     <nd ref="-38990"/>

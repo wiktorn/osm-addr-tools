@@ -1,0 +1,49 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<osm version="0.6" generator="import adresy merger.py">
+  <note>The data included in this document is from www.openstreetmap.org. The data is made available under ODbL.</note>
+  <meta osm_base=""/>
+  <node lat="52.2339231" lon="21.01349163" id="-1" action="modify">
+    <tag k="addr:city" v="Warszawa"/>
+    <tag k="addr:city:simc" v="0918123"/>
+    <tag k="addr:housenumber" v="2"/>
+    <tag k="addr:street" v="Gabriela Piotra Boduena"/>
+    <tag k="addr:street:sym_ul" v="01552"/>
+    <tag k="source:addr" v="mapa.um.warszawa.pl"/>
+  </node>
+  <node lat="52.23506419" lon="21.01282366" id="-2" action="modify">
+    <tag k="addr:city" v="Warszawa"/>
+    <tag k="addr:city:simc" v="0918123"/>
+    <tag k="addr:housenumber" v="1"/>
+    <tag k="addr:street" v="Stanisława Moniuszki"/>
+    <tag k="addr:street:sym_ul" v="13246"/>
+    <tag k="source:addr" v="mapa.um.warszawa.pl"/>
+  </node>
+  <node lat="52.23450944" lon="21.01322663" id="-3" action="modify">
+    <tag k="addr:city" v="Warszawa"/>
+    <tag k="addr:city:simc" v="0918123"/>
+    <tag k="addr:housenumber" v="1"/>
+    <tag k="addr:street" v="Plac Powstańców Warszawy"/>
+    <tag k="addr:street:sym_ul" v="38560"/>
+    <tag k="source:addr" v="mapa.um.warszawa.pl"/>
+  </node>
+  <node lat="52.2345339" lon="21.0132975" changeset="19555448" id="2588271142" timestamp="2013-12-20T19:46:51Z" uid="495146" user="moszkva ter" version="1"/>
+  <node lat="52.2344682" lon="21.0130339" changeset="19555448" id="2588271143" timestamp="2013-12-20T19:46:51Z" uid="495146" user="moszkva ter" version="1"/>
+  <node lat="52.2351118" lon="21.0129414" changeset="276660" id="317587185" timestamp="2008-12-09T15:37:37Z" uid="20587" user="balrog-kun" version="1"/>
+  <node lat="52.2350511" lon="21.0126770" changeset="276660" id="317587186" timestamp="2008-12-09T15:37:37Z" uid="20587" user="balrog-kun" version="1"/>
+  <node lat="52.2339160" lon="21.0136736" changeset="276660" id="317587189" timestamp="2008-12-09T15:37:38Z" uid="20587" user="balrog-kun" version="1"/>
+  <node lat="52.2338552" lon="21.0134092" changeset="276660" id="317587193" timestamp="2008-12-09T15:37:38Z" uid="20587" user="balrog-kun" version="1"/>
+  <node lat="52.2340165" lon="21.0133104" changeset="31053551" id="3512391837" timestamp="2015-05-12T13:08:57Z" uid="52087" user="kocio" version="1"/>
+  <node lat="52.2343287" lon="21.0131193" changeset="31053551" id="3512391847" timestamp="2015-05-12T13:08:57Z" uid="52087" user="kocio" version="1"/>
+  <way changeset="34869378" id="28892242" timestamp="2015-10-25T21:34:11Z" uid="2381492" user="WiktorN-import" version="9" action="modify">
+    <tag k="building" v="yes"/>
+    <nd ref="317587185"/>
+    <nd ref="317587186"/>
+    <nd ref="2588271143"/>
+    <nd ref="3512391847"/>
+    <nd ref="3512391837"/>
+    <nd ref="317587193"/>
+    <nd ref="317587189"/>
+    <nd ref="2588271142"/>
+    <nd ref="317587185"/>
+  </way>
+</osm>

@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<osm version="0.6" generator="Overpass API 0.7.54.13 ff15392f">
+<note>The data included in this document is from www.openstreetmap.org. The data is made available under ODbL.</note>
+<meta osm_base="2018-04-14T19:05:02Z"/>
+
+  <way id="28892242" version="9" timestamp="2015-10-25T21:34:11Z" changeset="34869378" uid="2381492" user="WiktorN-import">
+    <bounds minlat="52.2338552" minlon="21.0126770" maxlat="52.2351118" maxlon="21.0136736"/>
+    <nd ref="317587185"/>
+    <nd ref="317587186"/>
+    <nd ref="2588271143"/>
+    <nd ref="3512391847"/>
+    <nd ref="3512391837"/>
+    <nd ref="317587193"/>
+    <nd ref="317587189"/>
+    <nd ref="2588271142"/>
+    <nd ref="317587185"/>
+    <tag k="addr:city" v="Warszawa"/>
+    <tag k="addr:city:simc" v="0918123"/>
+    <tag k="addr:housenumber" v="1"/>
+    <tag k="addr:postcode" v="00-030"/>
+    <tag k="addr:street" v="Plac Powstańców Warszawy"/>
+    <tag k="addr:street:sym_ul" v="17371"/>
+    <tag k="building" v="yes"/>
+    <tag k="source:addr" v="mapa.um.warszawa.pl"/>
+  </way>
+  <node id="317587185" lat="52.2351118" lon="21.0129414" version="1" timestamp="2008-12-09T15:37:37Z" changeset="276660" uid="20587" user="balrog-kun"/>
+  <node id="317587186" lat="52.2350511" lon="21.0126770" version="1" timestamp="2008-12-09T15:37:37Z" changeset="276660" uid="20587" user="balrog-kun"/>
+  <node id="317587189" lat="52.2339160" lon="21.0136736" version="1" timestamp="2008-12-09T15:37:38Z" changeset="276660" uid="20587" user="balrog-kun"/>
+  <node id="317587193" lat="52.2338552" lon="21.0134092" version="1" timestamp="2008-12-09T15:37:38Z" changeset="276660" uid="20587" user="balrog-kun"/>
+  <node id="2588271142" lat="52.2345339" lon="21.0132975" version="1" timestamp="2013-12-20T19:46:51Z" changeset="19555448" uid="495146" user="moszkva ter"/>
+  <node id="2588271143" lat="52.2344682" lon="21.0130339" version="1" timestamp="2013-12-20T19:46:51Z" changeset="19555448" uid="495146" user="moszkva ter"/>
+  <node id="3512391837" lat="52.2340165" lon="21.0133104" version="1" timestamp="2015-05-12T13:08:57Z" changeset="31053551" uid="52087" user="kocio"/>
+  <node id="3512391847" lat="52.2343287" lon="21.0131193" version="1" timestamp="2015-05-12T13:08:57Z" changeset="31053551" uid="52087" user="kocio"/>
+
+</osm>

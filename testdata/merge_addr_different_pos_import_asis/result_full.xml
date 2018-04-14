@@ -2,12 +2,12 @@
 <osm version="0.6" generator="import adresy merger.py">
   <note>The data included in this document is from www.openstreetmap.org. The data is made available under ODbL.</note>
   <meta osm_base=""/>
-  <node lat="52.30455125" lon="20.98610369" id="-1" action="modify">
+  <node lat="52.30406639" lon="20.98704234" id="-1" action="delete">
     <tag k="addr:city" v="Warszawa"/>
     <tag k="addr:city:simc" v="0918123"/>
     <tag k="addr:housenumber" v="35"/>
-    <tag k="addr:street" v="Dorodna"/>
-    <tag k="addr:street:sym_ul" v="04125"/>
+    <tag k="addr:street" v="Modlińska"/>
+    <tag k="addr:street:sym_ul" v="13171"/>
     <tag k="source:addr" v="mapa.um.warszawa.pl"/>
   </node>
   <node lat="52.3042635" lon="20.9868795" id="-103082">
@@ -33,7 +33,15 @@
   <node lat="52.3040572" lon="20.9870981" id="-103086"/>
   <node lat="52.3036887" lon="20.9863608" id="-103087"/>
   <node lat="52.3039119" lon="20.9860624" id="-103088"/>
-  <node lat="52.30438751" lon="20.9861076" id="-2" action="modify">
+  <node lat="52.30455125" lon="20.98610369" id="-2" action="modify">
+    <tag k="addr:city" v="Warszawa"/>
+    <tag k="addr:city:simc" v="0918123"/>
+    <tag k="addr:housenumber" v="35"/>
+    <tag k="addr:street" v="Dorodna"/>
+    <tag k="addr:street:sym_ul" v="04125"/>
+    <tag k="source:addr" v="mapa.um.warszawa.pl"/>
+  </node>
+  <node lat="52.30438751" lon="20.9861076" id="-3" action="modify">
     <tag k="addr:city" v="Warszawa"/>
     <tag k="addr:city:simc" v="0918123"/>
     <tag k="addr:housenumber" v="35A"/>
@@ -41,11 +49,10 @@
     <tag k="addr:street:sym_ul" v="04125"/>
     <tag k="source:addr" v="mapa.um.warszawa.pl"/>
   </node>
-  <way id="-103084">
+  <way id="-103084" action="modify">
     <tag k="addr:city" v="Warszawa"/>
     <tag k="addr:city:simc" v="0918123"/>
     <tag k="addr:housenumber" v="35"/>
-    <tag k="addr:postcode" v="03-199"/>
     <tag k="addr:street" v="Modlińska"/>
     <tag k="addr:street:sym_ul" v="13171"/>
     <tag k="building" v="yes"/>

@@ -1,0 +1,27 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<osm version='0.6' generator='JOSM'>
+  <node id='-82002' action='modify' lat='52.2339231' lon='21.01349163'>
+    <tag k='addr:city' v='Warszawa' />
+    <tag k='addr:city:simc' v='0918123' />
+    <tag k='addr:housenumber' v='2' />
+    <tag k='addr:street' v='Gabriela Piotra Boduena' />
+    <tag k='addr:street:sym_ul' v='01552' />
+    <tag k='source:addr' v='mapa.um.warszawa.pl' />
+  </node>
+  <node id='-82003' action='modify' lat='52.23506419' lon='21.01282366'>
+    <tag k='addr:city' v='Warszawa' />
+    <tag k='addr:city:simc' v='0918123' />
+    <tag k='addr:housenumber' v='1' />
+    <tag k='addr:street' v='Stanisława Moniuszki' />
+    <tag k='addr:street:sym_ul' v='13246' />
+    <tag k='source:addr' v='mapa.um.warszawa.pl' />
+  </node>
+  <node id='-82004' action='modify' lat='52.23450944' lon='21.01322663'>
+    <tag k='addr:city' v='Warszawa' />
+    <tag k='addr:city:simc' v='0918123' />
+    <tag k='addr:housenumber' v='1' />
+    <tag k='addr:street' v='Plac Powstańców Warszawy' />
+    <tag k='addr:street:sym_ul' v='38560' />
+    <tag k='source:addr' v='mapa.um.warszawa.pl' />
+  </node>
+</osm>
