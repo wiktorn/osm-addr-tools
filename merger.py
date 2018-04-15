@@ -203,7 +203,7 @@ class OsmAddress(Address):
         )
 
     def is_new(self):
-        return self._soup['id'] < 0
+        return int(self._soup['id']) < 0
 
     def get_tag_soup(self):
         return dict((k, v) for (k, v) in self._soup['tags'].items() if v)
@@ -787,17 +787,20 @@ class Merger(object):
 
     def _merge_one_address(self, building: typing.Dict[str, typing.Any], addr: OsmDbEntry):
         # as we merge only address nodes, do not pass anything else
-        fixme = building['tags'].get('fixme', '')
-        for (key, value) in addr.get_tag_soup().items():
-            oldval = building['tags'].get(key)
-            if oldval and oldval != value:
-                self.__log.info('Changing tag: %s from %s to %s for address: %s', key, oldval, value, addr.entry)
-            building['tags'][key] = value
-        fixme += addr.get_fixme()
-        building['tags']['fixme'] = fixme
-        self.osmdb.getbyid("%s:%s" % (building['type'], building['id']))[0].set_state('modify')
-        self.set_state(addr, 'delete')
-        self._updated_nodes.append(self.osmdb.getbyid("%s:%s" % (building['type'], building['id']))[0])
+        if addr.get_fixme() and not addr.is_new():
+            self.set_state(addr, 'visible')
+        else:
+            fixme = building['tags'].get('fixme', '')
+            for (key, value) in addr.get_tag_soup().items():
+                oldval = building['tags'].get(key)
+                if oldval and oldval != value:
+                    self.__log.info('Changing tag: %s from %s to %s for address: %s', key, oldval, value, addr.entry)
+                building['tags'][key] = value
+            fixme += addr.get_fixme()
+            building['tags']['fixme'] = fixme
+            self.osmdb.getbyid("%s:%s" % (building['type'], building['id']))[0].set_state('modify')
+            self.set_state(addr, 'delete')
+            self._updated_nodes.append(self.osmdb.getbyid("%s:%s" % (building['type'], building['id']))[0])
 
     def _merge_addresses_buffer(self, buf=0, message=""):
         self.__log.info("Merging building with buffer: %d", buf)

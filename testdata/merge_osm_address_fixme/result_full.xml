@@ -1,0 +1,59 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<osm version="0.6" generator="import adresy merger.py">
+  <note>The data included in this document is from www.openstreetmap.org. The data is made available under ODbL.</note>
+  <meta osm_base=""/>
+  <node lat="52.55089992731" lon="21.62691391839" id="-38982" action="delete">
+    <tag k="addr:city" v="Gwizdały"/>
+    <tag k="addr:city:simc" v="0678794"/>
+    <tag k="addr:housenumber" v="5"/>
+    <tag k="addr:postcode" v="07-130"/>
+    <tag k="addr:street" v="Dębowa"/>
+    <tag k="source:addr" v="lochow.e-mapa.net"/>
+  </node>
+  <node lat="52.55100154478" lon="21.62668583701" id="-38988"/>
+  <node lat="52.55076881428" lon="21.626673288" id="-38989"/>
+  <node lat="52.55075764605" lon="21.6272334826" id="-38993"/>
+  <node lat="52.55099037661" lon="21.62724603161" id="-38995"/>
+  <node lat="52.55134849485" lon="21.62344916113" id="-39006"/>
+  <node lat="52.55108824961" lon="21.62346748522" id="-39007"/>
+  <node lat="52.55110342564" lon="21.62405044157" id="-39009"/>
+  <node lat="52.5513636708" lon="21.62403211748" id="-39011"/>
+  <node lat="52.55123" lon="21.62363" id="-39019" action="delete">
+    <tag k="addr:city" v="Gwizdały"/>
+    <tag k="addr:city:simc" v="0678794"/>
+    <tag k="addr:housenumber" v="5"/>
+    <tag k="addr:postcode" v="07-130"/>
+    <tag k="addr:street" v="Dębowa"/>
+    <tag k="fixme" v="Node is 228 meters away from imported point"/>
+    <tag k="source:addr" v="lochow.e-mapa.net"/>
+  </node>
+  <way id="-38990" action="modify">
+    <tag k="addr:city" v="Gwizdały"/>
+    <tag k="addr:city:simc" v="0678794"/>
+    <tag k="addr:housenumber" v="5"/>
+    <tag k="addr:postcode" v="07-130"/>
+    <tag k="addr:street" v="Dębowa"/>
+    <tag k="building" v="yes"/>
+    <tag k="source:addr" v="lochow.e-mapa.net"/>
+    <nd ref="-38988"/>
+    <nd ref="-38989"/>
+    <nd ref="-38993"/>
+    <nd ref="-38995"/>
+    <nd ref="-38988"/>
+  </way>
+  <way id="-39008" action="modify">
+    <tag k="addr:city" v="Gwizdały"/>
+    <tag k="addr:city:simc" v="0678794"/>
+    <tag k="addr:housenumber" v="5"/>
+    <tag k="addr:postcode" v="07-130"/>
+    <tag k="addr:street" v="Dębowa"/>
+    <tag k="building" v="yes"/>
+    <tag k="fixme" v="Node is 228 meters away from imported point"/>
+    <tag k="source:addr" v="lochow.e-mapa.net"/>
+    <nd ref="-39006"/>
+    <nd ref="-39007"/>
+    <nd ref="-39009"/>
+    <nd ref="-39011"/>
+    <nd ref="-39006"/>
+  </way>
+</osm>

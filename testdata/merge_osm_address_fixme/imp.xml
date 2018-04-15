@@ -1,0 +1,11 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<osm version='0.6' upload='false' generator='JOSM'>
+  <node id='-39116' lat='52.55082916868' lon='21.62693069171'>
+    <tag k='addr:city' v='Gwizdały' />
+    <tag k='addr:city:simc' v='0678794' />
+    <tag k='addr:housenumber' v='5' />
+    <tag k='addr:postcode' v='07-130' />
+    <tag k='addr:street' v='Dębowa' />
+    <tag k='source:addr' v='lochow.e-mapa.net' />
+  </node>
+</osm>
