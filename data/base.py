@@ -139,6 +139,9 @@ class Address(object):
     def get_fixme(self):
         return ", ".join(self._fixme)
 
+    def clear_fixme(self):
+        self._fixme = []
+
     def as_osm_soup(self, node_id):
         ret = BeautifulSoup("", "xml")
         node = ret.new_tag('node', id=node_id, action='modify', visible='true', lat=self.location['lat'],

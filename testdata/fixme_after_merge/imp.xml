@@ -1,0 +1,19 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<osm version='0.6' generator='JOSM'>
+  <node id='-152497' action='modify' lat='52.20334436' lon='20.86318696'>
+    <tag k='addr:city' v='Warszawa' />
+    <tag k='addr:city:simc' v='0918123' />
+    <tag k='addr:housenumber' v='13' />
+    <tag k='addr:street' v='Bolesława Śmiałego' />
+    <tag k='addr:street:sym_ul' v='01755' />
+    <tag k='source:addr' v='mapa.um.warszawa.pl' />
+  </node>
+  <node id='-152498' action='modify' lat='52.20235827' lon='20.86352004'>
+    <tag k='addr:city' v='Warszawa' />
+    <tag k='addr:city:simc' v='0918123' />
+    <tag k='addr:housenumber' v='19' />
+    <tag k='addr:street' v='Bolesława Śmiałego' />
+    <tag k='addr:street:sym_ul' v='01755' />
+    <tag k='source:addr' v='mapa.um.warszawa.pl' />
+  </node>
+</osm>

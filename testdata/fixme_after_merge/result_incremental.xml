@@ -1,0 +1,39 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<osm version="0.6" generator="import adresy merger.py">
+  <note>The data included in this document is from www.openstreetmap.org. The data is made available under ODbL.</note>
+  <meta osm_base=""/>
+  <node lat="52.20334436" lon="20.86318696" id="-1" action="modify">
+    <tag k="addr:city" v="Warszawa"/>
+    <tag k="addr:city:simc" v="0918123"/>
+    <tag k="addr:housenumber" v="13"/>
+    <tag k="addr:street" v="Bolesława Śmiałego"/>
+    <tag k="addr:street:sym_ul" v="01755"/>
+    <tag k="source:addr" v="mapa.um.warszawa.pl"/>
+  </node>
+  <node lat="52.20235827" lon="20.86352004" id="-2" action="delete">
+    <tag k="addr:city" v="Warszawa"/>
+    <tag k="addr:city:simc" v="0918123"/>
+    <tag k="addr:housenumber" v="19"/>
+    <tag k="addr:street" v="Bolesława Śmiałego"/>
+    <tag k="addr:street:sym_ul" v="01755"/>
+    <tag k="source:addr" v="mapa.um.warszawa.pl"/>
+  </node>
+  <node lat="52.2022971" lon="20.8635110" changeset="33879142" id="3734314824" timestamp="2015-09-08T10:51:19Z" uid="426784" user="arturp" version="1"/>
+  <node lat="52.2023187" lon="20.8636833" changeset="33879142" id="3734314829" timestamp="2015-09-08T10:51:19Z" uid="426784" user="arturp" version="1"/>
+  <node lat="52.2024138" lon="20.8634734" changeset="33879142" id="3734314843" timestamp="2015-09-08T10:51:20Z" uid="426784" user="arturp" version="1"/>
+  <node lat="52.2024339" lon="20.8636462" changeset="33879142" id="3734314849" timestamp="2015-09-08T10:51:20Z" uid="426784" user="arturp" version="1"/>
+  <way changeset="34934617" id="369655084" timestamp="2015-10-28T19:37:58Z" uid="2381492" user="WiktorN-import" version="3" action="modify">
+    <tag k="addr:city" v="Warszawa"/>
+    <tag k="addr:city:simc" v="0918123"/>
+    <tag k="addr:housenumber" v="19"/>
+    <tag k="addr:street" v="Bolesława Śmiałego"/>
+    <tag k="addr:street:sym_ul" v="01755"/>
+    <tag k="building" v="yes"/>
+    <tag k="source:addr" v="mapa.um.warszawa.pl"/>
+    <nd ref="3734314843"/>
+    <nd ref="3734314824"/>
+    <nd ref="3734314829"/>
+    <nd ref="3734314849"/>
+    <nd ref="3734314843"/>
+  </way>
+</osm>

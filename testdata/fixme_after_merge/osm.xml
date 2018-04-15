@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<osm version="0.6" generator="Overpass API 0.7.54.13 ff15392f">
+<note>The data included in this document is from www.openstreetmap.org. The data is made available under ODbL.</note>
+<meta osm_base="2018-04-15T13:50:02Z"/>
+
+  <way id="369655084" version="3" timestamp="2015-10-28T19:37:58Z" changeset="34934617" uid="2381492" user="WiktorN-import">
+    <bounds minlat="52.2022971" minlon="20.8634734" maxlat="52.2024339" maxlon="20.8636833"/>
+    <nd ref="3734314843"/>
+    <nd ref="3734314824"/>
+    <nd ref="3734314829"/>
+    <nd ref="3734314849"/>
+    <nd ref="3734314843"/>
+    <tag k="addr:city" v="Warszawa"/>
+    <tag k="addr:housenumber" v="13"/>
+    <tag k="addr:postcode" v="02-496"/>
+    <tag k="addr:street" v="Bolesława Śmiałego"/>
+    <tag k="building" v="yes"/>
+    <tag k="source:addr" v="mapa.um.warszawa.pl"/>
+  </way>
+  <node id="3734314824" lat="52.2022971" lon="20.8635110" version="1" timestamp="2015-09-08T10:51:19Z" changeset="33879142" uid="426784" user="arturp"/>
+  <node id="3734314829" lat="52.2023187" lon="20.8636833" version="1" timestamp="2015-09-08T10:51:19Z" changeset="33879142" uid="426784" user="arturp"/>
+  <node id="3734314843" lat="52.2024138" lon="20.8634734" version="1" timestamp="2015-09-08T10:51:20Z" changeset="33879142" uid="426784" user="arturp"/>
+  <node id="3734314849" lat="52.2024339" lon="20.8636462" version="1" timestamp="2015-09-08T10:51:20Z" changeset="33879142" uid="426784" user="arturp"/>
+
+</osm>

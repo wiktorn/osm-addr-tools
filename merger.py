@@ -67,6 +67,7 @@ class OsmAddress(Address):
         super(OsmAddress, self).__init__(*args, **kwargs)
         self.state = None
         self.ref_ways = []
+        self.osm_fixme = ""
 
     # @formatter:off
     housenumber = create_property_funcs('addr:housenumber')
@@ -107,9 +108,7 @@ class OsmAddress(Address):
             soup=obj
         )
 
-        fixme = tags.get('fixme')
-        if fixme:
-            ret.add_fixme(fixme)
+        ret.osm_fixme = tags.get('fixme', '')
         if obj.get('action'):
             ret.state = obj['action']
         if ways_for_node:
@@ -121,6 +120,10 @@ class OsmAddress(Address):
             # clear the data in OSM
             ret.set_state('modify')
         return ret
+
+    def get_fixme(self):
+        s1 = super(OsmAddress, self).get_fixme()
+        return ", ".join(x for x in (s1, self.osm_fixme) if x)
 
     def set_state(self, val):
         if val not in ('visible', 'modify', 'delete'):
@@ -548,6 +551,7 @@ class Merger(object):
                         (key, "" if (key.startswith('addr:') or key == 'source:addr') else value)
                         for key, value in building._raw['tags'].items()
                     )
+                    building.clear_fixme()
                     self.set_state(building, "modify")
                     return True
             # update data only on first duplicate, rest - leave to OSM-ers
@@ -612,6 +616,7 @@ class Merger(object):
                             (key, "" if (key.startswith('addr:') or key == 'source:addr') else value)
                             for key, value in c._raw['tags'].items()
                         )
+                        c.clear_fixme()
                         self.set_state(c, "modify")
                         self._create_point(entry)
                     return True
@@ -790,17 +795,21 @@ class Merger(object):
         if addr.get_fixme() and not addr.is_new():
             self.set_state(addr, 'visible')
         else:
-            fixme = building['tags'].get('fixme', '')
+            building_obj = self.osmdb.getbyid("%s:%s" % (building['type'], building['id']))[0]
+            fixme = building_obj.osm_fixme
             for (key, value) in addr.get_tag_soup().items():
                 oldval = building['tags'].get(key)
                 if oldval and oldval != value:
                     self.__log.info('Changing tag: %s from %s to %s for address: %s', key, oldval, value, addr.entry)
                 building['tags'][key] = value
             fixme += addr.get_fixme()
-            building['tags']['fixme'] = fixme
-            self.osmdb.getbyid("%s:%s" % (building['type'], building['id']))[0].set_state('modify')
+            # TODO
+            # building_obj.clear_fixme()
+            if fixme:
+                building_obj.add_fixme(fixme)
+            building_obj.set_state('modify')
             self.set_state(addr, 'delete')
-            self._updated_nodes.append(self.osmdb.getbyid("%s:%s" % (building['type'], building['id']))[0])
+            self._updated_nodes.append(building_obj)
 
     def _merge_addresses_buffer(self, buf=0, message=""):
         self.__log.info("Merging building with buffer: %d", buf)
@@ -946,9 +955,11 @@ class Merger(object):
         )
 
     def handle_one_street_name_change(self, osm_addr, imp_addr) -> bool:
-        if osm_addr and osm_addr.housenumber.upper().replace(' ', '') == \
-                imp_addr.housenumber.upper().replace(' ', '') and osm_addr.city == imp_addr.city and \
-                osm_addr.street != imp_addr.street and imp_addr.sym_ul:
+        if osm_addr \
+                and osm_addr.housenumber.upper().replace(' ', '') == imp_addr.housenumber.upper().replace(' ', '') \
+                and osm_addr.city == imp_addr.city \
+                and osm_addr.street != imp_addr.street \
+                and imp_addr.sym_ul:
             osm_addr.add_fixme('Street name in OSM: ' + osm_addr.street)
             osm_addr.update_from(imp_addr)
             self._updated_nodes.append(osm_addr)
