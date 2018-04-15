@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<osm version="0.6" generator="Overpass API 0.7.54.13 ff15392f">
+<note>The data included in this document is from www.openstreetmap.org. The data is made available under ODbL.</note>
+<meta osm_base="2018-04-15T10:50:02Z"/>
+
+  <way id="394996638" version="1" timestamp="2016-01-30T23:40:05Z" changeset="36907993" uid="52087" user="kocio">
+    <bounds minlat="52.2848397" minlon="21.0395092" maxlat="52.2852153" maxlon="21.0398957"/>
+    <nd ref="3978808183"/>
+    <nd ref="3978808182"/>
+    <nd ref="3978808199"/>
+    <nd ref="3978808202"/>
+    <nd ref="3978808183"/>
+    <tag k="addr:city" v="Warszawa"/>
+    <tag k="addr:city:simc" v="0918123"/>
+    <tag k="addr:housenumber" v="1C"/>
+    <tag k="addr:postcode" v="03-332"/>
+    <tag k="addr:street" v="Chodecka"/>
+    <tag k="addr:street:sym_ul" v="02796"/>
+    <tag k="building" v="yes"/>
+    <tag k="source:addr" v="mapa.um.warszawa.pl"/>
+  </way>
+  <node id="3978808182" lat="52.2848397" lon="21.0397160" version="1" timestamp="2016-01-30T23:40:04Z" changeset="36907993" uid="52087" user="kocio"/>
+  <node id="3978808183" lat="52.2848813" lon="21.0398957" version="1" timestamp="2016-01-30T23:40:04Z" changeset="36907993" uid="52087" user="kocio"/>
+  <node id="3978808199" lat="52.2851736" lon="21.0395092" version="1" timestamp="2016-01-30T23:40:04Z" changeset="36907993" uid="52087" user="kocio"/>
+  <node id="3978808202" lat="52.2852153" lon="21.0396889" version="1" timestamp="2016-01-30T23:40:04Z" changeset="36907993" uid="52087" user="kocio"/>
+  <way id="166960188" version="5" timestamp="2016-01-12T08:19:34Z" changeset="36521660" uid="3183432" user="pawel200388">
+    <bounds minlat="52.2849903" minlon="21.0398890" maxlat="52.2851971" maxlon="21.0404500"/>
+    <nd ref="1783497026"/>
+    <nd ref="1783497030"/>
+    <nd ref="1783497040"/>
+    <nd ref="1783497034"/>
+    <nd ref="1783497028"/>
+    <nd ref="1783497026"/>
+    <tag k="addr:city" v="Warszawa"/>
+    <tag k="addr:city:simc" v="0918123"/>
+    <tag k="addr:housenumber" v="1D"/>
+    <tag k="addr:postcode" v="03-332"/>
+    <tag k="addr:street" v="Chodecka"/>
+    <tag k="addr:street:sym_ul" v="02796"/>
+    <tag k="building" v="yes"/>
+    <tag k="email" v="alltop@alltop.pl"/>
+    <tag k="name" v="ALLTOP Auto Instalacje Gazowe Bartłomiej Grudny"/>
+    <tag k="opening_hours" v="Mo-Fr 8:30-18:00"/>
+    <tag k="phone" v="22-675-62-60;506-115-235"/>
+    <tag k="shop" v="car_repair"/>
+    <tag k="source:addr" v="mapa.um.warszawa.pl"/>
+    <tag k="website" v="http://www.alltop.pl"/>
+  </way>
+  <node id="1783497026" lat="52.2849903" lon="21.0399421" version="1" timestamp="2012-06-11T12:48:38Z" changeset="11864343" uid="99386" user="masti"/>
+  <node id="1783497028" lat="52.2850381" lon="21.0401323" version="1" timestamp="2012-06-11T12:48:38Z" changeset="11864343" uid="99386" user="masti"/>
+  <node id="1783497030" lat="52.2850694" lon="21.0398890" version="1" timestamp="2012-06-11T12:48:38Z" changeset="11864343" uid="99386" user="masti"/>
+  <node id="1783497034" lat="52.2851180" lon="21.0404500" version="1" timestamp="2012-06-11T12:48:38Z" changeset="11864343" uid="99386" user="masti"/>
+  <node id="1783497040" lat="52.2851971" lon="21.0403969" version="1" timestamp="2012-06-11T12:48:39Z" changeset="11864343" uid="99386" user="masti"/>
+
+</osm>

@@ -530,11 +530,17 @@ class Merger(object):
             if building:
                 # there is existing building with same address that contains processed entry
                 building_center = (building.center.y, building.center.x) * 2
-                if any(
-                    building.contains(x.center) for x in (
-                            self.imp_obj_by_id[x] for x in self.imp_index.nearest(building_center, 20)
-                    ) if x != entry
-                ):
+
+                if len(list(itertools.islice(
+                        (
+                                x for x in
+                                (
+                                        self.imp_obj_by_id[x] for x in self.imp_index.nearest(building_center, 20)
+                                ) if building.contains(x.center)
+                        ),
+                        0,
+                        2)
+                )) > 1:
                     # we have more than one address within this building
                     # clear address from the building and create point
                     self._create_point(entry)
@@ -579,12 +585,16 @@ class Merger(object):
                     return True
                 else:
                     c_center = (c.center.y, c.center.x) * 2
-                    if any(
-                        # check if there is any other imported point within candidate
-                        c.contains(x.center) for x in (
-                                self.imp_obj_by_id[x] for x in self.imp_index.nearest(c_center, 10)
-                        ) if x != entry
-                    ) or not self.handle_one_street_name_change(c, entry):
+                    if len(list(itertools.islice(
+                            (
+                                    x for x in
+                                    (
+                                            self.imp_obj_by_id[x] for x in self.imp_index.nearest(c_center, 20)
+                                    ) if c.contains(x.center)
+                            ),
+                            0,
+                            2)
+                    )) > 1 or not self.handle_one_street_name_change(c, entry):
                         if not c.get_index_key() in self.address_index:
                             # create address point from building only if the address on building is different
                             # than addresses in import
@@ -885,10 +895,25 @@ class Merger(object):
                         ),
                         None
                     )
-
                 if candidate_within:
-                    ret[candidate_within.osmid].append(addr)
-                    self.__log.debug("Found: %s", candidate_within.osmid)
+                    if len(list(itertools.islice(
+                            (x for x in
+                                (
+                                    self.imp_obj_by_id[x] for x in self.imp_index.nearest(
+                                        (candidate_within.center.y, candidate_within.center.x) * 2,
+                                        20
+                                    )
+                                ) if candidate_within.buffered_shape(buf).contains(x.center)
+                            ),
+                            0,
+                            2
+                        ))
+                    ) <= 1:
+                        # only merge, when there is less than one import address within building + buf
+                        ret[candidate_within.osmid].append(addr)
+                        self.__log.debug("Found: %s", candidate_within.osmid)
+                    else:
+                        candidate_within.set_state('visible')
         return ret
 
     def _get_osm_xml(self, nodes, logIO=None):

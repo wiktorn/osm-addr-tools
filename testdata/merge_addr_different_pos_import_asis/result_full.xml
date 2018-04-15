@@ -2,7 +2,7 @@
 <osm version="0.6" generator="import adresy merger.py">
   <note>The data included in this document is from www.openstreetmap.org. The data is made available under ODbL.</note>
   <meta osm_base=""/>
-  <node lat="52.30406639" lon="20.98704234" id="-1" action="delete">
+  <node lat="52.30406639" lon="20.98704234" id="-1" action="modify">
     <tag k="addr:city" v="Warszawa"/>
     <tag k="addr:city:simc" v="0918123"/>
     <tag k="addr:housenumber" v="35"/>
@@ -50,16 +50,10 @@
     <tag k="source:addr" v="mapa.um.warszawa.pl"/>
   </node>
   <way id="-103084" action="modify">
-    <tag k="addr:city" v="Warszawa"/>
-    <tag k="addr:city:simc" v="0918123"/>
-    <tag k="addr:housenumber" v="35"/>
-    <tag k="addr:street" v="Modlińska"/>
-    <tag k="addr:street:sym_ul" v="13171"/>
     <tag k="building" v="yes"/>
     <tag k="name" v="Lidl"/>
     <tag k="opening_hours" v="Mo-Sa 07:00-22:00; Su 09:00-19:00"/>
     <tag k="shop" v="supermarket"/>
-    <tag k="source:addr" v="mapa.um.warszawa.pl"/>
     <nd ref="-103085"/>
     <nd ref="-103086"/>
     <nd ref="-103087"/>

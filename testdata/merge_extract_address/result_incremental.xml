@@ -1,0 +1,25 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<osm version="0.6" generator="import adresy merger.py">
+  <note>The data included in this document is from www.openstreetmap.org. The data is made available under ODbL.</note>
+  <meta osm_base=""/>
+  <node lat="52.28514104" lon="21.03969873" id="-1" action="modify">
+    <tag k="addr:city" v="Warszawa"/>
+    <tag k="addr:city:simc" v="0918123"/>
+    <tag k="addr:housenumber" v="1C"/>
+    <tag k="addr:street" v="Chodecka"/>
+    <tag k="addr:street:sym_ul" v="02796"/>
+    <tag k="source:addr" v="mapa.um.warszawa.pl"/>
+  </node>
+  <node lat="52.2848397" lon="21.0397160" changeset="36907993" id="3978808182" timestamp="2016-01-30T23:40:04Z" uid="52087" user="kocio" version="1"/>
+  <node lat="52.2848813" lon="21.0398957" changeset="36907993" id="3978808183" timestamp="2016-01-30T23:40:04Z" uid="52087" user="kocio" version="1"/>
+  <node lat="52.2851736" lon="21.0395092" changeset="36907993" id="3978808199" timestamp="2016-01-30T23:40:04Z" uid="52087" user="kocio" version="1"/>
+  <node lat="52.2852153" lon="21.0396889" changeset="36907993" id="3978808202" timestamp="2016-01-30T23:40:04Z" uid="52087" user="kocio" version="1"/>
+  <way changeset="36907993" id="394996638" timestamp="2016-01-30T23:40:05Z" uid="52087" user="kocio" version="1" action="modify">
+    <tag k="building" v="yes"/>
+    <nd ref="3978808183"/>
+    <nd ref="3978808182"/>
+    <nd ref="3978808199"/>
+    <nd ref="3978808202"/>
+    <nd ref="3978808183"/>
+  </way>
+</osm>

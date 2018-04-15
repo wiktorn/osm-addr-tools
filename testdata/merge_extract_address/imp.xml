@@ -1,0 +1,19 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<osm version='0.6' generator='JOSM'>
+  <node id='-71399' action='modify' lat='52.28514104' lon='21.03969873'>
+    <tag k='addr:city' v='Warszawa' />
+    <tag k='addr:city:simc' v='0918123' />
+    <tag k='addr:housenumber' v='1C' />
+    <tag k='addr:street' v='Chodecka' />
+    <tag k='addr:street:sym_ul' v='02796' />
+    <tag k='source:addr' v='mapa.um.warszawa.pl' />
+  </node>
+  <node id='-71400' action='modify' lat='52.28497056' lon='21.03981875'>
+    <tag k='addr:city' v='Warszawa' />
+    <tag k='addr:city:simc' v='0918123' />
+    <tag k='addr:housenumber' v='1D' />
+    <tag k='addr:street' v='Chodecka' />
+    <tag k='addr:street:sym_ul' v='02796' />
+    <tag k='source:addr' v='mapa.um.warszawa.pl' />
+  </node>
+</osm>
