@@ -52,7 +52,7 @@
     <tag k="addr:street:sym_ul" v="2"/>
     <tag k="source:addr" v="lochow.e-mapa.net"/>
   </node>
-  <way id="-39002">
+  <way id="-39002" action="modify">
     <tag k="building" v="yes"/>
     <nd ref="-38986"/>
     <nd ref="-38988"/>

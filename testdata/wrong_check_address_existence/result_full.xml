@@ -90,7 +90,7 @@
   <node lat="52.2692323" lon="20.9375204" id="-49698"/>
   <node lat="52.2692401" lon="20.9375714" id="-49699"/>
   <node lat="52.2692616" lon="20.93758" id="-49700"/>
-  <way id="-49657">
+  <way id="-49657" action="modify">
     <tag k="building" v="yes"/>
     <nd ref="-49660"/>
     <nd ref="-49661"/>

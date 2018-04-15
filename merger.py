@@ -602,6 +602,7 @@ class Merger(object):
                             (key, "" if (key.startswith('addr:') or key == 'source:addr') else value)
                             for key, value in c._raw['tags'].items()
                         )
+                        self.set_state(c, "modify")
                         self._create_point(entry)
                     return True
         return False
