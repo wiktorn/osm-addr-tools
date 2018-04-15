@@ -1067,11 +1067,6 @@ out meta bb qt;
     return osmdb.get_shape(rel)
 
 
-def buffer(shp, meters=0):
-    # 0.0000089831528 is the 1m length in arc degrees of great circle
-    return shp.buffer(meters * 0.0000089831528)
-
-
 def main():
     # TODO: create mode where no unchanged data are returned (as addresses to be merged with buildings)
     parser = argparse.ArgumentParser(formatter_class=argparse.RawDescriptionHelpFormatter,

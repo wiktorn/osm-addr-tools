@@ -8,7 +8,7 @@ from shapely.geometry import Point
 
 from data.base import AbstractImport, Address, get_ssl_no_verify_opener
 from data.gugik import GUGiK
-from osmdb import distance
+from osmdb import distance, buffered_shape_poland
 
 
 class WarszawaUM(AbstractImport):
@@ -33,6 +33,7 @@ class WarszawaUM(AbstractImport):
         self.gugik = GUGiK("1465011")
         self.gugik_data = {}
         self.gugik_index = rtree.index.Index()
+        self.buffered_shape = buffered_shape_poland(self.shape, 500)
 
     def _find_nearest(self, point, street, housenumber):
         lst = list(
@@ -74,7 +75,7 @@ class WarszawaUM(AbstractImport):
         if street.startswith('ul. '):
             street = street[4:]
         point = (float(entry['y']), float(entry['x']))
-        if Point(reversed(point)).within(self.shape):
+        if Point(reversed(point)).within(self.buffered_shape):
             nearest = self._find_nearest(point, street, housenumber)
         else:
             nearest = None
@@ -93,7 +94,7 @@ class WarszawaUM(AbstractImport):
         return ret
 
     def _is_eligible(self, addr):
-        if not addr.get_point().within(self.shape):
+        if not addr.get_point().within(self.buffered_shape):
             # do not report anything about this, this is normal
             return False
         return True

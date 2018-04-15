@@ -121,6 +121,18 @@ def distance(a, b):
     return __geod.inv(a[1], a[0], b[1], b[0])[2]
 
 
+def buffered_shape_poland(shape: shapely.geometry.base.BaseGeometry, buffer: int) -> shapely.geometry.base.BaseGeometry:
+    """
+    :param buffer: buffer in meters -
+    :return: object extended in each direction by buffer
+
+    Uses EPSG:2180 (PUWG) to get estimated 1 m = 1 unit, so buffer will actually extend objects by one meter
+    Warning: This will work only in Poland
+    """
+    ret = shapely.ops.transform(_epsg_4326_to_2180, shape).buffer(buffer)
+    return shapely.ops.transform(_epsg_2180_to_4326, ret)
+
+
 class OsmDbEntry(object):
     def __init__(self, entry, raw, osmdb):
         self._entry = entry
@@ -159,8 +171,7 @@ class OsmDbEntry(object):
         Uses EPSG:2180 (PUWG) to get estimated 1 m = 1 unit, so buffer will actually extend objects by one meter
         Warning: This will work only in Poland
         """
-        ret = shapely.ops.transform(_epsg_4326_to_2180, self.shape).buffer(buffer)
-        return shapely.ops.transform(_epsg_2180_to_4326, ret)
+        return buffered_shape_poland(self.shape, buffer)
 
 
 
