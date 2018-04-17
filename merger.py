@@ -752,11 +752,11 @@ class Merger(object):
         self.create_index("[5/12]")
         self.handle_street_name_changes()
         self.create_index("[6/12]")
+        self.mark_not_existing()
+        self.create_index("[12/12]")
         for i in self.post_func:
             i()
         self.create_index("[11/12]")
-        self.mark_not_existing()
-        self.create_index("[12/12]")
 
     def mark_not_existing(self):
         imp_addr = set(map(lambda x: x.get_index_key(), self.impdata))
@@ -805,7 +805,8 @@ class Merger(object):
             fixme += addr.get_fixme()
             # TODO
             # building_obj.clear_fixme()
-            if fixme:
+            if fixme or building_obj.get_fixme():
+                building_obj.clear_fixme()
                 building_obj.add_fixme(fixme)
             building_obj.set_state('modify')
             self.set_state(addr, 'delete')

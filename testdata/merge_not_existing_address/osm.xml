@@ -1,0 +1,40 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<osm version='0.6' generator='JOSM'>
+  <node id='2025555482' timestamp='2016-01-31T18:38:31Z' uid='2549411' user='lasica1982' version='4' changeset='36922693' lat='52.161108' lon='21.2130497'>
+    <tag k='addr:city' v='Warszawa' />
+    <tag k='addr:city:simc' v='0918123' />
+    <tag k='addr:housenumber' v='4/6' />
+    <tag k='addr:postcode' v='04-921' />
+    <tag k='addr:street' v='Walcownicza' />
+    <tag k='addr:street:sym_ul' v='23517' />
+    <tag k='source:addr' v='mapa.um.warszawa.pl' />
+  </node>
+  <node id='5252123531' timestamp='2017-11-28T14:06:42Z' uid='3778210' user='MiłaEkierka' version='1' changeset='54150161' lat='52.160945' lon='21.213085' />
+  <node id='5252123532' timestamp='2017-11-28T14:06:42Z' uid='3778210' user='MiłaEkierka' version='1' changeset='54150161' lat='52.1609288' lon='21.2130447' />
+  <node id='5252123533' timestamp='2017-11-28T14:06:42Z' uid='3778210' user='MiłaEkierka' version='1' changeset='54150161' lat='52.160994' lon='21.2129753' />
+  <node id='5252123534' timestamp='2017-11-28T14:06:42Z' uid='3778210' user='MiłaEkierka' version='1' changeset='54150161' lat='52.1610135' lon='21.2130241' />
+  <node id='5252123535' timestamp='2017-11-28T14:06:42Z' uid='3778210' user='MiłaEkierka' version='1' changeset='54150161' lat='52.1610447' lon='21.2129909' />
+  <node id='5252123536' timestamp='2017-11-28T14:06:42Z' uid='3778210' user='MiłaEkierka' version='1' changeset='54150161' lat='52.1611208' lon='21.2131809' />
+  <node id='5252123537' timestamp='2017-11-28T14:06:42Z' uid='3778210' user='MiłaEkierka' version='1' changeset='54150161' lat='52.1610879' lon='21.213216' />
+  <node id='5252123538' timestamp='2017-11-28T14:06:42Z' uid='3778210' user='MiłaEkierka' version='1' changeset='54150161' lat='52.1611751' lon='21.2134334' />
+  <node id='5252123539' timestamp='2017-11-28T14:06:42Z' uid='3778210' user='MiłaEkierka' version='1' changeset='54150161' lat='52.1611559' lon='21.2134537' />
+  <node id='5252123540' timestamp='2017-11-28T14:06:42Z' uid='3778210' user='MiłaEkierka' version='1' changeset='54150161' lat='52.1611765' lon='21.2135051' />
+  <node id='5252123541' timestamp='2017-11-28T14:06:42Z' uid='3778210' user='MiłaEkierka' version='1' changeset='54150161' lat='52.1610884' lon='21.2135989' />
+  <node id='5252123542' timestamp='2017-11-28T14:06:42Z' uid='3778210' user='MiłaEkierka' version='1' changeset='54150161' lat='52.1609012' lon='21.2131317' />
+  <way id='543302586' timestamp='2017-11-28T14:06:42Z' uid='3778210' user='MiłaEkierka' version='1' changeset='54150161'>
+    <nd ref='5252123542' />
+    <nd ref='5252123541' />
+    <nd ref='5252123540' />
+    <nd ref='5252123539' />
+    <nd ref='5252123538' />
+    <nd ref='5252123537' />
+    <nd ref='5252123536' />
+    <nd ref='5252123535' />
+    <nd ref='5252123534' />
+    <nd ref='5252123533' />
+    <nd ref='5252123532' />
+    <nd ref='5252123531' />
+    <nd ref='5252123542' />
+    <tag k='building' v='construction' />
+  </way>
+</osm>

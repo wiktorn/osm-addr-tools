@@ -30,7 +30,7 @@
     <tag k="addr:postcode" v="07-130"/>
     <tag k="addr:street" v="Dębowa"/>
     <tag k="building" v="yes"/>
-    <tag k="fixme" v="Node is 228 meters away from imported point, Node is 223 meters away from imported point"/>
+    <tag k="fixme" v="Node is 223 meters away from imported point"/>
     <tag k="source:addr" v="lochow.e-mapa.net"/>
     <nd ref="-39096"/>
     <nd ref="-39097"/>
