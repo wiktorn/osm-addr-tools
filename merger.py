@@ -387,7 +387,7 @@ class Merger(object):
         #    self._fix_wesola(entry)
         def process(entry):
             self._fix_similar_addr(entry)
-            tuple(map(lambda x: x(entry), self.pre_func))
+            tuple(map(lambda f: f(entry), self.pre_func))
 
         for x in tqdm.tqdm(self.impdata, desc="[2/12] Running pre-merge functions"):
             process(x)
@@ -906,13 +906,14 @@ class Merger(object):
                     )
                 if candidate_within:
                     if len(list(itertools.islice(
-                            (x for x in
-                                (
-                                    self.imp_obj_by_id[x] for x in self.imp_index.nearest(
-                                        (candidate_within.center.y, candidate_within.center.x) * 2,
-                                        20
-                                    )
-                                ) if candidate_within.buffered_shape(buf).contains(x.center)
+                            (
+                                    x for x in
+                                    (
+                                        self.imp_obj_by_id[x] for x in self.imp_index.nearest(
+                                            (candidate_within.center.y, candidate_within.center.x) * 2,
+                                            20
+                                        )
+                                    ) if candidate_within.buffered_shape(buf).contains(x.center)
                             ),
                             0,
                             2
@@ -925,27 +926,27 @@ class Merger(object):
                         candidate_within.set_state('visible')
         return ret
 
-    def _get_osm_xml(self, nodes, logIO=None):
+    def _get_osm_xml(self, nodes, log_io=None):
         return E.osm(
             E.note('The data included in this document is from www.openstreetmap.org. '
-                   'The data is made available under ODbL.' + ('\n' + logIO.getvalue() if logIO else '')),
+                   'The data is made available under ODbL.' + ('\n' + log_io.getvalue() if log_io else '')),
             E.meta(osm_base=self.asis.get('osm3s', {}).get('timestamp_osm_base', '')),
             *tuple(map(OsmAddress.to_osm_soup, nodes)),
             version='0.6', generator='import adresy merger.py'
         )
 
-    def get_incremental_result(self, logIO=None):
+    def get_incremental_result(self, log_io=None):
         changes = self._get_all_changed_nodes()
         self.__log.info("Generated %d changes", len(changes))
         nodes = self._get_all_reffered_by(changes + self._get_all_visible())
-        return lxml.etree.tostring(self._get_osm_xml(nodes, logIO),
+        return lxml.etree.tostring(self._get_osm_xml(nodes, log_io),
                                    pretty_print=True, xml_declaration=True, encoding='UTF-8')
 
-    def get_full_result(self, logIO=None):
+    def get_full_result(self, log_io=None):
         return lxml.etree.tostring(
             self._get_osm_xml(
                 sorted(self.osmdb.get_all_values(), key=lambda x: x.osmid),
-                logIO),
+                log_io),
             pretty_print=True,
             xml_declaration=True,
             encoding='UTF-8'
