@@ -969,7 +969,7 @@ class Merger(object):
             in imported data, then update the street name from imported point
         """
 
-        for entry in self.impdata:
+        for entry in tqdm.tqdm(self.impdata, desc="Detecting street name changes"):
             candidate = next(
                 (
                     x for x in itertools.chain(
