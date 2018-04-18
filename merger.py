@@ -1033,10 +1033,21 @@ def get_addresses(bbox):
     (%s)
     ["building"];
 )->.a;
-.a < ->.out;
-.a >> ->.out;
+(
+  node(w.a);
+  node(r.a);
+  way(r.a);
+  way(bn.a);
+  relation(bn.a);
+  relation(bw.a);
+)->.b;
+(
+  node(w.b);
+  node(r.b);
+)->.c;
 .a out meta bb qt;
-.out out meta bb qt;
+.b out meta bb qt;
+.c out meta bb qt;
 """ % (bbox, bbox, bbox, bbox, bbox,)
     return json.loads(overpass.query(query))
 
