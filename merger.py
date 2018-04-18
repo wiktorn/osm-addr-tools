@@ -994,8 +994,13 @@ class Merger(object):
             if not self.handle_one_street_name_change(candidate, entry):
                 # try to find node
                 candidate = next(
-                    (x for x in self.osmdb.nearest(entry.center, num_results=1000)
-                     if x.objtype == 'node' and x.housenumber and distance(x.center, entry.center) < 10),
+                    itertools.takewhile(
+                        lambda x: distance(x.center, entry.center) < 10,
+                        (
+                            x for x in self.osmdb.nearest(entry.center, num_results=1000)
+                            if x.objtype == 'node' and x.housenumber
+                        )
+                    ),
                     None
                 )
                 self.handle_one_street_name_change(candidate, entry)
