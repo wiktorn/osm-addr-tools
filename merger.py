@@ -1003,17 +1003,35 @@ class Merger(object):
                 self.handle_one_street_name_change(candidate, entry)
 
 
-
-
+def get_referenced_objects(query):
+    return """
+[out:json]
+[timeout:600]
+;
+(
+    %s
+)->.a;
+(
+  node(w.a);
+  node(r.a);
+  way(r.a);
+  way(bn.a);
+  relation(bn.a);
+  relation(bw.a);
+)->.b;
+(
+  node(w.b);
+  node(r.b);
+)->.c;
+.a out meta bb qt;
+.b out meta bb qt;
+.c out meta bb qt;
+    """ % (query,)
 
 
 def get_addresses(bbox):
     bbox = ",".join(bbox)
     query = """
-[out:json]
-[timeout:600]
-;
-(
   node
     (%s)
     ["addr:housenumber"]
@@ -1034,24 +1052,8 @@ def get_addresses(bbox):
   relation
     (%s)
     ["building"];
-)->.a;
-(
-  node(w.a);
-  node(r.a);
-  way(r.a);
-  way(bn.a);
-  relation(bn.a);
-  relation(bw.a);
-)->.b;
-(
-  node(w.b);
-  node(r.b);
-)->.c;
-.a out meta bb qt;
-.b out meta bb qt;
-.c out meta bb qt;
 """ % (bbox, bbox, bbox, bbox, bbox,)
-    return json.loads(overpass.query(query))
+    return json.loads(overpass.query(get_referenced_objects(query)))
 
 
 def get_boundary_shape(terc):
