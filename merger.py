@@ -156,8 +156,7 @@ class OsmAddress(Address):
         return self._soup['type']
 
     def _get_tag_val(self, key):
-        return self._soup.get('tags')
-
+        return self._soup.get('tags').get(key)
 
     def _set_tag_val(self, key, val):
         """returns True if something was modified"""
