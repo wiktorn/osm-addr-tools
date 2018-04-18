@@ -69,9 +69,11 @@ _epsg_4326_to_2180 = functools.partial(pyproj.transform, pyproj.Proj(init='epsg:
 def distance(a, b):
     """returns distance betwen a and b points in meters"""
     if isinstance(a, shapely.geometry.base.BaseGeometry):
-        a = (a.y, a.x)
+        point_a = a.centroid
+        a = (point_a.y, point_a.x)
     if isinstance(b, shapely.geometry.base.BaseGeometry):
-        b = (b.y, b.x)
+        point_b = b.centroid
+        b = (point_b.y, point_b.x)
     return __geod.inv(a[1], a[0], b[1], b[0])[2]
 
 
