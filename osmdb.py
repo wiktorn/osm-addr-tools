@@ -65,6 +65,7 @@ __geod = pyproj.Geod(ellps="WGS84")
 _epsg_2180_to_4326 = functools.partial(pyproj.transform, pyproj.Proj(init='epsg:2180'), pyproj.Proj(init='epsg:4326'))
 _epsg_4326_to_2180 = functools.partial(pyproj.transform, pyproj.Proj(init='epsg:4326'), pyproj.Proj(init='epsg:2180'))
 
+
 def distance(a, b):
     """returns distance betwen a and b points in meters"""
     if isinstance(a, shapely.geometry.base.BaseGeometry):
@@ -76,6 +77,7 @@ def distance(a, b):
 
 def buffered_shape_poland(shape: shapely.geometry.base.BaseGeometry, buffer: int) -> shapely.geometry.base.BaseGeometry:
     """
+    :param shape: shape to extend
     :param buffer: buffer in meters -
     :return: object extended in each direction by buffer
 
@@ -127,7 +129,6 @@ class OsmDbEntry(object):
         return buffered_shape_poland(self.shape, buffer)
 
 
-
 class OsmDb(object):
     __log = logging.getLogger(__name__).getChild('OsmDb')
 
@@ -143,7 +144,6 @@ class OsmDb(object):
         self.__cached_shapes = {}
         self.__index = index.Index()
         self.__index_entries = {}
-
 
         def makegetfromindex(i):
             def getfromindex(key):
