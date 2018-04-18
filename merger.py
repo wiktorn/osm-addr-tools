@@ -25,7 +25,7 @@ from data.gison import GISON
 from data.gugik import GUGiK, GUGiK_GML
 from data.impa import iMPA
 from data.warszawaum import WarszawaUM
-from osmdb import OsmDb, OsmDbEntry, get_soup_center, distance, prepare_object_pos
+from osmdb import OsmDb, OsmDbEntry, get_soup_center, distance
 
 __log = logging.getLogger(__name__)
 
@@ -84,16 +84,11 @@ class OsmAddress(Address):
         return self._soup[key]
 
     @staticmethod
-    def from_soup(obj, obj_loc_cache=None, ways_for_node=None):
+    def from_soup(obj, ways_for_node=None):
         tags = dict(
             (k, v.strip()) for (k, v) in obj.get('tags', {}).items()
         )
-
-        loc = None
-        if obj_loc_cache:
-            loc = obj_loc_cache.get(obj['type'] + ':' + str(obj['id']))
-        if not loc:
-            loc = get_soup_center(obj)
+        loc = get_soup_center(obj)
 
         ret = OsmAddress(
             housenumber=tags.get('addr:housenumber', ''),
@@ -335,15 +330,17 @@ class Merger(object):
                  ):
         self.impdata = impdata
         self.asis = asis
-        obj_loc_cache = prepare_object_pos(asis['elements'])
         ways_for_node = defaultdict(list)
         for way in filter(lambda x: x['type'] == 'way', asis['elements']):
             for node in way['nodes']:
                 ways_for_node[node].append(way['id'])
 
-        from_soup = functools.partial(OsmAddress.from_soup, obj_loc_cache=obj_loc_cache, ways_for_node=ways_for_node)
-        self.osmdb = OsmDb(self.asis, valuefunc=from_soup,
-                           indexes={'address': lambda x: x.get_index_key(), 'id': lambda x: x.osmid})
+        from_soup = functools.partial(OsmAddress.from_soup, ways_for_node=ways_for_node)
+        self.osmdb = OsmDb(
+            self.asis,
+            valuefunc=from_soup,
+            indexes={'address': lambda x: x.get_index_key(), 'id': lambda x: x.osmid}
+        )
         self.imp_obj_by_id = dict(zip(itertools.count(), self.impdata))
         self.imp_index = rtree.index.Index()
         for (key, value) in self.imp_obj_by_id.items():
@@ -1200,7 +1197,7 @@ def main():
     __log.info('Processing %d addresses', len(data))
 
     if len(addr['elements']) == 0:
-        __log.warning("Warning - address data is empty. Check your file/terc code")
+        __log.warning("Warning - no data fetched from OSM. Check your file/terc code")
 
     # m = Merger(data, addr, terc, parallel_process_func=parallel_map)
     m = Merger(data, addr, terc, source_addr)
