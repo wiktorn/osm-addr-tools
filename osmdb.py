@@ -177,7 +177,10 @@ class OsmDb(object):
         self.__custom_indexes = dict((x, collections.defaultdict(list)) for x in self.__custom_indexes_conf.keys())
 
         for (key, val) in tqdm.tqdm(self.__osm_obj.items(), desc="{} Creating index".format(message)):
-            pos = self.get_shape(val._raw).centroid
+            try:
+                pos = self.get_shape(val._raw).centroid
+            except KeyError:
+                raise KeyError("Problem with getting shape of {}:{}".format(val.entry['type'], val.entry['id']))
             pos = (pos.y, pos.x)
             if pos:
                 _id = _get_id(val._raw)

@@ -1022,10 +1022,15 @@ def get_referenced_objects(query):
 (
   node(w.b);
   node(r.b);
+  way(r.b);
 )->.c;
+(
+    node(w.c)
+)->.d;
 .a out meta bb qt;
 .b out meta bb qt;
 .c out meta bb qt;
+.d out meta bb qt;
     """ % (query,)
 
 
