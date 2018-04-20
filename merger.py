@@ -1002,6 +1002,11 @@ class Merger(object):
                 )
                 self.handle_one_street_name_change(candidate, entry)
 
+    def mark_all_nodes_visible(self):
+        for obj in (self.osmdb.getbyid(x)[0] for x in self.osmdb.getallid()):
+            if obj.housenumber and obj.entry['type'] == 'node' and obj.shape.within(self._import_area_shape):
+                self._mark_soup_visible(obj)
+
 
 def get_referenced_objects(query):
     return """
@@ -1210,6 +1215,7 @@ def main():
     m = Merger(data, addr, terc, source_addr)
     if not args.no_merge:
         m.post_func.append(m.merge_addresses)
+    m.post_func.append(m.mark_all_nodes_visible)
     m.merge()
 
     if args.full_mode:
