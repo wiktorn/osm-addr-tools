@@ -122,7 +122,7 @@ class OsmDbEntry(object):
 class OsmDb(object):
     __log = logging.getLogger(__name__).getChild('OsmDb')
 
-    def __init__(self, osmdata, valuefunc=lambda x: x, indexes=None):
+    def __init__(self, osmdata, valuefunc=lambda x: x, indexes=None, index_filter=lambda x: True):
         # assume osmdata is a BeautifulSoup object already
         # do it an assert
         if not indexes:
@@ -134,6 +134,7 @@ class OsmDb(object):
         self.__cached_shapes = {}
         self.__index = index.Index()
         self.__index_entries = {}
+        self.__index_filter = index_filter
 
         def makegetfromindex(i):
             def getfromindex(key):
@@ -164,7 +165,10 @@ class OsmDb(object):
         self.__index_entries = {}
         self.__custom_indexes = dict((x, collections.defaultdict(list)) for x in self.__custom_indexes_conf.keys())
 
-        for (key, val) in tqdm.tqdm(self.__osm_obj.items(), desc="{} Creating index".format(message)):
+        for val in tqdm.tqdm(
+                [value for value in self.__osm_obj.values() if self.__index_filter(value)],
+                desc="{} Creating index".format(message)
+        ):
             try:
                 pos = self.get_shape(val._raw).centroid
             except KeyError:
@@ -185,8 +189,11 @@ class OsmDb(object):
         self.__osm_obj[(new['type'], new['id'])] = ret
         return ret
 
+    def get_by_id(self, typ: str, id_: int):
+        return self.__osm_obj[(typ, id_)]
+
     def get_all_values(self):
-        return self.__index_entries.values()
+        return self.__osm_obj.values()
 
     def nearest(self, point, num_results=1):
         if isinstance(point, Point):
