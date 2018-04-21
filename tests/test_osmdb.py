@@ -34,3 +34,6 @@ class OsmDbTests(unittest.TestCase):
 
     def test_complicated_relation(self):
         self.trivial_check('relation', 2567398)
+
+    def test_associated_street(self):
+        self.trivial_check('relation', 3472746)

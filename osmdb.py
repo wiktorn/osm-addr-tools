@@ -257,7 +257,7 @@ class OsmDb(object):
             if not outer and not inner:
                 # handle broken relations without inner / outer
                 outer = [
-                    self.__osm_obj[(x['type'], x['ref'])] for x in soup['members'] if x['role'] in ('building', )
+                    self.__osm_obj[(x['type'], x['ref'])] for x in soup['members'] if x['role'] in ('building', 'house')
                 ]
             try:
                 inner = self.get_closed_ways(inner)
@@ -281,6 +281,7 @@ class OsmDb(object):
                     else:
                         ret = ret.union(val)
             if not ret:
+                # TODO: maybe use bounds of relation instead?
                 raise ValueError("Broken geometry for relation: %s" % (soup['id'],))
             return ret
 
