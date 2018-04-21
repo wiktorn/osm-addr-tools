@@ -1003,14 +1003,14 @@ class Merger(object):
                 (
                     x for x in itertools.chain(
                         itertools.islice(
-                            (x for x in self.osmdb.nearest(entry.center, num_results=1000) if x.objtype == 'relation'),
+                            (x for x in self.osmdb.nearest(entry.center, num_results=100) if x.objtype == 'relation'),
                             0,
-                            20
+                            10
                         ),
                         itertools.islice(
-                            (x for x in self.osmdb.nearest(entry.center, num_results=1000) if x.objtype == 'way'),
+                            (x for x in self.osmdb.nearest(entry.center, num_results=100) if x.objtype == 'way'),
                             0,
-                            20
+                            10
                         )
                     ) if x.contains(entry.center)
                 ),
