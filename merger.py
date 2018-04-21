@@ -720,8 +720,16 @@ class Merger(object):
     def _get_all_reffered_by(self, lst):
         ret = set()
 
-        @functools.lru_cache(maxsize=128)
+        __referred_cache = dict()
+
         def get_referred(node, exclude_ids=()):
+            ret = __referred_cache.get(node.osmid)
+            if not ret:
+                ret = get_referred_cached(node, exclude_ids)
+                __referred_cache[node.osmid] = ret
+            return ret
+
+        def get_referred_cached(node, exclude_ids=()):
             if node.osmid in exclude_ids:
                 return set()
             if node['type'] == 'node':
