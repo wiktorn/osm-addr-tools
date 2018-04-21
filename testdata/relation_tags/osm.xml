@@ -141,6 +141,7 @@
     <nd ref="2883967615"/>
   </way>
   <relation id="3776337" version="3" timestamp="2017-12-03T09:17:50Z" changeset="54292108" uid="1879367" user="Zibi-importy">
+    <bounds minlat="50.5219915" minlon="17.2163414" maxlat="50.5223552" maxlon="17.2170255" />
     <member type="way" ref="284675180" role="outer"/>
     <member type="way" ref="284675179" role="inner"/>
     <tag k="building" v="yes"/>
