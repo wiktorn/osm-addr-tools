@@ -338,7 +338,8 @@ class Merger(object):
         self.osmdb = OsmDb(
             self.asis,
             valuefunc=from_soup,
-            indexes={'address': lambda x: x.get_index_key(), 'id': lambda x: x.osmid}
+            indexes={'address': lambda x: x.get_index_key(), 'id': lambda x: x.osmid},
+            index_filter=lambda x: x['tags'].get('building', False) or x.entry.housenumber
         )
         self.imp_obj_by_id = dict(zip(itertools.count(), self.impdata))
         self.imp_index = rtree.index.Index()
@@ -364,7 +365,7 @@ class Merger(object):
     def merge(self):
         self.__log.debug("Starting premerger functinos")
         self._pre_merge()
-        self.create_index("[3/12]")
+        self.create_index("[3/14]")
         self.__log.debug("Starting merge functinos")
         self._do_merge()
         self.__log.debug("Starting postmerge functinos")
@@ -389,7 +390,7 @@ class Merger(object):
             self._fix_similar_addr(entry)
             tuple(map(lambda f: f(entry), self.pre_func))
 
-        for x in tqdm.tqdm(self.impdata, desc="[2/12] Running pre-merge functions"):
+        for x in tqdm.tqdm(self.impdata, desc="[2/14] Running pre-merge functions"):
             process(x)
 
     def _fix_similar_addr(self, entry):
@@ -454,7 +455,7 @@ class Merger(object):
                     self.set_state(node, 'delete')
 
     def _do_merge(self):
-        for entry in tqdm.tqdm(self.impdata, desc="[4/12] Merging"):
+        for entry in tqdm.tqdm(self.impdata, desc="[4/14] Merging"):
             self._do_merge_one(entry)
 
     def _do_merge_one(self, entry):
@@ -715,12 +716,7 @@ class Merger(object):
     def _get_all_reffered_by(self, lst):
         ret = set()
 
-        def getbyid(key):
-            obj = self.osmdb.getbyid(key)
-            if not obj:
-                raise ValueError("No object found for key: %s" % (key,))
-            return obj
-
+        @functools.lru_cache(maxsize=128)
         def get_referred(node, exclude_ids=()):
             if node.osmid in exclude_ids:
                 return set()
@@ -728,9 +724,7 @@ class Merger(object):
                 return set(
                     itertools.chain(
                         itertools.chain.from_iterable(
-                            get_referred(getbyid(x)[0], exclude_ids) for x in (
-                                "way:{}".format(x) for x in node.ref_ways
-                            ) if x not in exclude_ids
+                            get_referred(self.osmdb.get_by_id('way', x), exclude_ids) for x in node.ref_ways if "way:{}".format(x) not in exclude_ids
                         ),
                         (('node', node['id']),)
                     )
@@ -739,9 +733,8 @@ class Merger(object):
                 return set(
                     itertools.chain(
                         itertools.chain.from_iterable(
-                            get_referred(getbyid(x)[0], exclude_ids) for x in (
-                                "way:{}".format(x) for x in node.ref_ways
-                            ) if x not in exclude_ids
+                            get_referred(self.osmdb.get_by_id('way', x), exclude_ids) for x in node.ref_ways
+                            if "way:{}".format(x) not in exclude_ids
                         ),
                         (('node', node['ref']),)
                     )
@@ -750,42 +743,41 @@ class Merger(object):
                 return itertools.chain(
                     itertools.chain.from_iterable(
                         get_referred(
-                            getbyid(
-                                "node:{}".format(x)
-                            )[0],
+                            self.osmdb.get_by_id('node', x),
                             exclude_ids=exclude_ids + ("way:{}".format(node['id']),)
                         ) for x in node['nodes']
                     ),
                     (('way', node['id']),)
                 )
             if node['type'] == 'member':
-                return get_referred(getbyid("%s:%s" % (node['type'], node['ref']))[0])
+                return get_referred(self.osmdb.get_by_id(node['type'], int(node['ref'])))
             if node['type'] == 'relation':
                 return itertools.chain(
                     itertools.chain.from_iterable(
-                        map(get_referred, (getbyid("%s:%s" % (x['type'], x['ref']))[0] for x in node['members']))),
+                        get_referred(self.osmdb.get_by_id(x['type'], int(x['ref']))) for x in node['members']
+                    ),
                     (('relation', node['id']),)
                 )
             raise ValueError("Unknown node type: %s" % node.name)
 
-        for i in lst:
+        for i in tqdm.tqdm(lst, desc="[14/14] Generating output") :
             ret = ret.union(get_referred(i))
 
         return tuple(map(
-            lambda x: getbyid("%s:%s" % (x[0], x[1]))[0],
+            lambda x: self.osmdb.get_by_id(x[0], x[1]),
             sorted(ret, key=lambda x: "%s:%s" % (x[0], x[1]))
         ))
 
     def _post_merge(self):
         # recreate index
-        self.create_index("[5/12]")
+        self.create_index("[5/14]")
         self.handle_street_name_changes()
-        self.create_index("[6/12]")
+        self.create_index("[7/14]")
         self.mark_not_existing()
-        self.create_index("[12/12]")
+        self.create_index("[9/14]")
         for i in self.post_func:
             i()
-        self.create_index("[11/12]")
+        self.create_index("[13/14]")
 
     def mark_not_existing(self):
         imp_addr = set(map(lambda x: x.get_index_key(), self.impdata))
@@ -795,7 +787,7 @@ class Merger(object):
                 lambda x: any(
                     map(lambda y: self._import_area_shape.contains(y.center), self.osmdb.getbyaddress(x))
                 ),
-                tqdm.tqdm(self.osmdb.getalladdress(), desc="[10/12] Looking for not existing addresses")
+                tqdm.tqdm(self.osmdb.getalladdress(), desc="[8/14] Looking for not existing addresses")
             )
         ) - imp_addr
 
@@ -815,9 +807,9 @@ class Merger(object):
                     self.set_state(node, 'visible')
 
     def merge_addresses(self):
-        self._merge_addresses_buffer(0, "[7/12]")
-        self._merge_addresses_buffer(2, "[8/12]")
-        self._merge_addresses_buffer(5, "[9/12]")
+        self._merge_addresses_buffer(0, "[10/14]")
+        self._merge_addresses_buffer(2, "[11/14]")
+        self._merge_addresses_buffer(5, "[12/14]")
 
     def _merge_one_address(self, building: typing.Dict[str, typing.Any], addr: OsmDbEntry):
         # as we merge only address nodes, do not pass anything else
@@ -1002,7 +994,7 @@ class Merger(object):
             in imported data, then update the street name from imported point
         """
 
-        for entry in tqdm.tqdm(self.impdata, desc="Detecting street name changes"):
+        for entry in tqdm.tqdm(self.impdata, desc="[6/14] Detecting street name changes"):
             candidate = next(
                 (
                     x for x in itertools.chain(
@@ -1044,21 +1036,30 @@ class Merger(object):
 def get_referenced_objects(query):
     return """
 [out:json]
-[timeout:600]
-;
+[timeout:600];
 (
     %s
 )->.a;
 (
- .a <<;
+  node(w.a);
+  node(r.a);
+  way(r.a);
+  way(bn.a);
+  relation(bn.a);
+  relation(bw.a);
 )->.b;
 (
-.b >>;
-.a >>;
+  node(w.b);
+  node(r.b);
+  way(r.b);
 )->.c;
+(
+    node(w.c)
+)->.d;
 .a out meta bb qt;
 .b out meta bb qt;
 .c out meta bb qt;
+.d out meta bb qt;
     """ % (query,)
 
 
