@@ -21,6 +21,7 @@
     <tag k='source:addr' v='lochow.e-mapa.net' />
   </node>
   <way id='-39098' >
+    <bounds minlat="52.55082515965" minlon="21.62681654095" maxlat="52.55098760768" maxlon="21.62710896187" />
     <nd ref='-39096' />
     <nd ref='-39097' />
     <nd ref='-39099' />

@@ -5,6 +5,7 @@
   <node id='-52702' action='modify' lat='52.2432049' lon='21.0743935' />
   <node id='-52703' action='modify' lat='52.2429131' lon='21.072976' />
   <way id='-52699' action='modify'>
+    <bounds minlat="52.2428201" minlon="21.072976" maxlat="52.2432049" maxlon="21.0744446" />
     <nd ref='-52700' />
     <nd ref='-52701' />
     <nd ref='-52702' />

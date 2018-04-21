@@ -9,6 +9,7 @@
   <node id='-66430' action='modify' lat='52.312909' lon='21.0100252' />
   <node id='-66431' action='modify' lat='52.3133196' lon='21.011456' />
   <way id='-66423' action='modify'>
+    <bounds minlat="52.3124963" minlon="21.0100252" maxlat="52.3135308" maxlon="21.0120532" />
     <nd ref='-66424' />
     <nd ref='-66425' />
     <nd ref='-66426' />

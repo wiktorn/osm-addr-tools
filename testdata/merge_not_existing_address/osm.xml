@@ -22,6 +22,7 @@
   <node id='5252123541' timestamp='2017-11-28T14:06:42Z' uid='3778210' user='MiłaEkierka' version='1' changeset='54150161' lat='52.1610884' lon='21.2135989' />
   <node id='5252123542' timestamp='2017-11-28T14:06:42Z' uid='3778210' user='MiłaEkierka' version='1' changeset='54150161' lat='52.1609012' lon='21.2131317' />
   <way id='543302586' timestamp='2017-11-28T14:06:42Z' uid='3778210' user='MiłaEkierka' version='1' changeset='54150161'>
+    <bounds minlat="52.1609012" minlon="21.2129753" maxlat="52.1611765" maxlon="21.2135989" />
     <nd ref='5252123542' />
     <nd ref='5252123541' />
     <nd ref='5252123540' />

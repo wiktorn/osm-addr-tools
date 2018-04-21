@@ -12,6 +12,7 @@
   <node id='-65972' action='modify' lat='52.3361415' lon='20.9505668' />
   <node id='-65973' action='modify' lat='52.3356489' lon='20.9513307' />
   <way id='-65968' action='modify'>
+    <bounds minlat="52.3356489" minlon="20.9505668" maxlat="52.3362348" maxlon="20.9514677" />
     <nd ref='-65970' />
     <nd ref='-65971' />
     <nd ref='-65972' />
