@@ -1,0 +1,75 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<osm version="0.6" generator="import adresy merger.py">
+  <note>The data included in this document is from www.openstreetmap.org. The data is made available under ODbL.</note>
+  <meta osm_base=""/>
+  <node lat="52.18215286" lon="20.94386343" id="-1" action="delete">
+    <tag k="addr:city" v="Warszawa"/>
+    <tag k="addr:city:simc" v="0918123"/>
+    <tag k="addr:housenumber" v="12"/>
+    <tag k="addr:street" v="Prudnicka"/>
+    <tag k="addr:street:sym_ul" v="17571"/>
+    <tag k="source:addr" v="mapa.um.warszawa.pl"/>
+  </node>
+  <node lat="52.18228308166" lon="20.94399240214" id="-2" action="delete">
+    <tag k="addr:city" v="Warszawa"/>
+    <tag k="addr:city:simc" v="0918123"/>
+    <tag k="addr:housenumber" v="16"/>
+    <tag k="addr:street" v="Prudnicka"/>
+    <tag k="addr:street:sym_ul" v="17571"/>
+    <tag k="source:addr" v="mapa.um.warszawa.pl"/>
+  </node>
+  <node lat="52.1820511" lon="20.9439923" changeset="14152622" id="2049742768" timestamp="2012-12-04T14:32:59Z" uid="564141" user="Madmaks" version="1"/>
+  <node lat="52.1821158" lon="20.9437869" changeset="14152622" id="2049742773" timestamp="2012-12-04T14:32:59Z" uid="564141" user="Madmaks" version="1"/>
+  <node lat="52.1821203" lon="20.9440503" changeset="14152622" id="2049742774" timestamp="2012-12-04T14:32:59Z" uid="564141" user="Madmaks" version="1"/>
+  <node lat="52.1821850" lon="20.9438449" changeset="14152622" id="2049742775" timestamp="2012-12-04T14:32:59Z" uid="564141" user="Madmaks" version="1"/>
+  <node lat="52.1821895" lon="20.9441083" changeset="14152622" id="2049742776" timestamp="2012-12-04T14:32:59Z" uid="564141" user="Madmaks" version="1"/>
+  <node lat="52.1822542" lon="20.9439029" changeset="14152622" id="2049742777" timestamp="2012-12-04T14:32:59Z" uid="564141" user="Madmaks" version="1"/>
+  <node lat="52.1822587" lon="20.9441663" changeset="14152622" id="2049742778" timestamp="2012-12-04T14:32:59Z" uid="564141" user="Madmaks" version="1"/>
+  <node lat="52.1823234" lon="20.9439609" changeset="14152622" id="2049742779" timestamp="2012-12-04T14:32:59Z" uid="564141" user="Madmaks" version="1"/>
+  <node lat="52.1823279" lon="20.9442243" changeset="14152622" id="2049742780" timestamp="2012-12-04T14:33:00Z" uid="564141" user="Madmaks" version="1"/>
+  <node lat="52.1823926" lon="20.9440189" changeset="14152622" id="2049742781" timestamp="2012-12-04T14:33:00Z" uid="564141" user="Madmaks" version="1"/>
+  <way changeset="34982452" id="194468572" timestamp="2015-10-30T22:46:22Z" uid="2381492" user="WiktorN-import" version="3" action="modify">
+    <tag k="addr:city" v="Warszawa"/>
+    <tag k="addr:city:simc" v="0918123"/>
+    <tag k="addr:housenumber" v="12"/>
+    <tag k="addr:street" v="Prudnicka"/>
+    <tag k="addr:street:sym_ul" v="17571"/>
+    <tag k="building" v="yes"/>
+    <tag k="source:addr" v="mapa.um.warszawa.pl"/>
+    <nd ref="2049742774"/>
+    <nd ref="2049742768"/>
+    <nd ref="2049742773"/>
+    <nd ref="2049742775"/>
+    <nd ref="2049742774"/>
+  </way>
+  <way changeset="34982452" id="194468581" timestamp="2015-10-30T22:47:10Z" uid="2381492" user="WiktorN-import" version="3">
+    <tag k="building" v="yes"/>
+    <nd ref="2049742776"/>
+    <nd ref="2049742774"/>
+    <nd ref="2049742775"/>
+    <nd ref="2049742777"/>
+    <nd ref="2049742776"/>
+  </way>
+  <way changeset="34982452" id="194468590" timestamp="2015-10-30T22:47:53Z" uid="2381492" user="WiktorN-import" version="3" action="modify">
+    <tag k="addr:city" v="Warszawa"/>
+    <tag k="addr:city:simc" v="0918123"/>
+    <tag k="addr:housenumber" v="16"/>
+    <tag k="addr:street" v="Prudnicka"/>
+    <tag k="addr:street:sym_ul" v="17571"/>
+    <tag k="building" v="yes"/>
+    <tag k="source:addr" v="mapa.um.warszawa.pl"/>
+    <nd ref="2049742778"/>
+    <nd ref="2049742776"/>
+    <nd ref="2049742777"/>
+    <nd ref="2049742779"/>
+    <nd ref="2049742778"/>
+  </way>
+  <way changeset="34982452" id="194468597" timestamp="2015-10-30T22:48:30Z" uid="2381492" user="WiktorN-import" version="3">
+    <tag k="building" v="yes"/>
+    <nd ref="2049742780"/>
+    <nd ref="2049742778"/>
+    <nd ref="2049742779"/>
+    <nd ref="2049742781"/>
+    <nd ref="2049742780"/>
+  </way>
+</osm>

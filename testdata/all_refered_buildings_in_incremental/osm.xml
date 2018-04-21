@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<osm version="0.6" generator="Overpass API 0.7.54.13 ff15392f">
+<note>The data included in this document is from www.openstreetmap.org. The data is made available under ODbL.</note>
+<meta osm_base="2018-04-21T09:25:02Z"/>
+
+  <way id="194468572" version="3" timestamp="2015-10-30T22:46:22Z" changeset="34982452" uid="2381492" user="WiktorN-import">
+    <bounds minlat="52.1820511" minlon="20.9437869" maxlat="52.1821850" maxlon="20.9440503"/>
+    <nd ref="2049742774"/>
+    <nd ref="2049742768"/>
+    <nd ref="2049742773"/>
+    <nd ref="2049742775"/>
+    <nd ref="2049742774"/>
+    <tag k="building" v="yes"/>
+  </way>
+  <way id="194468581" version="3" timestamp="2015-10-30T22:47:10Z" changeset="34982452" uid="2381492" user="WiktorN-import">
+    <bounds minlat="52.1821203" minlon="20.9438449" maxlat="52.1822542" maxlon="20.9441083"/>
+    <nd ref="2049742776"/>
+    <nd ref="2049742774"/>
+    <nd ref="2049742775"/>
+    <nd ref="2049742777"/>
+    <nd ref="2049742776"/>
+    <tag k="building" v="yes"/>
+  </way>
+  <way id="194468590" version="3" timestamp="2015-10-30T22:47:53Z" changeset="34982452" uid="2381492" user="WiktorN-import">
+    <bounds minlat="52.1821895" minlon="20.9439029" maxlat="52.1823234" maxlon="20.9441663"/>
+    <nd ref="2049742778"/>
+    <nd ref="2049742776"/>
+    <nd ref="2049742777"/>
+    <nd ref="2049742779"/>
+    <nd ref="2049742778"/>
+    <tag k="building" v="yes"/>
+  </way>
+  <way id="194468597" version="3" timestamp="2015-10-30T22:48:30Z" changeset="34982452" uid="2381492" user="WiktorN-import">
+    <bounds minlat="52.1822587" minlon="20.9439609" maxlat="52.1823926" maxlon="20.9442243"/>
+    <nd ref="2049742780"/>
+    <nd ref="2049742778"/>
+    <nd ref="2049742779"/>
+    <nd ref="2049742781"/>
+    <nd ref="2049742780"/>
+    <tag k="building" v="yes"/>
+  </way>
+  <node id="2049742768" lat="52.1820511" lon="20.9439923" version="1" timestamp="2012-12-04T14:32:59Z" changeset="14152622" uid="564141" user="Madmaks"/>
+  <node id="2049742773" lat="52.1821158" lon="20.9437869" version="1" timestamp="2012-12-04T14:32:59Z" changeset="14152622" uid="564141" user="Madmaks"/>
+  <node id="2049742774" lat="52.1821203" lon="20.9440503" version="1" timestamp="2012-12-04T14:32:59Z" changeset="14152622" uid="564141" user="Madmaks"/>
+  <node id="2049742775" lat="52.1821850" lon="20.9438449" version="1" timestamp="2012-12-04T14:32:59Z" changeset="14152622" uid="564141" user="Madmaks"/>
+  <node id="2049742776" lat="52.1821895" lon="20.9441083" version="1" timestamp="2012-12-04T14:32:59Z" changeset="14152622" uid="564141" user="Madmaks"/>
+  <node id="2049742777" lat="52.1822542" lon="20.9439029" version="1" timestamp="2012-12-04T14:32:59Z" changeset="14152622" uid="564141" user="Madmaks"/>
+  <node id="2049742778" lat="52.1822587" lon="20.9441663" version="1" timestamp="2012-12-04T14:32:59Z" changeset="14152622" uid="564141" user="Madmaks"/>
+  <node id="2049742779" lat="52.1823234" lon="20.9439609" version="1" timestamp="2012-12-04T14:32:59Z" changeset="14152622" uid="564141" user="Madmaks"/>
+  <node id="2049742780" lat="52.1823279" lon="20.9442243" version="1" timestamp="2012-12-04T14:33:00Z" changeset="14152622" uid="564141" user="Madmaks"/>
+  <node id="2049742781" lat="52.1823926" lon="20.9440189" version="1" timestamp="2012-12-04T14:33:00Z" changeset="14152622" uid="564141" user="Madmaks"/>
+
+</osm>

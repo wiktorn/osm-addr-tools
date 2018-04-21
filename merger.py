@@ -721,15 +721,41 @@ class Merger(object):
                 raise ValueError("No object found for key: %s" % (key,))
             return obj
 
-        def get_referred(node):
+        def get_referred(node, exclude_ids=()):
+            if node.osmid in exclude_ids:
+                return set()
             if node['type'] == 'node':
-                return {('node', node['id'])}
+                return set(
+                    itertools.chain(
+                        itertools.chain.from_iterable(
+                            get_referred(getbyid(x)[0], exclude_ids) for x in (
+                                "way:{}".format(x) for x in node.ref_ways
+                            ) if x not in exclude_ids
+                        ),
+                        (('node', node['id']),)
+                    )
+                )
             if node['type'] == 'nd':
-                return {('node', node['ref'])}
+                return set(
+                    itertools.chain(
+                        itertools.chain.from_iterable(
+                            get_referred(getbyid(x)[0], exclude_ids) for x in (
+                                "way:{}".format(x) for x in node.ref_ways
+                            ) if x not in exclude_ids
+                        ),
+                        (('node', node['ref']),)
+                    )
+                )
             if node['type'] == 'way':
                 return itertools.chain(
                     itertools.chain.from_iterable(
-                        map(get_referred, (getbyid("node:%s" % (x,))[0] for x in node['nodes']))),
+                        get_referred(
+                            getbyid(
+                                "node:{}".format(x)
+                            )[0],
+                            exclude_ids=exclude_ids + ("way:{}".format(node['id']),)
+                        ) for x in node['nodes']
+                    ),
                     (('way', node['id']),)
                 )
             if node['type'] == 'member':
