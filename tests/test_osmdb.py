@@ -31,3 +31,6 @@ class OsmDbTests(unittest.TestCase):
 
     def test_5(self):
         self.trivial_check('way', 196605788)
+
+    def test_complicated_relation(self):
+        self.trivial_check('relation', 2567398)

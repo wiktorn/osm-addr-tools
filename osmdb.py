@@ -254,6 +254,11 @@ class OsmDb(object):
                 if member['role'] == 'inner':
                     inner.append(obj)
 
+            if not outer and not inner:
+                # handle broken relations without inner / outer
+                outer = [
+                    self.__osm_obj[(x['type'], x['ref'])] for x in soup['members'] if x['role'] in ('building', )
+                ]
             try:
                 inner = self.get_closed_ways(inner)
                 outer = self.get_closed_ways(outer)
