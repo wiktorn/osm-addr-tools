@@ -24,19 +24,7 @@ def _get_id(soup):
     return __multipliers[soup['type']](int(soup['id']))
 
 
-__position_cache = {}
-
-
 def get_soup_position(soup):
-    try:
-        return __position_cache[soup['id']]
-    except KeyError:
-        ret = get_soup_position_cached(soup)
-        __position_cache[soup['id']] = ret
-        return ret
-
-
-def get_soup_position_cached(soup):
     """Extracts position for way/node as bounding box"""
     if soup['type'] == 'node':
         return (float(soup['lat']), float(soup['lon'])) * 2
