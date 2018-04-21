@@ -156,7 +156,7 @@ class OsmDb(object):
                 OsmDbEntry(self._valuefunc(x), x, self)
             ) for x in self._osmdata['elements']
         )
-        self.update_index("[1/10]")
+        self.update_index("[1/14]")
 
     def update_index(self, message=""):
         self.__log.debug("Recreating index")
@@ -189,7 +189,7 @@ class OsmDb(object):
         self.__osm_obj[(new['type'], new['id'])] = ret
         return ret
 
-    def get_by_id(self, typ: str, id_: int):
+    def get_by_id(self, typ: str, id_: int) -> OsmDbEntry:
         return self.__osm_obj[(typ, id_)]
 
     def get_all_values(self):

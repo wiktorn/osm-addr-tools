@@ -179,6 +179,10 @@ class OsmAddress(Address):
     def osmid(self):
         return "%s:%s" % (self.objtype, self._soup['id'])
 
+    @property
+    def osmid_tuple(self):
+        return (self.objtype, self._soup['id'])
+
     def is_emuia_addr(self):
         ret = False
         if self.source:
@@ -374,13 +378,13 @@ class Merger(object):
     def set_state(self, node, value):
         self._state_changes.append(node)
         for i in node.ref_ways:
-            self._state_changes.append(self.osmdb.getbyid("%s:%s" % ('way', i))[0])
+            self._state_changes.append(self.osmdb.get_by_id('way', i))
         node.set_state(value)
 
     def _fix_wesola(self, entry):
         if entry.get('tags', {}).get('addr:street', "").endswith(' (W)'):
             entry['tags']['addr:street'] = entry['tags']['addr:street'][:-4]
-            self._state_changes.append(self.osmdb.getbyid("%s:%s" % (entry['type'], entry['id']))[0])
+            self._state_changes.append(self.osmdb.get_by_id(entry['type'], entry['id']))
 
     def _pre_merge(self):
         # for custom fixes
@@ -816,7 +820,7 @@ class Merger(object):
         if addr.get_fixme() and not addr.is_new():
             self.set_state(addr, 'visible')
         else:
-            building_obj = self.osmdb.getbyid("%s:%s" % (building['type'], building['id']))[0]
+            building_obj = self.osmdb.get_by_id(building['type'], building['id'])
             fixme = building_obj.osm_fixme
             for (key, value) in addr.get_tag_soup().items():
                 oldval = building['tags'].get(key)
@@ -837,7 +841,7 @@ class Merger(object):
         self.__log.info("Merging building with buffer: %d", buf)
         to_merge = self._prepare_merge_list(buf, message)
         buildings = dict(
-            ("%s:%s" % (x['type'], x['id']), x) for x in self.asis['elements'] if x['type'] in ('way', 'relation')
+            ((x['type'], x['id']), x) for x in self.asis['elements'] if x['type'] in ('way', 'relation')
         )
 
         self.__log.info("Merging %d addresses with buildings",
@@ -846,7 +850,7 @@ class Merger(object):
         for (_id, nodes) in sorted(to_merge.items(), key=lambda x: x[0]):
             building = buildings[_id]
             if len(nodes) > 0:
-                self._mark_soup_visible(self.osmdb.getbyid(_id)[0])
+                self._mark_soup_visible(self.osmdb.get_by_id(*_id))
 
             self._merge_building_with_addresses(_id, building, nodes)
 
@@ -862,8 +866,8 @@ class Merger(object):
         )):
             # if there is only one candidate, or all candidates are similar addresses on same street
             if building_tag('addr:housenumber') and not (
-                    nodes[0].similar_to(self.osmdb.getbyid("%s:%s" % (building['type'], building['id']))[0]) and
-                    nodes[0].street == self.osmdb.getbyid("%s:%s" % (building['type'], building['id']))[0].street
+                    nodes[0].similar_to(self.osmdb.get_by_id(building['type'], building['id'])) and
+                    nodes[0].street == self.osmdb.get_by_id(building['type'], building['id']).street
             ):
                 # if building has different address, than we want to put
                 self.__log.info("Skipping merging address: %s, as building already has an address: %s.",
@@ -892,7 +896,7 @@ class Merger(object):
         ret = defaultdict(list)
         for addr in tqdm.tqdm(
                 [
-                    self.osmdb.getbyid("%s:%s" % (x['type'], x['id']))[0] for x in self.asis['elements'] if
+                    self.osmdb.get_by_id(x['type'], x['id']) for x in self.asis['elements'] if
                     x['type'] == 'node' and x.get('tags', {}).get('addr:housenumber')
                 ],
                 desc="{} Preparing merge list (buf={})".format(message, buf)):
@@ -945,7 +949,7 @@ class Merger(object):
                         ))
                     ) <= 1:
                         # only merge, when there is less than one import address within building + buf
-                        ret[candidate_within.osmid].append(addr)
+                        ret[candidate_within.osmid_tuple].append(addr)
                         self.__log.debug("Found: %s", candidate_within.osmid)
                     else:
                         candidate_within.set_state('visible')
@@ -1028,7 +1032,7 @@ class Merger(object):
                 self.handle_one_street_name_change(candidate, entry)
 
     def mark_all_nodes_visible(self):
-        for obj in (self.osmdb.getbyid(x)[0] for x in self.osmdb.getallid()):
+        for obj in self.osmdb.get_all_values():
             if obj.housenumber and obj.entry['type'] == 'node' and obj.shape.within(self._import_area_shape):
                 self._mark_soup_visible(obj)
 
