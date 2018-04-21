@@ -139,9 +139,9 @@ class MergerTests(unittest.TestCase):
         self.assertEqual(sorted_addresses(test), expected)
 
     def test_explicit(self):
-        #make_incremental_test(pathlib.Path(__file__).parent.parent / "testdata" / "merge_address_close_by")(self)
-        #make_full_test(pathlib.Path(__file__).parent.parent / "testdata" / "deterministic_order")(self)
-        make_incremental_test(pathlib.Path(__file__).parent.parent / "testdata" / "merge_extract_address")(self)
+        test_name = "update_house_number"
+        # make_incremental_test(pathlib.Path(__file__).parent.parent / "testdata" / test_name)(self)
+        make_full_test(pathlib.Path(__file__).parent.parent / "testdata" / test_name)(self)
 
 
 def __set_tests():
