@@ -620,12 +620,7 @@ class Merger(object):
 
     def _do_merge_by_nearest(self, entry):
         candidates = list(self.osmdb.nearest(entry.center, num_results=10))
-        candidates_same = list(
-            filter(
-                lambda x: x.housenumber == entry.housenumber and x.distance(entry) < 2.0,
-                candidates
-            )
-        )
+        candidates_same = [x for x in candidates if x.housenumber == entry.housenumber and x.distance(entry) < 2.0]
         if len(candidates_same) > 0:
             # same location, both are an address, and have same housenumber, can't be coincidence,
             # probably mapper changed something
@@ -646,6 +641,18 @@ class Merger(object):
                         map(lambda x: str(x.entry), candidates_same))
                 )
                 return True
+
+        candidates_same = [
+            x for x in candidates if all(
+                getattr(x, attr) == getattr(entry, attr) for attr in ('city', 'simc', 'street', 'sym_ul')
+            ) and x.distance(entry) < 2.0
+        ]
+        if len(candidates_same) > 0:
+            # same location, both are address but different house numbers
+            # update house number in osm
+            for node in candidates_same:
+                self._update_node(node, entry)
+            return True
         return False
 
     def _do_merge_create_point(self, entry):
