@@ -1050,25 +1050,15 @@ def get_referenced_objects(query):
     %s
 )->.a;
 (
-  node(w.a);
-  node(r.a);
-  way(r.a);
-  way(bn.a);
-  relation(bn.a);
-  relation(bw.a);
+ .a <<;
 )->.b;
 (
-  node(w.b);
-  node(r.b);
-  way(r.b);
+.b >>;
+.a >>;
 )->.c;
-(
-    node(w.c)
-)->.d;
 .a out meta bb qt;
 .b out meta bb qt;
 .c out meta bb qt;
-.d out meta bb qt;
     """ % (query,)
 
 

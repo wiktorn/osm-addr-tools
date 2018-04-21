@@ -37,3 +37,7 @@ class OsmDbTests(unittest.TestCase):
 
     def test_associated_street(self):
         self.trivial_check('relation', 3472746)
+
+    def test_biulding_part(self):
+        self.trivial_check('relation', 4609851)
+
