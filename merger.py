@@ -1000,8 +1000,7 @@ class Merger(object):
         if osm_addr \
                 and osm_addr.housenumber.upper().replace(' ', '') == imp_addr.housenumber.upper().replace(' ', '') \
                 and osm_addr.city == imp_addr.city \
-                and osm_addr.street != imp_addr.street \
-                and imp_addr.sym_ul:
+                and osm_addr.street != imp_addr.street:
             osm_addr.add_fixme('Street name in OSM: ' + osm_addr.street)
             osm_addr.update_from(imp_addr)
             self._updated_nodes.append(osm_addr)

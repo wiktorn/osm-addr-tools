@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<osm version="0.6" generator="Overpass API 0.7.54.13 ff15392f">
+<note>The data included in this document is from www.openstreetmap.org. The data is made available under ODbL.</note>
+<meta osm_base="2018-04-22T12:24:02Z"/>
+
+  <way id="277438478" version="6" timestamp="2018-04-21T22:21:17Z" changeset="58299517" uid="2381492" user="WiktorN-import">
+    <bounds minlat="52.2249279" minlon="20.9518864" maxlat="52.2252330" maxlon="20.9524005"/>
+    <nd ref="2819283318"/>
+    <nd ref="2819283325"/>
+    <nd ref="4119563553"/>
+    <nd ref="4119563554"/>
+    <nd ref="4119563556"/>
+    <nd ref="4119563555"/>
+    <nd ref="2819283329"/>
+    <nd ref="2819283322"/>
+    <nd ref="2819283318"/>
+    <tag k="addr:city" v="Warszawa"/>
+    <tag k="addr:city:simc" v="0918123"/>
+    <tag k="addr:housenumber" v="12"/>
+    <tag k="addr:street" v="Juliana Konstantego Ordona"/>
+    <tag k="building" v="apartments"/>
+    <tag k="building:levels" v="8"/>
+    <tag k="source:addr" v="mapa.um.warszawa.pl"/>
+  </way>
+  <node id="2819283318" lat="52.2249279" lon="20.9520639" version="2" timestamp="2016-04-13T19:42:16Z" changeset="38535834" uid="392955" user="FiligranFifak"/>
+  <node id="2819283322" lat="52.2250514" lon="20.9524005" version="2" timestamp="2016-04-13T19:42:16Z" changeset="38535834" uid="392955" user="FiligranFifak"/>
+  <node id="2819283325" lat="52.2251095" lon="20.9518864" version="2" timestamp="2016-04-13T19:42:16Z" changeset="38535834" uid="392955" user="FiligranFifak"/>
+  <node id="2819283329" lat="52.2252330" lon="20.9522230" version="2" timestamp="2016-04-13T19:42:17Z" changeset="38535834" uid="392955" user="FiligranFifak"/>
+  <node id="4119563553" lat="52.2251560" lon="20.9520132" version="1" timestamp="2016-04-13T19:42:12Z" changeset="38535834" uid="392955" user="FiligranFifak"/>
+  <node id="4119563554" lat="52.2251853" lon="20.9519846" version="1" timestamp="2016-04-13T19:42:12Z" changeset="38535834" uid="392955" user="FiligranFifak"/>
+  <node id="4119563555" lat="52.2251876" lon="20.9520994" version="1" timestamp="2016-04-13T19:42:12Z" changeset="38535834" uid="392955" user="FiligranFifak"/>
+  <node id="4119563556" lat="52.2252163" lon="20.9520708" version="1" timestamp="2016-04-13T19:42:12Z" changeset="38535834" uid="392955" user="FiligranFifak"/>
+
+</osm>

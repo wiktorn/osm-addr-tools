@@ -1,0 +1,32 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<osm version="0.6" generator="import adresy merger.py">
+  <note>The data included in this document is from www.openstreetmap.org. The data is made available under ODbL.</note>
+  <meta osm_base=""/>
+  <node lat="52.2249279" lon="20.9520639" changeset="38535834" id="2819283318" timestamp="2016-04-13T19:42:16Z" uid="392955" user="FiligranFifak" version="2"/>
+  <node lat="52.2250514" lon="20.9524005" changeset="38535834" id="2819283322" timestamp="2016-04-13T19:42:16Z" uid="392955" user="FiligranFifak" version="2"/>
+  <node lat="52.2251095" lon="20.9518864" changeset="38535834" id="2819283325" timestamp="2016-04-13T19:42:16Z" uid="392955" user="FiligranFifak" version="2"/>
+  <node lat="52.2252330" lon="20.9522230" changeset="38535834" id="2819283329" timestamp="2016-04-13T19:42:17Z" uid="392955" user="FiligranFifak" version="2"/>
+  <node lat="52.2251560" lon="20.9520132" changeset="38535834" id="4119563553" timestamp="2016-04-13T19:42:12Z" uid="392955" user="FiligranFifak" version="1"/>
+  <node lat="52.2251853" lon="20.9519846" changeset="38535834" id="4119563554" timestamp="2016-04-13T19:42:12Z" uid="392955" user="FiligranFifak" version="1"/>
+  <node lat="52.2251876" lon="20.9520994" changeset="38535834" id="4119563555" timestamp="2016-04-13T19:42:12Z" uid="392955" user="FiligranFifak" version="1"/>
+  <node lat="52.2252163" lon="20.9520708" changeset="38535834" id="4119563556" timestamp="2016-04-13T19:42:12Z" uid="392955" user="FiligranFifak" version="1"/>
+  <way changeset="58299517" id="277438478" timestamp="2018-04-21T22:21:17Z" uid="2381492" user="WiktorN-import" version="6" action="modify">
+    <tag k="addr:city" v="Warszawa"/>
+    <tag k="addr:city:simc" v="0918123"/>
+    <tag k="addr:housenumber" v="12"/>
+    <tag k="addr:street" v="Juliusza Konstantego Ordona"/>
+    <tag k="building" v="apartments"/>
+    <tag k="building:levels" v="8"/>
+    <tag k="fixme" v="Street name in OSM: Juliana Konstantego Ordona"/>
+    <tag k="source:addr" v="mapa.um.warszawa.pl"/>
+    <nd ref="2819283318"/>
+    <nd ref="2819283325"/>
+    <nd ref="4119563553"/>
+    <nd ref="4119563554"/>
+    <nd ref="4119563556"/>
+    <nd ref="4119563555"/>
+    <nd ref="2819283329"/>
+    <nd ref="2819283322"/>
+    <nd ref="2819283318"/>
+  </way>
+</osm>

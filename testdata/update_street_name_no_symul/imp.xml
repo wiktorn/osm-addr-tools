@@ -1,0 +1,10 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<osm version='0.6' generator='JOSM'>
+  <node id='-179178' action='modify' lat='52.22512414' lon='20.95226385'>
+    <tag k='addr:city' v='Warszawa' />
+    <tag k='addr:city:simc' v='0918123' />
+    <tag k='addr:housenumber' v='12' />
+    <tag k='addr:street' v='Juliusza Konstantego Ordona' />
+    <tag k='source:addr' v='mapa.um.warszawa.pl' />
+  </node>
+</osm>
