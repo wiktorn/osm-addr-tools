@@ -1,16 +1,16 @@
 import functools
+import logging
+import typing
 
 import collections
-
+import pyproj
+import shapely
+import shapely.ops
 import tqdm
 from rtree import index
 from shapely.geometry import Point, Polygon, LineString
-import shapely.ops
-import shapely
-import utils
-import logging
-import pyproj
 
+import utils
 
 __multipliers = {
     'node'    : lambda x: x*3,
@@ -32,11 +32,7 @@ def get_soup_position(soup):
     if soup['type'] in ('way', 'relation'):
         b = soup.get('bounds')
         if b:
-            return tuple(
-                    map(float,
-                        (b['minlat'], b['minlon'], b['maxlat'], b['maxlon'])
-                    )
-                )
+            return tuple(float(x) for x in (b['minlat'], b['minlon'], b['maxlat'], b['maxlon']))
         else:
             raise TypeError("OSM Data doesn't contain bounds for ways and relations!")
     raise TypeError("%s not supported" % (soup['type'],))
@@ -136,23 +132,23 @@ class OsmDb(object):
         self.__index_entries = {}
         self.__index_filter = index_filter
 
-        def makegetfromindex(i):
+        def makegetfromindex(index_name):
             def getfromindex(key):
-                return self.__custom_indexes[i].get(key, [])
+                return self.__custom_indexes[index_name].get(key, [])
             return getfromindex
 
-        def makegetallindexed(i):
+        def makegetallindexed(index_name):
             def getallindexed():
-                return tuple(self.__custom_indexes[i].keys())
+                return tuple(self.__custom_indexes[index_name].keys())
             return getallindexed
 
         for i in indexes.keys():
             setattr(self, 'getby' + i, makegetfromindex(i))
             setattr(self, 'getall' + i, makegetallindexed(i))
 
-        self.__osm_obj = dict(
+        self.__osm_obj: typing.Dict[typing.Tuple[str, int], OsmDbEntry] = dict(
             (
-                (x['type'], x['id']),
+                (x['type'], int(x['id'])),
                 OsmDbEntry(self._valuefunc(x), x, self)
             ) for x in self._osmdata['elements']
         )
@@ -186,11 +182,11 @@ class OsmDb(object):
     def add_new(self, new):
         self._osmdata['elements'].append(new)
         ret = OsmDbEntry(self._valuefunc(new), new, self)
-        self.__osm_obj[(new['type'], new['id'])] = ret
+        self.__osm_obj[(new['type'], int(new['id']))] = ret
         return ret
 
     def get_by_id(self, typ: str, id_: int) -> OsmDbEntry:
-        return self.__osm_obj[(typ, id_)]
+        return self.__osm_obj[(typ, int(id_))]
 
     def get_all_values(self):
         return self.__osm_obj.values()
@@ -198,9 +194,9 @@ class OsmDb(object):
     def nearest(self, point, num_results=1):
         if isinstance(point, Point):
             point = (point.y, point.x)
-        return map(self.__index_entries.get, 
+        return map(self.__index_entries.get,
                    self.__index.nearest(point * 2, num_results)
-               )
+                   )
 
     def intersects(self, point):
         if isinstance(point, Point):
@@ -220,7 +216,7 @@ class OsmDb(object):
             return Point(float(soup['lon']), float(soup['lat']))
 
         if soup['type'] == 'way':
-            nodes = tuple(self.__osm_obj[('node', y)] for y in soup['nodes'])
+            nodes = tuple(self.get_by_id('node', y) for y in soup['nodes'])
             if len(nodes) < 3:
                 self.__log.warning("Way has less than 3 nodes. Check geometry. way:%s" % (soup['id'],))
                 self.__log.warning("Returning geometry as a point")
@@ -233,7 +229,7 @@ class OsmDb(object):
                 return LineString(
                     map(
                         lambda x: x.center,
-                        (self.__osm_obj[(x['type'], x['ref'])] for x in soup['members'])
+                        (self.get_by_id(x['type'], x['ref']) for x in soup['members'])
                     )
                 ).centroid
 
@@ -242,12 +238,9 @@ class OsmDb(object):
                 outline_members = [x for x in soup['members'] if x['role'] == 'outline']
                 if len(outline_members) != 1:
                     raise ValueError("Broken geometry for relation: %s. Missing outline role" % (soup['id'],))
-                return self.__osm_obj[('way', outline_members[0]['ref'])].shape
+                return self.get_by_id('way', outline_members[0]['ref']).shape
 
             # returns only outer ways, no exclusion for inner ways
-            # hardest one
-            # outer ways
-            # TODO: handle multiple outer ways, and inner ways
             # multiple outer: terc=1019042
             # inner ways: terc=1014082
             outer = []
@@ -255,7 +248,7 @@ class OsmDb(object):
             if 'members' not in soup:
                 raise ValueError("Broken geometry for relation: %s. Relation without members." % (soup['id'],))
             for member in filter(lambda x: x['type'] == 'way', soup['members']):
-                obj = self.__osm_obj[(member['type'], member['ref'])]
+                obj = self.get_by_id(member['type'], member['ref'])
                 if member['role'] == 'outer' or not member.get('role'):
                     outer.append(obj)
                 if member['role'] == 'inner':
@@ -264,7 +257,7 @@ class OsmDb(object):
             if not outer and not inner:
                 # handle broken relations without inner / outer
                 outer = [
-                    self.__osm_obj[(x['type'], x['ref'])] for x in soup['members'] if x['role'] in ('building', 'house')
+                    self.get_by_id(x['type'], x['ref']) for x in soup['members'] if x['role'] in ('building', 'house')
                 ]
             try:
                 inner = self.get_closed_ways(inner)
@@ -307,9 +300,9 @@ class OsmDb(object):
 
         def _get_way(id_, dct):
             if id_ in dct:
-                ret = tuple(filter(lambda x: x in ways, dct[id_]))
-                if ret:
-                    return ret[0]
+                rv = tuple(filter(lambda x: x in ways, dct[id_]))
+                if rv:
+                    return rv[0]
             return None
 
         ids = _get_ids(cur_elem)
@@ -320,7 +313,7 @@ class OsmDb(object):
                 # full circle, append to Polygons in ret
                 ret.append(
                     Polygon(
-                        (x.center.x, x.center.y) for x in (self.__osm_obj[('node', y)] for y in node_ids)
+                        (x.center.x, x.center.y) for x in (self.get_by_id('node', y) for y in node_ids)
                     )
                 )
                 if ways:
@@ -329,7 +322,7 @@ class OsmDb(object):
                     ids = _get_ids(cur_elem)
             else:
                 # not full circle
-                if ways: # check if there is something to work on
+                if ways:  # check if there is something to work on
                     last_id = node_ids[-1]
                     first_id = node_ids[0]
                     if _get_way(last_id, way_by_first_node):
@@ -351,7 +344,7 @@ class OsmDb(object):
                         ids = list(reversed(_get_ids(cur_elem)))
                     else:
                         raise ValueError
-                else: # if ways
+                else:  # if ways
                     raise ValueError
         # end while
         return ret
