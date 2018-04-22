@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<osm version="0.6" generator="Overpass API 0.7.54.13 ff15392f">
+<note>The data included in this document is from www.openstreetmap.org. The data is made available under ODbL.</note>
+<meta osm_base="2018-04-22T09:20:02Z"/>
+
+  <node id="5548753025" lat="52.2204683" lon="20.9887154" version="1" timestamp="2018-04-12T19:28:25Z" changeset="58045588" uid="2381492" user="WiktorN-import">
+    <tag k="addr:city" v="Warszawa"/>
+    <tag k="addr:city:simc" v="0918123"/>
+    <tag k="addr:housenumber" v="3"/>
+    <tag k="addr:street" v="Juliana Ursyna Niemcewicza"/>
+    <tag k="addr:street:sym_ul" v="14177"/>
+    <tag k="source:addr" v="mapa.um.warszawa.pl"/>
+  </node>
+  <node id="5569965658" lat="52.2199025" lon="20.9879666" version="1" timestamp="2018-04-21T22:20:52Z" changeset="58299517" uid="2381492" user="WiktorN-import">
+    <tag k="addr:city" v="Warszawa"/>
+    <tag k="addr:city:simc" v="0918123"/>
+    <tag k="addr:housenumber" v="62"/>
+    <tag k="addr:postcode" v="02-057"/>
+    <tag k="addr:street" v="Filtrowa"/>
+    <tag k="addr:street:sym_ul" v="05015"/>
+  </node>
+  <way id="217951194" version="6" timestamp="2018-04-21T22:21:09Z" changeset="58299517" uid="2381492" user="WiktorN-import">
+    <bounds minlat="52.2193601" minlon="20.9873747" maxlat="52.2205179" maxlon="20.9887921"/>
+    <nd ref="4313753561"/>
+    <nd ref="4313753563"/>
+    <nd ref="4313753569"/>
+    <nd ref="4313753568"/>
+    <nd ref="4313753571"/>
+    <nd ref="4313753573"/>
+    <nd ref="4313753575"/>
+    <nd ref="4313753574"/>
+    <nd ref="4313753581"/>
+    <nd ref="4313753582"/>
+    <nd ref="4313753644"/>
+    <nd ref="4313753645"/>
+    <nd ref="4313753646"/>
+    <nd ref="4313753647"/>
+    <nd ref="4313753648"/>
+    <nd ref="4313753642"/>
+    <nd ref="4313753643"/>
+    <nd ref="308117288"/>
+    <nd ref="4313753653"/>
+    <nd ref="4313753658"/>
+    <nd ref="4313753659"/>
+    <nd ref="4313753657"/>
+    <nd ref="4313753656"/>
+    <nd ref="4313753655"/>
+    <nd ref="4313753654"/>
+    <nd ref="4313753652"/>
+    <nd ref="4313753651"/>
+    <nd ref="4313753587"/>
+    <nd ref="4313753586"/>
+    <nd ref="4313753580"/>
+    <nd ref="4313753572"/>
+    <nd ref="4313753564"/>
+    <nd ref="4313753558"/>
+    <nd ref="4313753547"/>
+    <nd ref="4313753543"/>
+    <nd ref="4313753542"/>
+    <nd ref="4313753539"/>
+    <nd ref="4313753541"/>
+    <nd ref="4313753537"/>
+    <nd ref="4313753540"/>
+    <nd ref="4984166700"/>
+    <nd ref="4313753538"/>
+    <nd ref="4313753536"/>
+    <nd ref="4313753535"/>
+    <nd ref="4313753552"/>
+    <nd ref="4313753556"/>
+    <nd ref="4313753561"/>
+    <tag k="building" v="yes"/>
+  </way>
+  <node id="308117288" lat="52.2203811" lon="20.9887588" version="2" timestamp="2009-11-24T02:11:32Z" changeset="3201348" uid="20587" user="balrog-kun"/>
+  <node id="4313753535" lat="52.2193601" lon="20.9883942" version="1" timestamp="2016-07-21T00:26:30Z" changeset="40909561" uid="52087" user="kocio"/>
+  <node id="4313753536" lat="52.2193927" lon="20.9877979" version="1" timestamp="2016-07-21T00:26:30Z" changeset="40909561" uid="52087" user="kocio"/>
+  <node id="4313753537" lat="52.2193953" lon="20.9877431" version="1" timestamp="2016-07-21T00:26:30Z" changeset="40909561" uid="52087" user="kocio"/>
+  <node id="4313753538" lat="52.2193993" lon="20.9877990" version="1" timestamp="2016-07-21T00:26:30Z" changeset="40909561" uid="52087" user="kocio"/>
+  <node id="4313753539" lat="52.2193996" lon="20.9875986" version="1" timestamp="2016-07-21T00:26:30Z" changeset="40909561" uid="52087" user="kocio"/>
+  <node id="4313753540" lat="52.2194017" lon="20.9877457" version="1" timestamp="2016-07-21T00:26:30Z" changeset="40909561" uid="52087" user="kocio"/>
+  <node id="4313753541" lat="52.2194039" lon="20.9876005" version="1" timestamp="2016-07-21T00:26:30Z" changeset="40909561" uid="52087" user="kocio"/>
+  <node id="4313753542" lat="52.2194055" lon="20.9875548" version="1" timestamp="2016-07-21T00:26:30Z" changeset="40909561" uid="52087" user="kocio"/>
+  <node id="4313753543" lat="52.2194236" lon="20.9874823" version="1" timestamp="2016-07-21T00:26:30Z" changeset="40909561" uid="52087" user="kocio"/>
+  <node id="4313753547" lat="52.2194443" lon="20.9874434" version="1" timestamp="2016-07-21T00:26:30Z" changeset="40909561" uid="52087" user="kocio"/>
+  <node id="4313753552" lat="52.2194612" lon="20.9884324" version="1" timestamp="2016-07-21T00:26:30Z" changeset="40909561" uid="52087" user="kocio"/>
+  <node id="4313753556" lat="52.2194657" lon="20.9884341" version="1" timestamp="2016-07-21T00:26:30Z" changeset="40909561" uid="52087" user="kocio"/>
+  <node id="4313753558" lat="52.2194767" lon="20.9874040" version="1" timestamp="2016-07-21T00:26:30Z" changeset="40909561" uid="52087" user="kocio"/>
+  <node id="4313753561" lat="52.2195131" lon="20.9875945" version="1" timestamp="2016-07-21T00:26:30Z" changeset="40909561" uid="52087" user="kocio"/>
+  <node id="4313753563" lat="52.2195158" lon="20.9875945" version="1" timestamp="2016-07-21T00:26:30Z" changeset="40909561" uid="52087" user="kocio"/>
+  <node id="4313753564" lat="52.2195179" lon="20.9873795" version="1" timestamp="2016-07-21T00:26:30Z" changeset="40909561" uid="52087" user="kocio"/>
+  <node id="4313753568" lat="52.2195284" lon="20.9875620" version="1" timestamp="2016-07-21T00:26:30Z" changeset="40909561" uid="52087" user="kocio"/>
+  <node id="4313753569" lat="52.2195295" lon="20.9875645" version="1" timestamp="2016-07-21T00:26:30Z" changeset="40909561" uid="52087" user="kocio"/>
+  <node id="4313753571" lat="52.2195453" lon="20.9875527" version="1" timestamp="2016-07-21T00:26:30Z" changeset="40909561" uid="52087" user="kocio"/>
+  <node id="4313753572" lat="52.2195613" lon="20.9873747" version="1" timestamp="2016-07-21T00:26:30Z" changeset="40909561" uid="52087" user="kocio"/>
+  <node id="4313753573" lat="52.2195626" lon="20.9875576" version="1" timestamp="2016-07-21T00:26:30Z" changeset="40909561" uid="52087" user="kocio"/>
+  <node id="4313753574" lat="52.2195739" lon="20.9875707" version="1" timestamp="2016-07-21T00:26:30Z" changeset="40909561" uid="52087" user="kocio"/>
+  <node id="4313753575" lat="52.2195752" lon="20.9875654" version="1" timestamp="2016-07-21T00:26:30Z" changeset="40909561" uid="52087" user="kocio"/>
+  <node id="4313753580" lat="52.2195997" lon="20.9873895" version="1" timestamp="2016-07-21T00:26:30Z" changeset="40909561" uid="52087" user="kocio"/>
+  <node id="4313753581" lat="52.2196000" lon="20.9875933" version="1" timestamp="2016-07-21T00:26:30Z" changeset="40909561" uid="52087" user="kocio"/>
+  <node id="4313753582" lat="52.2196029" lon="20.9875883" version="1" timestamp="2016-07-21T00:26:30Z" changeset="40909561" uid="52087" user="kocio"/>
+  <node id="4313753586" lat="52.2196434" lon="20.9874222" version="1" timestamp="2016-07-21T00:26:30Z" changeset="40909561" uid="52087" user="kocio"/>
+  <node id="4313753587" lat="52.2196441" lon="20.9874212" version="1" timestamp="2016-07-21T00:26:30Z" changeset="40909561" uid="52087" user="kocio"/>
+  <node id="4313753642" lat="52.2203688" lon="20.9887539" version="1" timestamp="2016-07-21T00:26:31Z" changeset="40909561" uid="52087" user="kocio"/>
+  <node id="4313753643" lat="52.2203736" lon="20.9887574" version="1" timestamp="2016-07-21T00:26:31Z" changeset="40909561" uid="52087" user="kocio"/>
+  <node id="4313753644" lat="52.2203789" lon="20.9882572" version="1" timestamp="2016-07-21T00:26:31Z" changeset="40909561" uid="52087" user="kocio"/>
+  <node id="4313753645" lat="52.2203896" lon="20.9882692" version="1" timestamp="2016-07-21T00:26:31Z" changeset="40909561" uid="52087" user="kocio"/>
+  <node id="4313753646" lat="52.2204016" lon="20.9882950" version="1" timestamp="2016-07-21T00:26:31Z" changeset="40909561" uid="52087" user="kocio"/>
+  <node id="4313753647" lat="52.2204072" lon="20.9883220" version="1" timestamp="2016-07-21T00:26:31Z" changeset="40909561" uid="52087" user="kocio"/>
+  <node id="4313753648" lat="52.2204082" lon="20.9883483" version="1" timestamp="2016-07-21T00:26:31Z" changeset="40909561" uid="52087" user="kocio"/>
+  <node id="4313753651" lat="52.2204361" lon="20.9881047" version="1" timestamp="2016-07-21T00:26:31Z" changeset="40909561" uid="52087" user="kocio"/>
+  <node id="4313753652" lat="52.2204728" lon="20.9881509" version="1" timestamp="2016-07-21T00:26:31Z" changeset="40909561" uid="52087" user="kocio"/>
+  <node id="4313753653" lat="52.2204777" lon="20.9887921" version="1" timestamp="2016-07-21T00:26:31Z" changeset="40909561" uid="52087" user="kocio"/>
+  <node id="4313753654" lat="52.2204897" lon="20.9881838" version="1" timestamp="2016-07-21T00:26:31Z" changeset="40909561" uid="52087" user="kocio"/>
+  <node id="4313753655" lat="52.2205014" lon="20.9882164" version="1" timestamp="2016-07-21T00:26:31Z" changeset="40909561" uid="52087" user="kocio"/>
+  <node id="4313753656" lat="52.2205118" lon="20.9882593" version="1" timestamp="2016-07-21T00:26:31Z" changeset="40909561" uid="52087" user="kocio"/>
+  <node id="4313753657" lat="52.2205168" lon="20.9882955" version="1" timestamp="2016-07-21T00:26:31Z" changeset="40909561" uid="52087" user="kocio"/>
+  <node id="4313753658" lat="52.2205173" lon="20.9883709" version="1" timestamp="2016-07-21T00:26:31Z" changeset="40909561" uid="52087" user="kocio"/>
+  <node id="4313753659" lat="52.2205179" lon="20.9883280" version="1" timestamp="2016-07-21T00:26:31Z" changeset="40909561" uid="52087" user="kocio"/>
+  <node id="4984166700" lat="52.2194007" lon="20.9877683" version="1" timestamp="2017-07-21T05:10:52Z" changeset="50447366" uid="3195570" user="jermig"/>
+
+</osm>

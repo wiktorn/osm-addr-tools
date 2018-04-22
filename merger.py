@@ -324,15 +324,24 @@ class OsmAddress(Address):
 class Merger(object):
     __log = logging.getLogger(__name__).getChild('Merger')
 
-    def __init__(self,
-                 impdata: typing.List[Address],
-                 asis,
-                 terc,
-                 source_addr,
-                 parallel_process_func=lambda func, elems: tuple(map(func, elems))
-                 ):
+    def __init__(self, impdata: typing.List[Address], asis: typing.Dict[str, typing.Any], terc: str, source_addr: str):
         self.impdata = impdata
         self.asis = asis
+        self._import_area_shape = Point(0, 0).buffer(400) if not terc else get_boundary_shape(terc)
+        self.imp_obj_by_id = dict(zip(itertools.count(), self.impdata))
+        self.imp_index = rtree.index.Index()
+        for (key, value) in self.imp_obj_by_id.items():
+            self.imp_index.insert(key, (value.center.y, value.center.x))
+        self.address_index = dict((x.get_index_key(), x) for x in self.impdata)
+        self._new_nodes: typing.List[OsmDbEntry] = []
+        self._updated_nodes: typing.List[OsmDbEntry] = []
+        self._soup_visible: typing.List[OsmDbEntry] = []
+        self._state_changes: typing.List[OsmDbEntry] = []
+        self._node_id = 0
+        self.pre_func = []
+        self.post_func = []
+        self.source_addr = source_addr
+
         ways_for_node = defaultdict(list)
         for way in filter(lambda x: x['type'] == 'way', asis['elements']):
             for node in way['nodes']:
@@ -343,25 +352,9 @@ class Merger(object):
             self.asis,
             valuefunc=from_soup,
             indexes={'address': lambda x: x.get_index_key(), 'id': lambda x: x.osmid},
-            index_filter=lambda x: x['tags'].get('building', False) or x.entry.housenumber
+            index_filter=lambda x: (x['tags'].get('building', False)
+                                    or x.entry.housenumber) and self._import_area_shape.contains(x.shape)
         )
-        self.imp_obj_by_id = dict(zip(itertools.count(), self.impdata))
-        self.imp_index = rtree.index.Index()
-        for (key, value) in self.imp_obj_by_id.items():
-            self.imp_index.insert(key, (value.center.y, value.center.x))
-        self.address_index = dict((x.get_index_key(), x) for x in self.impdata)
-        self._new_nodes = []
-        self._updated_nodes = []
-        self._node_id = 0
-        self.pre_func = []
-        self.post_func = []
-        self._soup_visible = []
-        self._import_area_shape = Point(0, 0).buffer(400)  # dummy shape covering whole world
-        if terc:
-            self._import_area_shape = get_boundary_shape(terc)
-        self._state_changes = []
-        self._parallel_process_func = parallel_process_func
-        self.source_addr = source_addr
 
     def create_index(self, message=""):
         self.osmdb.update_index(message)
@@ -394,8 +387,9 @@ class Merger(object):
             self._fix_similar_addr(entry)
             tuple(map(lambda f: f(entry), self.pre_func))
 
-        for x in tqdm.tqdm(self.impdata, desc="[2/14] Running pre-merge functions"):
-            process(x)
+        for x in tqdm.tqdm(self.impdata, desc="[2/14] Running pre-merge functions"):  # type: Address
+            if x.center.within(self._import_area_shape):
+                process(x)
 
     def _fix_similar_addr(self, entry):
         # look for near same address
@@ -459,8 +453,9 @@ class Merger(object):
                     self.set_state(node, 'delete')
 
     def _do_merge(self):
-        for entry in tqdm.tqdm(self.impdata, desc="[4/14] Merging"):
-            self._do_merge_one(entry)
+        for entry in tqdm.tqdm(self.impdata, desc="[4/14] Merging"): # type: Address
+            if entry.center.within(self._import_area_shape):
+                self._do_merge_one(entry)
 
     def _do_merge_one(self, entry):
         self.__log.debug("Processing address: %s", entry)
@@ -693,8 +688,8 @@ class Merger(object):
         self._node_id -= 1
         return self._node_id
 
-    def _get_all_changed_nodes(self):
-        ret = dict((x.osmid, x) for x in self._updated_nodes)
+    def _get_all_changed_nodes(self) -> typing.Tuple[OsmDbEntry]:
+        ret: typing.Dict[str, OsmDbEntry] = dict((x.osmid, x) for x in self._updated_nodes)
         ret.update(dict((x.osmid, x) for x in self._new_nodes))
         self.__log.info("Modified objects: %d", len(ret))
         ret.update(dict((x.osmid, x) for x in self._state_changes))
@@ -717,19 +712,19 @@ class Merger(object):
             (x.osmid, x) for x in self.osmdb.get_all_values() if x.state == 'visible' and x.osmid not in ret.keys()))
         return tuple(ret.values())
 
-    def _get_all_reffered_by(self, lst):
+    def _get_all_reffered_by(self, lst: typing.Iterable[OsmDbEntry]) -> typing.Iterable[OsmDbEntry]:
         ret = set()
 
         __referred_cache = dict()
 
-        def get_referred(node, exclude_ids=()):
-            ret = __referred_cache.get(node.osmid)
-            if not ret:
-                ret = get_referred_cached(node, exclude_ids)
-                __referred_cache[node.osmid] = ret
-            return ret
+        def get_referred(node, exclude_ids=()) -> typing.Iterable[typing.Tuple[str, int]]:
+            referrers = __referred_cache.get(node.osmid)
+            if not referrers:
+                referrers = get_referred_cached(node, exclude_ids)
+                __referred_cache[node.osmid] = referrers
+            return referrers
 
-        def get_referred_cached(node, exclude_ids=()):
+        def get_referred_cached(node, exclude_ids=()) -> typing.Iterable[typing.Tuple[str, int]]:
             if node.osmid in exclude_ids:
                 return set()
             if node['type'] == 'node':
@@ -804,9 +799,13 @@ class Merger(object):
         ) - imp_addr
 
         self.__log.debug("Marking %d not existing addresses", len(to_delete))
-        for addr in filter(any, to_delete):  # at least on addr field is filled in
-            for node in filter(lambda x: self._import_area_shape.contains(x.center), self.osmdb.getbyaddress(addr)):
-                if self._import_area_shape.contains(node.center) and \
+        for addr in filter(any, to_delete): # type: OsmDbEntry
+            # at least on addr field is filled in
+            for node in filter(
+                    lambda x: self._import_area_shape.contains(x.shape),
+                    self.osmdb.getbyaddress(addr)
+            ):  # type: OsmDbEntry
+                if self._import_area_shape.contains(node.shape) and \
                         not (('e-mapa.net' in self.source_addr and node.source != self.source_addr and
                               'e-mapa.net' in node.source)
                              or (self.source_addr == 'emuia.gugik.gov.pl' and 'e-mapa.net' in node.source)):
@@ -904,10 +903,15 @@ class Merger(object):
         ret = defaultdict(list)
         for addr in tqdm.tqdm(
                 [
-                    self.osmdb.get_by_id(x['type'], x['id']) for x in self.asis['elements'] if
-                    x['type'] == 'node' and x.get('tags', {}).get('addr:housenumber')
+                        x for x in
+                        (
+                                self.osmdb.get_by_id(x['type'], x['id']) for x in self.asis['elements']
+                                if x['type'] == 'node' and x.get('tags', {}).get('addr:housenumber')
+                        )
+                        if x.shape.within(self._import_area_shape)
                 ],
-                desc="{} Preparing merge list (buf={})".format(message, buf)):
+                desc="{} Preparing merge list (buf={})".format(message, buf)
+        ):  # type: OsmDbEntry
             self.__log.debug("Looking for candidates for: %s", str(addr.entry))
             if addr.only_address_node() and addr.state != 'delete' and (
                     self._import_area_shape.contains(addr.center)):
@@ -982,7 +986,10 @@ class Merger(object):
     def get_full_result(self, log_io=None):
         return lxml.etree.tostring(
             self._get_osm_xml(
-                sorted(self.osmdb.get_all_values(), key=lambda x: x.osmid),
+                sorted(
+                    (x for x in self.osmdb.get_all_values() if x.shape.within(self._import_area_shape)),
+                    key=lambda x: x.osmid
+                ),
                 log_io),
             pretty_print=True,
             xml_declaration=True,
@@ -1006,7 +1013,9 @@ class Merger(object):
             in imported data, then update the street name from imported point
         """
 
-        for entry in tqdm.tqdm(self.impdata, desc="[6/14] Detecting street name changes"):
+        for entry in tqdm.tqdm(self.impdata, desc="[6/14] Detecting street name changes"):  # type: Address
+            if not entry.center.within(self._import_area_shape):
+                continue
             candidate = next(
                 (
                     x for x in itertools.chain(

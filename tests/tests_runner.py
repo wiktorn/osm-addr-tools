@@ -21,10 +21,10 @@ def osm_xml_etree_to_addresses(e):
     )
 
 
-def get_merger(directory: os.PathLike, merge_addresses_with_outlines=True):
+def get_merger(directory: os.PathLike, merge_addresses_with_outlines=True, terc:str = None):
     imported = osm_xml_to_addresses(os.path.join(directory, 'imp.xml'))
     osm = converter.osm_to_json(lxml.etree.parse(os.path.join(directory, 'osm.xml')))
-    m = merger.Merger(imported, osm, "", "test")
+    m = merger.Merger(imported, osm, terc if terc else "", "test")
     if merge_addresses_with_outlines:
         m.post_func.append(m.merge_addresses)
     m.merge()
@@ -49,18 +49,18 @@ def verify(self, expected, actual: bytes):
         self.assertEqual(f.read(), actual.decode('utf-8'))
 
 
-def make_incremental_test(directory: pathlib.PurePath):
+def make_incremental_test(directory: pathlib.PurePath, terc: str = None):
     def f(self):
-        ret = get_merger(directory).get_incremental_result()
+        ret = get_merger(directory, terc=terc).get_incremental_result()
         verify(self, os.path.join(directory, 'result_incremental.xml'), ret)
 
     f.__name__ = directory.name + '_incremental'
     return f
 
 
-def make_full_test(directory: pathlib.PurePath):
+def make_full_test(directory: pathlib.PurePath, terc: str=None):
     def f(self):
-        ret = get_merger(directory).get_full_result()
+        ret = get_merger(directory, terc=terc).get_full_result()
         verify(self, os.path.join(directory, 'result_full.xml'), ret)
 
     f.__name__ = directory.name + '_full'
@@ -139,18 +139,24 @@ class MergerTests(unittest.TestCase):
         self.assertEqual(sorted_addresses(test), expected)
 
     def test_explicit(self):
-        test_name = "update_house_number"
-        # make_incremental_test(pathlib.Path(__file__).parent.parent / "testdata" / test_name)(self)
-        make_full_test(pathlib.Path(__file__).parent.parent / "testdata" / test_name)(self)
+        test_name = "relation_tags"
+        # terc = "1465188"
+        terc = None
+        make_incremental_test(pathlib.Path(__file__).parent.parent / "testdata" / test_name, terc)(self)
+        # make_full_test(pathlib.Path(__file__).parent.parent / "testdata" / test_name, terc)(self)
 
 
 def __set_tests():
 
     directory = pathlib.Path(__file__).parent.parent / "testdata"
-    for test in directory.iterdir():
+    for test in directory.iterdir():  # type: pathlib.Path
         if test.is_dir():
-            setattr(MergerTests, 'test_' + test.name + '_incremental', make_incremental_test(test))
-            setattr(MergerTests, 'test_' + test.name + '_full', make_full_test(test))
+            terc = None
+            if (test / "terc").exists():
+                with (test / "terc").open("r") as f:
+                    terc = "".join(f.readlines()).strip()
+            setattr(MergerTests, 'test_' + test.name + '_incremental', make_incremental_test(test, terc))
+            setattr(MergerTests, 'test_' + test.name + '_full', make_full_test(test, terc))
 
 
 __set_tests()
