@@ -305,6 +305,11 @@ def mappostcode(postcode, simc):
         return postcode
 
 
+def get_inconsistent_symul():
+    __init()
+    return (key for key, value in __mapping_symul.items() if len(value) > 1)
+
+
 def main():
     logging.basicConfig(level=10)
     print(mapstreet('Głowackiego', 'x'))
