@@ -307,7 +307,7 @@ def mappostcode(postcode, simc):
 
 def get_inconsistent_symul():
     __init()
-    return (key for key, value in __mapping_symul.items() if len(value) > 1)
+    return ((key, value) for key, value in __mapping_symul.items() if len(value) > 1)
 
 
 def main():

@@ -6,9 +6,11 @@ def main():
     ulic = teryt.UlicCache().get_cache()
     names_with_dots = []
     objects = []
-    for symul in mapping.get_inconsistent_symul():
+    for (symul, names) in mapping.get_inconsistent_symul():
         ulic_entry = ulic.get(symul)
         ulic_name = ulic_entry.nazwa if ulic_entry else 'N/A'
+        ulic_name = ulic_name[len("Ulica "):] if "ULICA" in ulic_name.upper() else ulic_name
+        ulic_name = mapping.mapstreet(ulic_name, '')
         if '.' not in ulic_name:
             objects.append("""
       node["addr:street:sym_ul"="{symul}"]["addr:street"!="{street}"];
@@ -16,10 +18,10 @@ def main():
       relation["addr:street:sym_ul"="{symul}"]["addr:street"!="{street}"];
     """.format(
                 symul=symul,
-                street=(ulic_name[len("Ulica "):] if "ULICA" in ulic_name.upper() else ulic_name).replace("\"", "\\\"")
+                street=ulic_name.replace("\"", "\\\"")
             ))
         if '.' in ulic_name:
-            names_with_dots.append(ulic_name)
+            names_with_dots.append("{:<40s} {}".format(ulic_name, ", ".join(names)))
     print("""
 [out:json][timeout:25];
 // gather results
@@ -32,6 +34,7 @@ out body;
 out skel qt;
 """.format("".join(objects)))
     print("Names with dots:\n" + "\n".join(names_with_dots))
+    print(len(names_with_dots))
 
 
 if __name__ == '__main__':
