@@ -1,6 +1,7 @@
 # # -*- coding: UTF-8 -*-
 # TODO:
 # - add warning, when street exists as a part of name in sym_ul dictionary or in ULIC
+# - use http://norvig.com/spell-correct.html ideas to check if the name can be corrected
 import string
 
 import collections
