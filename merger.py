@@ -1074,7 +1074,7 @@ def get_referenced_objects(query):
   way(r.b);
 )->.c;
 (
-    node(w.c)
+    node(w.c);
 )->.d;
 .a out meta bb qt;
 .b out meta bb qt;
