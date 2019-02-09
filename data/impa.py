@@ -146,31 +146,22 @@ class iMPA(AbstractImport):
         return data
 
     def _convert_to_address_html(self, soup):
-        kv = dict(zip(
-            map(lambda x: str(x.text), soup.find_all('th')),
-            map(lambda x: str(x.text), soup.find_all('td'))
-        ))
+        kv = dict((x.name, x.text) for x in soup.find_all())
         try:
-            (lon, lat) = map(lambda x: x[2:], kv['GPS (WGS 84)'].split(', ', 1))
-            if '(' in kv['Nazwa ulicy(Id GUS)']:
-                (str_name, str_id) = kv['Nazwa ulicy(Id GUS)'].rsplit('(', 1)
-            else:
-                str_name = kv['Nazwa ulicy(Id GUS)']
-                str_id = ""
-            (city_name, city_id) = kv['Miejscowość(Id GUS)'].rsplit('(', 1)
+            (lon, lat) = kv['WGS_84'].split(' ', 1)
 
             if float(lon) < 14 or float(lon) > 25 or float(lat) < 49 or float(lat) > 56:
-                self.__log.warning("Point out of Polish borders: (%s, %s), %s, %s, %s", lat, lon, city_name, str_name,
+                self.__log.warning("Point out of Polish borders: (%s, %s), %s, %s, %s", lat, lon, kv.get('Miejscowosc',''), kv.get('Ulica', ''),
                                    kv['Numer'])
 
             return Address.mapped_address(
-                kv['Numer'],
-                kv['Kod pocztowy'].strip(),
-                str_name.strip(),
-                city_name.strip(),
-                str_id[:-1],  # sym_ul
-                city_id[:-1],  # simc
-                kv.get('Źródło danych', ''),
+                kv['Numer'].strip(),
+                kv['Kod_pocztowy'].strip(),
+                kv['Ulica'].strip(),
+                kv['Miejscowosc'].strip(),
+                kv['ULIC'].strip(),  # sym_ul
+                kv['SIMC'].strip(),  # simc
+                kv.get('Zrodlo danych', ''),
                 {'lat': lat, 'lon': lon},  # location
                 kv.get('idIIP', ''),
             )
@@ -225,6 +216,6 @@ class iMPA(AbstractImport):
                 BeautifulSoup(html, "xml").find_all('punkty_feature'), desc="Conversion")
                    ]
         else:
-            ret = [self._convert_to_address_html(x) for x in tqdm.tqdm(BeautifulSoup(html, "lxml").find_all('table'),
+            ret = [self._convert_to_address_html(x) for x in tqdm.tqdm(BeautifulSoup(html, "lxml-xml").find_all('Adres'),
                                                                        desc="Conversion")]
         return ret
