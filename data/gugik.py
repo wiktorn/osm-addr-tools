@@ -1,12 +1,14 @@
 import logging
 import re
-from functools import partial
+import typing
 
+import lxml.etree
 import lxml.html
 import tqdm
 
-import converters.emuia
-from data.base import AbstractImport, Address, srs_to_wgs, e2180toWGS
+from .base import AbstractImport, Address, LocationStr, XType, YType
+from .data import srs_to_wgs, LocationXY
+from converters import emuia
 
 
 class GUGiK(AbstractImport):
@@ -20,24 +22,25 @@ class GUGiK(AbstractImport):
                  "SRS=EPSG:2180&WIDTH=16000&HEIGHT=16000&BBOX="
 
     __log = logging.getLogger(__name__).getChild('GUGiK')
-    __NUMER_RE = re.compile('(\d+)\s((?=\d+))')
+    __NUMER_RE = re.compile(r'(\d+)\s((?=\d+))')
 
-    def __init__(self, terc):
+    def __init__(self, terc: str):
         super(GUGiK, self).__init__(terc=terc)
         self.terc = terc
 
-    def _convert_to_address(self, dct) -> Address:
-        coords = e2180toWGS(dct['pktY'], dct['pktX'])
+    def _convert_to_address(self, dct: typing.Dict[str, str]) -> Address:
+        # Note: X and Y axis are reveresed?
+        coords = LocationXY(projection='epsg:2180', x=XType(float(dct['pktY'])), y=YType(float(dct['pktX'])))
         ret = Address.mapped_address(
-            dct['pktNumer'],
-            dct.get('pktKodPocztowy', ""),
-            (dct.get('ulNazwaCzesc', "") + " " + dct.get('ulNazwaGlowna', "")).strip(),
-            dct['miejscNazwa'],
-            dct.get('ulIdTeryt'),
-            dct.get('miejscIdTeryt'),
-            'emuia.gugik.gov.pl',
-            {'lat': coords[1], 'lon': coords[0]},
-            dct.get('pktEmuiaIIPId', "")
+            housenumber=dct['pktNumer'],
+            postcode=dct.get('pktKodPocztowy', ""),
+            street=(dct.get('ulNazwaCzesc', "") + " " + dct.get('ulNazwaGlowna', "")).strip(),
+            city=dct['miejscNazwa'],
+            sym_ul=dct.get('ulIdTeryt'),
+            simc=dct.get('miejscIdTeryt'),
+            source='emuia.gugik.gov.pl',
+            location=coords.to_location_str(),
+            id_=dct.get('pktEmuiaIIPId', "")
         )
         ret.status = dct['pktStatus']
         return ret
@@ -52,11 +55,11 @@ class GUGiK(AbstractImport):
             return False
         return True
 
-    def fetch_tiles(self):
+    def fetch_tiles(self) -> typing.List[Address]:
         return [
             x for x in [
                 self._convert_to_address(x['adres']) for x in tqdm.tqdm(
-                    converters.emuia.get_addresses(self.terc),
+                    emuia.get_addresses(self.terc),
                     desc="Conversion"
                 )
             ] if self._is_eligible(x)
@@ -69,13 +72,13 @@ class GUGiK_GML(AbstractImport):
     __MUA = "urn:gugik:specyfikacje:gmlas:ewidencjaMiejscowosciUlicAdresow:1.0"
     __XLINK_HREF = "{http://www.w3.org/1999/xlink}href"
 
-    def __init__(self, fname):
-        self.soup = lxml.etree.fromstring(open(fname, 'rb').read())
+    def __init__(self, fname: str):
+        self.soup = lxml.etree.fromstring(open(fname, 'rb').read())  # type: lxml.etree.ElementTree
         terc = max(
             (x.text for x in
              self.soup.findall('.//{{{0}}}AD_JednostkaAdministracyjna/{{{0}}}idTERYT'.format(self.__MUA))),
             key=len
-        )
+        )  # type: str
         #    map(
         #        lambda x: x.text,
         #        self.soup.find('{%s}featureMembers' % self.__GML_NS).findall(
@@ -86,10 +89,11 @@ class GUGiK_GML(AbstractImport):
         super(GUGiK_GML, self).__init__(terc=terc)
         self.terc = terc
 
-    def _convert_to_address(self, soup, ulic, miejsc):
+    def _convert_to_address(self, soup: lxml.etree.Element, ulic: typing.Dict[str, typing.Tuple[str, str]],
+                            miejsc: typing.Dict[str, typing.Tuple[str, str]]):
         point = soup.find('{%s}pozycja/{%s}Point' % (self.__MUA, self.__GML_NS))
         srs = point.get('srsName')
-        coords_el = point.find('{%s}coordinates' % (self.__GML_NS))
+        coords_el = point.find('{%s}coordinates' % self.__GML_NS)
         if coords_el:
             coords = srs_to_wgs(srs, *map(float, coords_el.text.split(coords_el.get('cs'))))
         else:
@@ -113,20 +117,19 @@ class GUGiK_GML(AbstractImport):
             return None
 
         ret = Address.mapped_address(
-            soup.find('{%s}numerPorzadkowy' % self.__MUA).text,
-            soup.find('{%s}kodPocztowy' % self.__MUA).text,
-            ulica[1],
-            miejscowosc[1],
-            ulica[0],
-            miejscowosc[0],
-            'emuia.gugik.gov.pl',
-            {'lat': coords[1], 'lon': coords[0]},
-            None,
+            housenumber=soup.find('{%s}numerPorzadkowy' % self.__MUA).text,
+            postcode=soup.find('{%s}kodPocztowy' % self.__MUA).text,
+            street=ulica[1],
+            city=miejscowosc[1],
+            sym_ul=ulica[0],
+            simc=miejscowosc[0],
+            source='emuia.gugik.gov.pl',
+            location=LocationStr(lat=str(coords[1]), lon=str(coords[0])),  # TODO: needs to convert coords to LocationXY
         )
         ret.status = soup.find('{%s}status' % self.__MUA).text
         return ret
 
-    def _is_eligible(self, addr: Address):
+    def _is_eligible(self, addr: Address) -> bool:
         # TODO: check status?
         if not addr:
             return False
@@ -141,9 +144,9 @@ class GUGiK_GML(AbstractImport):
             return False
         return True
 
-    def fetch_tiles(self):
+    def fetch_tiles(self) -> typing.List[Address]:
         # doc = self.soup.find('{%s}featureMembers' % self.__GML_NS)
-        miejsc = {}
+        miejsc = {}  # type: typing.Dict[str, typing.Tuple[str, str]]
         for miejscowosc in self.soup.findall('.//{%s}AD_Miejscowosc' % self.__MUA):
             miejsc[miejscowosc.get('{%s}id' % self.__GML_NS)] = (
                 miejscowosc.find('{%s}idTERYT' % self.__MUA).text,
@@ -151,7 +154,7 @@ class GUGiK_GML(AbstractImport):
                     self.__MUA)).text
             )
 
-        ulic = {}
+        ulic = {}  # type: typing.Dict[str, typing.Tuple[str, str]]
         for ulica in self.soup.findall('.//{%s}AD_Ulica' % self.__MUA):
             nazwa_ulicy = ulica.find('{{{0}}}nazwa/{{{0}}}AD_NazwaUlicy'.format(self.__MUA))
             ulic[ulica.get('{%s}id' % self.__GML_NS)] = (
@@ -159,10 +162,6 @@ class GUGiK_GML(AbstractImport):
                 nazwa_ulicy.find('{%s}nazwaGlownaCzesc' % self.__MUA).text
             )
 
-        ret = list(filter(
-            self._is_eligible,
-            map(partial(self._convert_to_address, ulic=ulic, miejsc=miejsc),
-                self.soup.findall('.//{%s}AD_PunktAdresowy' % self.__MUA))
-        ))
+        return [self._convert_to_address(x, ulic=ulic, miejsc=miejsc) for x in
+                self.soup.findall('.//{%s}AD_PunktAdresowy' % self.__MUA) if self._is_eligible(x)]
 
-        return ret

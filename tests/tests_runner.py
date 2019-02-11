@@ -139,7 +139,7 @@ class MergerTests(unittest.TestCase):
         self.assertEqual(sorted_addresses(test), expected)
 
     def test_explicit(self):
-        test_name = "relation_tags"
+        test_name = "different_street_within"
         # terc = "1465188"
         terc = None
         make_incremental_test(pathlib.Path(__file__).parent.parent / "testdata" / test_name, terc)(self)

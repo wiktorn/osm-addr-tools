@@ -100,9 +100,9 @@ class GugikTests(unittest.TestCase):
       }""")
         g._convert_to_address(sample_addr)
         addr = g._convert_to_address(sample_addr)
-        pos = addr.center
-        self.assertAlmostEqual(21.621925429, pos.x, 7)
-        self.assertAlmostEqual(51.13153787, pos.y, 7)
+        pos = addr.location.to_location()
+        self.assertAlmostEqual(21.621925429, pos.lon, 7)
+        self.assertAlmostEqual(51.13153787, pos.lat, 7)
         self.assertEqual("1", addr.housenumber)
         self.assertEqual("27-300", addr.postcode)
         self.assertEqual("Gruszczyn", addr.city)

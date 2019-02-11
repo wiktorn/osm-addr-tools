@@ -6,11 +6,13 @@ import collections
 import pyproj
 import shapely
 import shapely.ops
+import shapely.geometry
 import tqdm
 from rtree import index
 from shapely.geometry import Point, Polygon, LineString
 
 import utils
+from data.data import LonType, LatType, Location, BBoxType
 
 __multipliers = {
     'node'    : lambda x: x*3,
@@ -19,46 +21,48 @@ __multipliers = {
 }
 
 
-def _get_id(soup):
+def _get_id(soup: dict):
     """Converts overlapping identifiers for node, ways and relations in single integer space"""
     return __multipliers[soup['type']](int(soup['id']))
 
 
-def get_soup_position(soup):
+def get_soup_position(soup: dict) -> BBoxType:
     """Extracts position for way/node as bounding box"""
     if soup['type'] == 'node':
-        return (float(soup['lat']), float(soup['lon'])) * 2
+        lon, lat = LonType(soup['lon']), LatType(soup['lat'])
+        return BBoxType(minlat=lat, minlon=lon, maxlat=lat, maxlon=lon)
 
     if soup['type'] in ('way', 'relation'):
         b = soup.get('bounds')
         if b:
-            return tuple(float(x) for x in (b['minlat'], b['minlon'], b['maxlat'], b['maxlon']))
+            return BBoxType(minlat=LatType(b['minlat']), minlon=LonType(b['minlon']), maxlat=LatType(b['maxlat']),
+                            maxlon=LonType(b['maxlon']))
         else:
             raise TypeError("OSM Data doesn't contain bounds for ways and relations!")
     raise TypeError("%s not supported" % (soup['type'],))
 
 
-def get_soup_center(soup):
+def get_soup_center(soup: dict) -> Location:
     # lat, lon
     pos = get_soup_position(soup)
-    return (pos[0] + pos[2])/2, (pos[1] + pos[3])/2
+    return Location(lat=(pos.minlat + pos.maxlat)/2, lon=(pos.minlon + pos.maxlon)/2)
 
 
 __geod = pyproj.Geod(ellps="WGS84")
 
-_epsg_2180_to_4326 = functools.partial(pyproj.transform, pyproj.Proj(init='epsg:2180'), pyproj.Proj(init='epsg:4326'))
-_epsg_4326_to_2180 = functools.partial(pyproj.transform, pyproj.Proj(init='epsg:4326'), pyproj.Proj(init='epsg:2180'))
 
-
-def distance(a, b):
+def distance(a: typing.Union[shapely.geometry.base.BaseGeometry, Location],
+             b: typing.Union[shapely.geometry.base.BaseGeometry, Location]):
     """returns distance betwen a and b points in meters"""
     if isinstance(a, shapely.geometry.base.BaseGeometry):
-        point_a = a.centroid
-        a = (point_a.y, point_a.x)
+        a = Location.from_geometry(a)
     if isinstance(b, shapely.geometry.base.BaseGeometry):
-        point_b = b.centroid
-        b = (point_b.y, point_b.x)
-    return __geod.inv(a[1], a[0], b[1], b[0])[2]
+        b = Location.from_geometry(b)
+    return __geod.inv(a.lon, a.lat, b.lon, b.lat)[2]
+
+
+_epsg_2180_to_4326 = functools.partial(pyproj.transform, pyproj.Proj(init='epsg:2180'), pyproj.Proj(init='epsg:4326'))
+_epsg_4326_to_2180 = functools.partial(pyproj.transform, pyproj.Proj(init='epsg:4326'), pyproj.Proj(init='epsg:2180'))
 
 
 def buffered_shape_poland(shape: shapely.geometry.base.BaseGeometry, buffer: int) -> shapely.geometry.base.BaseGeometry:
@@ -75,7 +79,7 @@ def buffered_shape_poland(shape: shapely.geometry.base.BaseGeometry, buffer: int
 
 
 class OsmDbEntry(object):
-    def __init__(self, entry, raw, osmdb):
+    def __init__(self, entry, raw, osmdb: 'OsmDb'):
         self._entry = entry
         self._raw = raw
         self._osmdb = osmdb
@@ -115,29 +119,36 @@ class OsmDbEntry(object):
         return buffered_shape_poland(self.shape, buffer)
 
 
-class OsmDb(object):
+V = typing.TypeVar('V')
+
+
+class OsmDb(typing.Generic[V]):
     __log = logging.getLogger(__name__).getChild('OsmDb')
 
-    def __init__(self, osmdata, valuefunc=lambda x: x, indexes=None, index_filter=lambda x: True):
+    def __init__(self, osmdata: typing.Dict[str, typing.Any],
+                 valuefunc: typing.Callable[[dict], V] = lambda x: x,
+                 indexes: typing.Optional[typing.Dict[str, typing.Callable[[V], typing.Any]]] = None,
+                 index_filter: typing.Callable[[dict], bool] = lambda x: True):
         # assume osmdata is a BeautifulSoup object already
         # do it an assert
         if not indexes:
-            indexes = {}
+            indexes = {}  # type: typing.Dict[str, typing.Callable[[V], typing.Any]]
         self._osmdata = osmdata
-        self.__custom_indexes = dict((x, {}) for x in indexes.keys())
+        self.__custom_indexes = dict((x, {}) for x in indexes.keys()
+                                     )  # type: typing.Dict[str, typing.Dict[str, typing.Union[OsmDbEntry, V]]]
         self._valuefunc = valuefunc
         self.__custom_indexes_conf = indexes
-        self.__cached_shapes = {}
+        self.__cached_shapes = {}  # type: typing.Dict[str, shapely.geometry.base.BaseGeometry]
         self.__index = index.Index()
-        self.__index_entries = {}
+        self.__index_entries = {}  # type: typing.Dict[str, typing.Union[OsmDbEntry, V]]
         self.__index_filter = index_filter
 
-        def makegetfromindex(index_name):
+        def makegetfromindex(index_name: str):
             def getfromindex(key):
                 return self.__custom_indexes[index_name].get(key, [])
             return getfromindex
 
-        def makegetallindexed(index_name):
+        def makegetallindexed(index_name: str):
             def getallindexed():
                 return tuple(self.__custom_indexes[index_name].keys())
             return getallindexed
@@ -146,15 +157,15 @@ class OsmDb(object):
             setattr(self, 'getby' + i, makegetfromindex(i))
             setattr(self, 'getall' + i, makegetallindexed(i))
 
-        self.__osm_obj: typing.Dict[typing.Tuple[str, int], OsmDbEntry] = dict(
+        self.__osm_obj = dict(
             (
                 (x['type'], int(x['id'])),
                 OsmDbEntry(self._valuefunc(x), x, self)
             ) for x in self._osmdata['elements']
-        )
+        )  # type: typing.Dict[typing.Tuple[str, int], typing.Union[OsmDbEntry, V]]
         self.update_index("[1/14]")
 
-    def update_index(self, message=""):
+    def update_index(self, message="") -> None:
         self.__log.debug("Recreating index")
 
         self.__index = index.Index()
@@ -179,19 +190,19 @@ class OsmDb(object):
                 for custom_index_name, custom_index_func in self.__custom_indexes_conf.items():
                     self.__custom_indexes[custom_index_name][custom_index_func(val)].append(val)
 
-    def add_new(self, new):
+    def add_new(self, new) -> typing.Union[V, OsmDbEntry]:
         self._osmdata['elements'].append(new)
         ret = OsmDbEntry(self._valuefunc(new), new, self)
         self.__osm_obj[(new['type'], int(new['id']))] = ret
         return ret
 
-    def get_by_id(self, typ: str, id_: int) -> OsmDbEntry:
+    def get_by_id(self, typ: str, id_: str) -> typing.Union[V, OsmDbEntry]:
         return self.__osm_obj[(typ, int(id_))]
 
-    def get_all_values(self):
+    def get_all_values(self) -> typing.Iterable[typing.Union[V, OsmDbEntry]]:
         return self.__osm_obj.values()
 
-    def nearest(self, point, num_results=1):
+    def nearest(self, point, num_results=1) -> typing.Iterable[typing.Union[V, OsmDbEntry]]:
         if isinstance(point, Point):
             point = (point.y, point.x)
         return map(self.__index_entries.get,
@@ -203,7 +214,7 @@ class OsmDb(object):
             point = (point.y, point.x)
         return (self.__index_entries.get(x) for x in self.__index.intersection(point * 2))
 
-    def get_shape(self, soup):
+    def get_shape(self, soup: dict) -> shapely.geometry.base.BaseGeometry:
         id_ = soup['id']
         ret = self.__cached_shapes.get(id_)
         if not ret:
@@ -211,7 +222,7 @@ class OsmDb(object):
             self.__cached_shapes[id_] = ret
         return ret
 
-    def get_shape_cached(self, soup):
+    def get_shape_cached(self, soup: dict) -> shapely.geometry.base.BaseGeometry:
         if soup['type'] == 'node':
             return Point(float(soup['lon']), float(soup['lat']))
 
@@ -285,7 +296,7 @@ class OsmDb(object):
                 raise ValueError("Broken geometry for relation: %s" % (soup['id'],))
             return ret
 
-    def get_closed_ways(self, ways):
+    def get_closed_ways(self, ways: typing.List[typing.Union[V, OsmDbEntry]]) -> typing.List[shapely.geometry.Polygon]:
         if not ways:
             return []
         ways = list(ways)

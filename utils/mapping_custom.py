@@ -1,3 +1,6 @@
+import typing
+
+
 addr_map = {
 # !sort -t : -b -k 2
  '1-ego Maja':                          '1 Maja',
@@ -970,4 +973,4 @@ addr_map = {
  'Z. Stojowskiego':                     'Zygmunta Stojowskiego',
  'Z. Vogla':                            'Zygmunta Vogla',
  'Żołnierzy 1 Praskiego Pułku WP':      'Żołnierzy I Praskiego Pułku WP',
-}
+}  # type:  typing.Dict[str, str]

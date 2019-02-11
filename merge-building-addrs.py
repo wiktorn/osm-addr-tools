@@ -1,13 +1,13 @@
-#!/usr/bin/env python3.4
+#!/usr/bin/env python3.7
 
 import argparse
 import io
 import logging
 import lxml
+import lxml.etree
 
 from converter import osm_to_json
-from merger import Merger, get_addresses, OsmAddress
-from data.base import Address
+from merger import Merger, OsmAddress
 
 
 def main():

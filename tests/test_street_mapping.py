@@ -18,7 +18,7 @@ class TestStreetMapping(unittest.TestCase):
         self.assertEqual("Aleja Jerzego Waszyngtona", mapstreet("Aleja J. Waszyngtona", "45576"))
 
     def test_waszyngtona_no_simc(self):
-        self.assertEqual("Aleja J. Waszyngtona", mapstreet("Aleja J. Waszyngtona", "xxx"))
+        self.assertEqual("Aleja Jerzego Waszyngtona", mapstreet("Aleja J. Waszyngtona", "xxx"))
 
     def test_jerozolimskie(self):
         self.assertEqual("Aleje Jerozolimskie", mapstreet("Al. Jerozolimskie", "45207"))

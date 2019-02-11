@@ -4,11 +4,13 @@ import tempfile
 import urllib
 from urllib.parse import urlencode
 from urllib.request import urlopen
+import typing
 
 import tqdm
 from bs4 import BeautifulSoup
+from bs4.element import Tag
 
-from data.base import AbstractImport, Address, e2180toWGS
+from data.base import AbstractImport, Address, e2180_to_wgs, LocationStr
 
 
 class TqdmUpTo(tqdm.tqdm):
@@ -22,7 +24,8 @@ class iMPA(AbstractImport):
     __log = logging.getLogger(__name__).getChild('iMPA')
     __USE_GML = False
 
-    def __init__(self, gmina=None, wms=None, terc=None):
+    def __init__(self, gmina: typing.Optional[str] = None, wms: typing.Optional[str] = None,
+                 terc: typing.Optional[str] = None):
         self.wms = None
 
         if gmina:
@@ -40,7 +43,7 @@ class iMPA(AbstractImport):
         if not self.wms:
             raise ValueError("No WMS address found")
 
-    def _init_from_impa(self, gmina):
+    def _init_from_impa(self, gmina: str):
         url = 'http://%s.e-mapa.net/application/system/init.php' % (gmina,)
         self.__log.info(url)
         data = urlopen(url).read().decode('utf-8')
@@ -52,12 +55,14 @@ class iMPA(AbstractImport):
             # strings manually...
             pass
 
-        def extract(begin, end):
-            start_pos = data.rfind(begin)
-            end_pos = data.find(end, start_pos)
-            if start_pos < 0 or end_pos < 0:
-                return None
-            return data[start_pos + len(begin):end_pos]
+        def make_extract(d: str) -> typing.Callable[[str, str], str]:
+            def extract(begin: str, end: str) -> typing.Optional[str]:
+                start_pos = d.rfind(begin)
+                end_pos = d.find(end, start_pos)
+                if start_pos < 0 or end_pos < 0:
+                    return None
+                return d[start_pos + len(begin):end_pos]
+            return extract
 
         if len(init_data) > 0 and 'spatialExtent' in init_data:
             self.set_bbox_from_2180(init_data['spatialExtent'])
@@ -71,6 +76,7 @@ class iMPA(AbstractImport):
         elif len(init_data) > 0 and 'error' in init_data:
             raise ValueError(init_data['error'])
         else:
+            extract = make_extract(data)
             bbox = extract('"spatialExtent":[', '],"').split(',')
             self.set_bbox_from_2180(list(map(float, bbox)))
             self.terc = extract('"teryt":"', '","')
@@ -83,13 +89,7 @@ class iMPA(AbstractImport):
             self.__log.info(url)
             data = urlopen(url).read().decode('utf-8')
 
-            def extract(begin, end):
-                start_pos = data.rfind(begin)
-                end_pos = data.find(end, start_pos)
-                if start_pos < 0 or end_pos < 0:
-                    return None
-                return data[start_pos + len(begin):end_pos]
-
+            extract = make_extract(data)
             wms = extract("wmsUrl = '", "';")
             terc = extract("var teryt_gminy = '", "';")
             if wms and terc:
@@ -145,7 +145,7 @@ class iMPA(AbstractImport):
             data = temp.read()
         return data
 
-    def _convert_to_address_html(self, soup):
+    def _convert_to_address_html(self, soup: Tag):
         kv = dict((x.name, x.text) for x in soup.find_all())
         try:
             (lon, lat) = kv['WGS_84'].split(' ', 1)
@@ -155,15 +155,15 @@ class iMPA(AbstractImport):
                                    kv['Numer'])
 
             return Address.mapped_address(
-                kv['Numer'].strip(),
-                kv['Kod_pocztowy'].strip(),
-                kv['Ulica'].strip(),
-                kv['Miejscowosc'].strip(),
-                kv['ULIC'].strip(),  # sym_ul
-                kv['SIMC'].strip(),  # simc
-                kv.get('Zrodlo danych', ''),
-                {'lat': lat, 'lon': lon},  # location
-                kv.get('idIIP', ''),
+                housenumber=kv['Numer'].strip(),
+                postcode=kv['Kod_pocztowy'].strip(),
+                street=kv['Ulica'].strip(),
+                city=kv['Miejscowosc'].strip(),
+                sym_ul=kv['ULIC'].strip(),  # sym_ul
+                simc=kv['SIMC'].strip(),  # simc
+                source=kv.get('Zrodlo danych', ''),
+                location=LocationStr(lat=lat, lon=lon),  # location
+                id_=kv.get('idIIP', '')
             )
         except KeyError:
             self.__log.error(soup)
@@ -176,7 +176,7 @@ class iMPA(AbstractImport):
             self.__log.error("Exception during point analysis", exc_info=True)
             raise
 
-    def _convert_to_address_gml(self, soup):
+    def _convert_to_address_gml(self, soup: Tag) -> Address:
         def get(tag_name):
             ret = soup.find(tag_name)
             if ret:
@@ -186,26 +186,24 @@ class iMPA(AbstractImport):
 
         try:
             lon, lat = soup.find('coordinates').text.split(' ')[0].split(',')
-            lon, lat = e2180toWGS(lon, lat)
+            lon, lat = e2180_to_wgs(lon, lat)
 
             return Address.mapped_address(
-                get('numer'),
-                get('kod'),
-                get('ulica'),
-                get('miejscowosc'),
-                get('ulic'),
-                get('simc'),
-                self.source,
-                {'lat': str(lat),
-                 'lon': str(lon)},
+                housenumber=get('numer'),
+                postcode=get('kod'),
+                street=get('ulica'),
+                city=get('miejscowosc'),
+                sym_ul=get('ulic'),
+                simc=get('simc'),
+                source=self.source,
+                location=LocationStr(lat=str(lat), lon=str(lon))
             )
-
         except:
             self.__log.error(soup)
             self.__log.error("Exception during point analysis", exc_info=True)
             raise
 
-    def fetch_tiles(self):
+    def fetch_tiles(self) -> typing.List[Address]:
         html = self.fetch_point(
             self.wms,
             *self.get_bbox_2180(),

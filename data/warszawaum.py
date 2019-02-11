@@ -1,12 +1,12 @@
 import json
 import logging
 import re
+import typing
 
 import rtree
 import tqdm
-from shapely.geometry import Point
 
-from data.base import AbstractImport, Address, get_ssl_no_verify_opener
+from data.base import AbstractImport, Address, get_ssl_no_verify_opener, LocationStr
 from data.gugik import GUGiK
 from osmdb import distance, buffered_shape_poland
 
@@ -25,7 +25,7 @@ class WarszawaUM(AbstractImport):
                   "dstsrid=4326&cachefoi=yes&tid=104_75201&aw=no"
     __log = logging.getLogger(__name__).getChild('WarszawaUM')
 
-    def __init__(self, gmina, terc):
+    def __init__(self, gmina: str, terc: str):
         super(WarszawaUM, self).__init__(terc=terc)
         self.terc = terc
         self.gmina = gmina
@@ -35,10 +35,10 @@ class WarszawaUM(AbstractImport):
         self.gugik_index = rtree.index.Index()
         self.buffered_shape = buffered_shape_poland(self.shape, 500)
 
-    def _find_nearest(self, point, street, housenumber):
+    def _find_nearest(self, location: LocationStr, street:str, housenumber: str) -> typing.Optional[Address]:
         lst = list(
-            map(self.gugik_data.get, self.gugik_index.nearest(point * 2, 10))
-        )
+            map(self.gugik_data.get, self.gugik_index.nearest((location.lat, location.lon) * 2, 10))
+        )  # type: typing.List[Address]
         for addr in lst:
             if addr.housenumber == housenumber:
                 if street in addr.street:
@@ -48,13 +48,13 @@ class WarszawaUM(AbstractImport):
                         return addr
                 if len(street) > 7 and street[4:] in addr.street:
                     self.__log.debug("Found candidate %d m away. Street names: %s and %s",
-                                     distance(point, (addr.location['lat'], addr.location['lon'])), street, addr.street)
+                                     distance(location, addr.location), street, addr.street)
                     return addr
 
         ret = lst[0]
-        if distance(point, ret.get_point()) > 100:
+        if distance(location, ret.get_point()) > 100:
             self.__log.warn("Distance between address: %s, %s and nearest GUGiK: %s is %d. Not merging with GUGIK",
-                            street, housenumber, ret, distance(point, ret.get_point()))
+                            street, housenumber, ret, distance(location, ret.get_point()))
             return None
         if ret.street != street:
             self.__log.debug(
@@ -67,29 +67,30 @@ class WarszawaUM(AbstractImport):
                 ret.housenumber, housenumber, street)
         return ret
 
-    def _convert_to_address(self, entry):
+    def _convert_to_address(self, entry: typing.Dict[str, str]):
         desc_soup = entry['name']
-        addr_kv = dict(x.split(': ', 2) for x in desc_soup.split('\n'))
+        addr_kv = dict(x.split(': ', 2) for x in desc_soup.split('\n'))  # type: typing.Dict[str, str]
         (street, housenumber) = addr_kv['Adres'].rsplit(' ', 1)
         street = street.strip()
         if street.startswith('ul. '):
             street = street[4:]
-        point = (float(entry['y']), float(entry['x']))
-        if Point(reversed(point)).within(self.buffered_shape):
-            nearest = self._find_nearest(point, street, housenumber)
+        location = LocationStr(lat=entry['y'], lon=entry['x'])
+
+        if location.to_location().to_point().within(self.buffered_shape):
+            nearest = self._find_nearest(location, street, housenumber)
         else:
             nearest = None
 
         ret = Address.mapped_address_kpc(
-            housenumber,
-            addr_kv.get('Kod pocztowy'),
-            street,
-            'Warszawa',
-            nearest.sym_ul if nearest else None,
-            nearest.simc if nearest else None,
-            'mapa.um.warszawa.pl',
-            {'lat': entry['y'], 'lon': entry['x']},
-            entry['id']
+            housenumber=housenumber,
+            postcode=addr_kv.get('Kod pocztowy'),
+            street=street,
+            city='Warszawa',
+            sym_ul=nearest.sym_ul if nearest else None,
+            simc=nearest.simc if nearest else None,
+            source='mapa.um.warszawa.pl',
+            location=LocationStr(lat=entry['y'], lon=entry['x']),
+            id_=entry['id']
         )
         return ret
 
@@ -112,6 +113,6 @@ class WarszawaUM(AbstractImport):
         parsed = json.loads(d)
         for key, addr in enumerate(self.gugik.fetch_tiles()):
             self.gugik_data[key] = addr
-            self.gugik_index.insert(key, (float(addr.location['lat']), float(addr.location['lon'])))
+            self.gugik_index.insert(key, (float(addr.location.lat), float(addr.location.lon)))
         return [x for x in [self._convert_to_address(x) for x in tqdm.tqdm(parsed['foiarray'],
                                                                            desc="Conversion")] if self._is_eligible(x)]

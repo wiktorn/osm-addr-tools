@@ -1,10 +1,12 @@
 import logging
 import math
+import typing
 
 import lxml.html
+import lxml.etree
 import tqdm
 
-from .base import AbstractImport, Address, get_ssl_no_verify_opener
+from .base import AbstractImport, Address, get_ssl_no_verify_opener, LocationStr
 from utils.utils import groupby
 
 
@@ -20,13 +22,14 @@ class GISNET(AbstractImport):
                  "HEIGHT=1000&BBOX="
     __log = logging.getLogger(__name__).getChild('GISNET')
 
-    def __init__(self, gmina, terc):
+    def __init__(self, gmina: str, terc: str):
         super(GISNET, self).__init__(terc=terc)
         self.terc = terc
         self.gmina = gmina
 
     @staticmethod
-    def divide_bbox(minx, miny, maxx, maxy):
+    def divide_bbox(minx: float, miny: float, maxx: float, maxy: float) -> typing.Iterable[typing.Tuple[float, float]]:
+        # TODO: LatType / XType?
         """divides bbox to tiles of maximum supported size by EMUiA WMS"""
         # noinspection PyTypeChecker
         return [
@@ -40,8 +43,9 @@ class GISNET(AbstractImport):
                            GISNET.__MAX_BBOX_Y * GISNET.__PRECISION)
         ]
 
-    def _convert_to_address(self, soup) -> Address:
-        desc_soup = lxml.html.fromstring(str(soup.find('{http://www.opengis.net/kml/2.2}description').text))
+    def _convert_to_address(self, soup: lxml.etree.Element) -> Address:
+        desc_soup = lxml.html.fromstring(str(soup.find('{http://www.opengis.net/kml/2.2}description').text)
+                                         )  # type: lxml.etree.ElementTree()
         addr_kv = dict(
             (
                 str(x.find('strong').find('span').text),
@@ -51,16 +55,17 @@ class GISNET(AbstractImport):
 
         coords = soup.find('{http://www.opengis.net/kml/2.2}Point').find(
             '{http://www.opengis.net/kml/2.2}coordinates').text.split(',')
+
         ret = Address.mapped_address(
-            addr_kv['numer_adr'],
-            addr_kv.get('KOD_POCZTOWY'),
-            addr_kv.get('nazwa_ulicy'),
-            addr_kv['miejscowosc'],
-            addr_kv.get('TERYT_ULICY'),
-            addr_kv.get('TERYT_MIEJSCOWOSCI'),
-            '%s.gis-net.pl' % (self.gmina,),
-            {'lat': coords[1], 'lon': coords[0]},
-            addr_kv.get('id_adres')
+            housenumber=addr_kv['numer_adr'],
+            postcode=addr_kv.get('KOD_POCZTOWY'),
+            street=addr_kv.get('nazwa_ulicy'),
+            city=addr_kv['miejscowosc'],
+            sym_ul=addr_kv.get('TERYT_ULICY'),
+            simc=addr_kv.get('TERYT_MIEJSCOWOSCI'),
+            source='%s.gis-net.pl' % (self.gmina,),
+            location=LocationStr(lat=coords[1], lon=coords[0]),
+            id_=addr_kv.get('id_adres')
         )
         ret.status = addr_kv['status']
         return ret
@@ -75,7 +80,7 @@ class GISNET(AbstractImport):
             return False
         return True
 
-    def fetch_tiles(self):
+    def fetch_tiles(self) -> typing.List[Address]:
         bbox = self.get_bbox_2180()
         ret = []
         for i in tqdm.tqdm(self.divide_bbox(*bbox), "Download"):
@@ -90,9 +95,7 @@ class GISNET(AbstractImport):
             if doc is not None:
                 ret.extend(filter(
                     self._is_eligible,
-                    map(self._convert_to_address, doc.iterchildren('{http://www.opengis.net/kml/2.2}Placemark'))
-                )
-                )
+                    map(self._convert_to_address, doc.iterchildren('{http://www.opengis.net/kml/2.2}Placemark'))))
             else:
                 raise ValueError(
                     'No data returned from GISNET possibly to wrong scale. Check __MAX_BBOX_X, '

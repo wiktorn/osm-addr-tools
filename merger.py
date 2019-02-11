@@ -1,11 +1,13 @@
-#!/usr/bin/env python3.4
+#!/usr/bin/env python3.7
 
 import argparse
+import enum
 import functools
 import io
 import itertools
 import json
 import logging
+import shapely
 import sys
 import typing
 from collections import defaultdict, OrderedDict
@@ -44,29 +46,36 @@ __log = logging.getLogger(__name__)
 #       http://en.wikipedia.org/wiki/Peirce%27s_criterion ?
 
 
-def create_property_funcs(field):
-    def getx(self):
+def create_property_funcs(field: str) -> property:
+    def getx(self) -> str:
         return self._soup['tags'][field]
 
-    def setx(self, val):
+    def setx(self, val: str) -> None:
         self._soup['tags'][field] = val
 
-    def delx(self):
+    def delx(self) -> None:
         del self._soup['tags'][field]
 
     return property(getx, setx, delx, '%s property' % (field,))
 
 
+class AddressState(enum.Flag):
+    NOT_VISIBLE = None
+    VISIBLE = ''
+    MODIFIED = 'modify'
+    DELETED = 'delete'
+
+
 class OsmAddress(Address):
     __log = logging.getLogger(__name__).getChild('OsmAddress')
 
-    def __init__(self, soup, *args, **kwargs):
+    def __init__(self, soup: typing.Dict[str, typing.Any], *args, **kwargs):
         self._soup = soup
         if 'tags' not in self._soup:
             self._soup['tags'] = {}
         super(OsmAddress, self).__init__(*args, **kwargs)
-        self.state = None
-        self.ref_ways = []
+        self.state = AddressState.NOT_VISIBLE  # type: AddressState
+        self.ref_ways = []  # type: typing.List[str]
         self.osm_fixme = ""
 
     # @formatter:off
@@ -80,11 +89,11 @@ class OsmAddress(Address):
     id_         = create_property_funcs('ref:addr')
     # @formatter:on
 
-    def __getitem__(self, key):
+    def __getitem__(self, key: str) -> str:
         return self._soup[key]
 
     @staticmethod
-    def from_soup(obj, ways_for_node=None):
+    def from_soup(obj: typing.Dict[str, str], ways_for_node: typing.Dict[str, typing.List[str]] = None):
         tags = dict(
             (k, v.strip()) for (k, v) in obj.get('tags', {}).items()
         )
@@ -98,38 +107,40 @@ class OsmAddress(Address):
             sym_ul=tags.get('addr:street:sym_ul', ''),
             simc=tags.get('addr:city:simc', ''),
             source=tags.get('source:addr', ''),
-            location=dict(zip(('lat', 'lon'), loc)),
+            location=loc.to_location_str(),
             id_=tags.get('ref:addr', ''),
             soup=obj
         )
 
         ret.osm_fixme = tags.get('fixme', '')
         if obj.get('action'):
-            ret.state = obj['action']
+            ret.state = AddressState(obj['action'])
         if ways_for_node:
             ret.ref_ways = ways_for_node.get(obj['id'], [])
         if tags.get('addr:place') and tags.get('addr:city'):
             # clear the data in OSM
-            ret.set_state('modify')
+            ret.set_state(AddressState.MODIFIED)
         if tags.get('addr:city') and not tags.get('addr:street'):
             # clear the data in OSM
-            ret.set_state('modify')
+            ret.set_state(AddressState.MODIFIED)
         return ret
 
-    def get_fixme(self):
+    def get_fixme(self) -> str:
         s1 = super(OsmAddress, self).get_fixme()
         return ", ".join(x for x in (s1, self.osm_fixme) if x)
 
-    def set_state(self, val):
-        if val not in ('visible', 'modify', 'delete'):
+    def set_state(self, val: AddressState) -> None:
+        if not isinstance(val, AddressState):
+            val = AddressState(val)
+        if val not in AddressState:
             raise ValueError('Unknown state %s' % val)
-        if val == 'visible' and self.state not in ('modify', 'delete'):
+        if val == AddressState.VISIBLE and self.state in (AddressState.MODIFIED, AddressState.DELETED):
+            pass  # don't "downgrade"
+        elif val == AddressState.MODIFIED and self.state != AddressState.DELETED:
             self.state = val
-        elif val == 'modify' and self.state != 'delete':
-            self.state = val
-        elif val == 'delete':
+        elif val == AddressState.DELETED:
             if len(self.ref_ways) > 0:
-                self.state = 'modify'
+                self.state = AddressState.MODIFIED
                 self.housenumber = ''
                 self.postcode = ''
                 self.street = ''
@@ -142,48 +153,48 @@ class OsmAddress(Address):
                 self.state = val
         else:
             # mark change
-            self.state = self.state
+            self.state = val
 
     @property
     def center(self):
-        return Point(float(self.location['lon']), float(self.location['lat']))
+        return self.location.to_location().to_point()
 
-    def distance(self, other):
+    def distance(self, other: typing.Union[Address, 'OsmAddress']):
         return distance(self.center, other.center)
 
     @property
-    def objtype(self):
+    def objtype(self) -> str:
         return self._soup['type']
 
-    def _get_tag_val(self, key):
+    def _get_tag_val(self, key: str) -> typing.Optional[str]:
         return self._soup.get('tags').get(key)
 
-    def _set_tag_val(self, key, val):
+    def _set_tag_val(self, key: str, val: str) -> bool:
         """returns True if something was modified"""
-        n = self._soup['tags'].get(key)
-        if n == val.strip():
+        old_value = self._soup['tags'].get(key)
+        if old_value == val.strip():
             return False
         self._soup['tags'][key] = val.strip()
         return True
 
-    def _remove_tag(self, key):
+    def _remove_tag(self, key: str) -> bool:
         if key in self._soup['tags']:
             del self._soup['tags'][key]
             return True
         return False
 
-    def shape(self):
+    def shape(self) -> shapely.geometry.base.BaseGeometry:
         raise NotImplementedError
 
     @property
-    def osmid(self):
+    def osmid(self) -> str:
         return "%s:%s" % (self.objtype, self._soup['id'])
 
     @property
-    def osmid_tuple(self):
-        return (self.objtype, self._soup['id'])
+    def osmid_tuple(self) -> typing.Tuple[str, str]:
+        return self.objtype, self._soup['id']
 
-    def is_emuia_addr(self):
+    def is_emuia_addr(self) -> bool:
         ret = False
         if self.source:
             ret |= ('EMUIA' in self.source.upper())
@@ -192,7 +203,7 @@ class OsmAddress(Address):
             ret |= ('EMUIA' in source_addr.upper())
         return ret
 
-    def only_address_node(self):
+    def only_address_node(self) -> bool:
         # return true, if its a node, has a addr:housenumber,
         # and consists only of tags listed below
         if self.objtype != 'node':
@@ -203,14 +214,14 @@ class OsmAddress(Address):
              'teryt:simc', 'source', 'source:addr', 'fixme', 'addr:street:source', 'ref:addr'}
         )
 
-    def is_new(self):
+    def is_new(self) -> bool:
         return int(self._soup['id']) < 0
 
-    def get_tag_soup(self):
+    def get_tag_soup(self) -> typing.Dict[str, str]:
         return dict((k, v) for (k, v) in self._soup['tags'].items() if v)
 
-    def update_from(self, entry):
-        def update(tag_name):
+    def update_from(self, entry) -> bool:
+        def update(tag_name: str) -> bool:
             old = getattr(self, tag_name)
             new = getattr(entry, tag_name)
             if new and old != new:
@@ -229,19 +240,19 @@ class OsmAddress(Address):
             update(name)
         if entry.get_fixme():
             self.add_fixme(entry.get_fixme())
-            self.set_state('visible')
+            self.set_state(AddressState.VISIBLE)
         if ret:
-            self.set_state('modify')
+            self.set_state(AddressState.MODIFIED)
         return ret
 
-    def to_osm_soup(self):
-        def _remove_tag(tags, key):
+    def to_osm_soup(self) -> lxml.etree.Element:
+        def _remove_tag(tags: typing.Dict[str, str], key: str) -> bool:
             if key in tags:
                 del tags[key]
                 return True
             return False
 
-        def _set_tag_val(tags, key, value):
+        def _set_tag_val(tags: typing.Dict[str, str], key: str, value: str) -> bool:
             n = tags.get(key)
             if n == value.strip():
                 return False
@@ -262,7 +273,7 @@ class OsmAddress(Address):
         tags = dict(
             (k, v.strip()) for (k, v) in s.get('tags', {}).items() if
             v.strip() and k != 'ref:addr' and k != 'addr:ref'
-        )
+        )  # type: typing.Dict[str, str]
 
         ret = False
         if self.housenumber:
@@ -277,12 +288,12 @@ class OsmAddress(Address):
                 # presence of only fixme tag is not sufficient to send a change to OSM
                 _set_tag_val(tags, 'fixme', self.get_fixme())
             ret |= _set_tag_val(tags, 'addr:postcode', self.postcode)
-        if ret or self.state == 'modify':
+        if ret or self.state == AddressState.MODIFIED:
             if bool(tags.get('source')) and (tags['source'] == self.source or 'EMUIA' in tags['source'].upper()):
                 _remove_tag(tags, 'source')
             meta_kv['action'] = 'modify'
-        if self.state in ('delete', 'modify'):
-            meta_kv['action'] = self.state
+        if self.state in (AddressState.DELETED, AddressState.MODIFIED):
+            meta_kv['action'] = self.state.value
 
         tags = tuple(map(lambda x: lxml.etree.Element('tag', attrib=OrderedDict((
             ('k', x[0]),
@@ -347,19 +358,23 @@ class Merger(object):
             for node in way['nodes']:
                 ways_for_node[node].append(way['id'])
 
-        from_soup = functools.partial(OsmAddress.from_soup, ways_for_node=ways_for_node)
+        from_soup = functools.partial(OsmAddress.from_soup, ways_for_node=ways_for_node
+                                      )  # type: typing.Callable[[dict], OsmAddress]
         self.osmdb = OsmDb(
             self.asis,
             valuefunc=from_soup,
-            indexes={'address': lambda x: x.get_index_key(), 'id': lambda x: x.osmid},
+            indexes={
+                'address': lambda x: x.get_index_key(),
+                'id': lambda x: x.osmid
+            },
             index_filter=lambda x: (x['tags'].get('building', False)
                                     or x.entry.housenumber) and self._import_area_shape.contains(x.shape)
         )
 
-    def create_index(self, message=""):
+    def create_index(self, message: str = "") -> None:
         self.osmdb.update_index(message)
 
-    def merge(self):
+    def merge(self) -> None:
         self.__log.debug("Starting premerger functinos")
         self._pre_merge()
         self.create_index("[3/14]")
@@ -368,30 +383,30 @@ class Merger(object):
         self.__log.debug("Starting postmerge functinos")
         self._post_merge()
 
-    def set_state(self, node, value):
+    def set_state(self, node: OsmDbEntry, value: AddressState) -> None:
         self._state_changes.append(node)
         for i in node.ref_ways:
             self._state_changes.append(self.osmdb.get_by_id('way', i))
         node.set_state(value)
 
-    def _fix_wesola(self, entry):
+    def _fix_wesola(self, entry: dict) -> None:
         if entry.get('tags', {}).get('addr:street', "").endswith(' (W)'):
             entry['tags']['addr:street'] = entry['tags']['addr:street'][:-4]
             self._state_changes.append(self.osmdb.get_by_id(entry['type'], entry['id']))
 
-    def _pre_merge(self):
+    def _pre_merge(self) -> None:
         # for custom fixes
         # for entry in self.asis['elements']:
         #    self._fix_wesola(entry)
-        def process(entry):
+        def process(entry: Address):
             self._fix_similar_addr(entry)
             tuple(map(lambda f: f(entry), self.pre_func))
 
-        for x in tqdm.tqdm(self.impdata, desc="[2/14] Running pre-merge functions"):  # type: Address
+        for x in tqdm.tqdm(self.impdata, desc="[2/14] Running pre-merge functions"):
             if x.center.within(self._import_area_shape):
                 process(x)
 
-    def _fix_similar_addr(self, entry):
+    def _fix_similar_addr(self, entry: Address) -> None:
         # look for near same address
         # change street names to values from OSM
         # change housenumbers to values from import
@@ -415,14 +430,15 @@ class Merger(object):
             if node.objtype == 'node':
                 node.add_fixme('Street name in OSM: ' + node.street)
                 node.entry.street = entry.street
-                self.set_state(node, 'modify')
+                self.set_state(node, AddressState.MODIFIED)
 
         if node and node.street == entry.street and node.city == entry.city and \
                 node.housenumber != entry.housenumber and ((node.objtype == 'node' and how_far < 5.0) or (
                 node.objtype == 'way' and (node.contains(entry.center) or how_far < 10.0))):
             # there is only difference in housenumber, that is similiar
             if node.housenumber.upper() != entry.housenumber.upper():
-                clean = lambda x: x.upper().replace(' ', '')
+                def clean(x: str) -> str:
+                    return x.upper().replace(' ', '')
                 if clean(node.housenumber) == clean(entry.housenumber) and len(node.housenumber) < len(
                         entry.housenumber):
                     # difference only in spaces, no spaces in OSM do not change address in OSM
@@ -432,10 +448,10 @@ class Merger(object):
                 entry.add_fixme('House number in OSM: %s' % (node.housenumber,))
             # make this *always* visible, to verify, if OSM value is correct. Hope that entry will
             # eventually get merged with node
-            self.set_state(node, 'modify')
+            self.set_state(node, AddressState.MODIFIED)
             node.entry.housenumber = entry.housenumber
 
-    def _fix_obsolete_emuia(self, entry):
+    def _fix_obsolete_emuia(self, entry: Address):
         existing = self.osmdb.getbyaddress(entry.get_index_key())
         if existing:
             # we have something with this address in db
@@ -450,14 +466,14 @@ class Merger(object):
             # all the others mark for deletion
             if len(emuia_nodes) > 1:
                 for node in emuia_nodes[1:]:
-                    self.set_state(node, 'delete')
+                    self.set_state(node, AddressState.DELETED)
 
-    def _do_merge(self):
-        for entry in tqdm.tqdm(self.impdata, desc="[4/14] Merging"): # type: Address
+    def _do_merge(self) -> None:
+        for entry in tqdm.tqdm(self.impdata, desc="[4/14] Merging"):  # type: Address
             if entry.center.within(self._import_area_shape):
                 self._do_merge_one(entry)
 
-    def _do_merge_one(self, entry):
+    def _do_merge_one(self, entry: Address):
         self.__log.debug("Processing address: %s", entry)
         return any(map(lambda x: x(entry),
                        (
@@ -469,22 +485,33 @@ class Merger(object):
                        )
                        ))
 
-    def _do_merge_by_existing(self, entry):
-        existing = tuple(filter(lambda x: self._import_area_shape.contains(x.center),
-                                self.osmdb.getbyaddress(entry.get_index_key())))
+    def _do_merge_by_existing(self, entry: Address) -> bool:
+        existing = [x for x in self.osmdb.getbyaddress(entry.get_index_key())
+                    if self._import_area_shape.contains(x.center)
+                    ]  # type: typing.List[typing.Union[OsmAddress, OsmDbEntry]]
         self.__log.debug("Found %d same addresses", len(existing))
         # create tuples (distance, entry) sorted by distance
-        existing = sorted(map(lambda x: (x.distance(entry), x), existing), key=lambda x: x[0])
-        if existing:
+        existing_dist = sorted([(x.distance(entry), x) for x in existing], key=lambda x: x[0]
+                               ) # type: typing.List[typing.Tuple[float, typing.Union[OsmAddress, OsmDbEntry]]]
+        if existing_dist:
             # report duplicates
-            if len(existing) > 1:
+            if len(existing_dist) > 1:
                 self.__log.warning("More than one address node for %s. %s",
                                    entry,
-                                   ", ".join("Id: %s, dist: %sm" % (x[1].osmid, str(x[0])) for x in existing)
+                                   ", ".join("Id: %s, dist: %sm" % (x[1].osmid, str(x[0])) for x in existing_dist)
                                    )
+                if max(d for d, _ in existing_dist) < 5 and all(a.only_address_node() for _, a in existing_dist):
+                    # only address nodes and not far away
+                    chosen = min(existing, key=lambda x: x.osmid)
+                    rest = [x for x in existing if x != chosen]
+                    for node in rest:
+                        # mark all other as deleted
+                        self.set_state(node, AddressState.DELETED)
+                    # update chosen node from source
+                    self._update_node(chosen, entry)
 
-            if max(x[0] for x in existing) > 50:
-                for (dist, node) in existing:
+            if max(x[0] for x in existing_dist) > 50:
+                for dist, node in existing_dist:
                     if dist > 50:
                         if not (
                                 (
@@ -499,7 +526,7 @@ class Merger(object):
                                                             node.within(x.shape) and
                                                             x.buffered_shape(50).contains(entry.center)
                                                     )
-                                                    for (_, x) in existing if x.objtype in ('way', 'relation')
+                                                    for (_, x) in existing_dist if x.objtype in ('way', 'relation')
                                             )
                                         )
                                 )
@@ -508,11 +535,11 @@ class Merger(object):
                             self.__log.warning("Address (id=%s) %s is %d meters from imported point",
                                                node.osmid, entry, dist)
                             node.add_fixme("Node is %d meters away from imported point" % dist)
-                    self.set_state(node, 'visible')
-                if min(x[0] for x in existing) > 50:
+                    self.set_state(node, AddressState.VISIBLE)
+                if min(x[0] for x in existing_dist) > 50:
                     if any(map(
                             lambda x: x[1].objtype in ('way', 'relation') and x[1].contains(entry.center),
-                            existing)):
+                            existing_dist)):
                         # if any of existing addresses is a way/relation within which we have our address
                         # then skip
                         pass
@@ -522,7 +549,7 @@ class Merger(object):
                         return True
 
             building = next(
-                (x for (_, x) in existing if x.objtype in ('way', 'relation' and x.contains(entry.center))),
+                (x for (_, x) in existing_dist if x.objtype in ('way', 'relation' and x.contains(entry.center))),
                 None
             )
 
@@ -548,14 +575,14 @@ class Merger(object):
                         for key, value in building._raw['tags'].items()
                     )
                     building.clear_fixme()
-                    self.set_state(building, "modify")
+                    self.set_state(building, AddressState.MODIFIED)
                     return True
             # update data only on first duplicate, rest - leave to OSM-ers
-            self._update_node(existing[0][1], entry)
+            self._update_node(existing_dist[0][1], entry)
             return True
         return False
 
-    def _do_merge_by_within(self, entry):
+    def _do_merge_by_within(self, entry: Address) -> bool:
         # look for building nearby
         candidates_within = list(
             itertools.islice(
@@ -566,7 +593,7 @@ class Merger(object):
                 0,
                 10
             )
-        )
+        )  # type: typing.List[typing.Union[OsmAddress, OsmDbEntry]]
         self.__log.debug("Found %d buildings containing address", len(candidates_within))
 
         if candidates_within:
@@ -613,13 +640,14 @@ class Merger(object):
                             for key, value in c._raw['tags'].items()
                         )
                         c.clear_fixme()
-                        self.set_state(c, "modify")
+                        self.set_state(c, AddressState.MODIFIED)
                         self._create_point(entry)
                     return True
         return False
 
-    def _do_merge_by_nearest(self, entry):
-        candidates = list(self.osmdb.nearest(entry.center, num_results=10))
+    def _do_merge_by_nearest(self, entry: Address) -> bool:
+        candidates = list(self.osmdb.nearest(entry.center, num_results=10)
+                          )  # type: typing.List[typing.Union[OsmAddress, OsmDbEntry]]
         candidates_same = [x for x in candidates if x.housenumber == entry.housenumber and x.distance(entry) < 2.0]
         if len(candidates_same) > 0:
             # same location, both are an address, and have same housenumber, can't be coincidence,
@@ -655,25 +683,25 @@ class Merger(object):
             return True
         return False
 
-    def _do_merge_create_point(self, entry):
+    def _do_merge_create_point(self, entry: Address) -> bool:
         if not self._import_area_shape.contains(entry.center):
             self.__log.warning("Imported address %s outside import borders", entry)
         self._create_point(entry)
         return True
 
-    def _update_node(self, node, entry):
+    def _update_node(self, node: OsmDbEntry, entry: Address):
         self.__log.debug("Cheking if there is something to update for node %s, address: %s", node.osmid, node.entry)
         if node.update_from(entry):
             self.__log.debug("Updating node %s using %s", node.osmid, entry)
             self._updated_nodes.append(node)
 
-    def _create_point(self, entry):
+    def _create_point(self, entry: Address):
         self.__log.debug("Creating new point")
         soup = {
             'type': 'node',
             'id': self._get_node_id(),
-            'lat': entry.location['lat'],
-            'lon': entry.location['lon'],
+            'lat': entry.location.lat,
+            'lon': entry.location.lon,
         }
         new = self.osmdb.add_new(soup)
         new.update_from(entry)
@@ -681,36 +709,36 @@ class Merger(object):
         # TODO: check that soup gets address tags
         # self.asis['elements'].append(soup)
 
-    def _mark_soup_visible(self, obj):
+    def _mark_soup_visible(self, obj: OsmDbEntry) -> None:
         self._soup_visible.append(obj)
 
-    def _get_node_id(self):
+    def _get_node_id(self) -> int:
         self._node_id -= 1
         return self._node_id
 
-    def _get_all_changed_nodes(self) -> typing.Tuple[OsmDbEntry]:
+    def _get_all_changed_nodes(self) -> typing.List[typing.Union[OsmDbEntry, OsmAddress]]:
         ret: typing.Dict[str, OsmDbEntry] = dict((x.osmid, x) for x in self._updated_nodes)
         ret.update(dict((x.osmid, x) for x in self._new_nodes))
         self.__log.info("Modified objects: %d", len(ret))
         ret.update(dict((x.osmid, x) for x in self._state_changes))
         ret.update(dict((x.osmid, x) for x in self.osmdb.get_all_values() if
-                        x.state in ('modify', 'delete') and x.osmid not in ret.keys()))
+                        x.state in (AddressState.MODIFIED, AddressState.DELETED) and x.osmid not in ret.keys()))
 
         for (_id, i) in sorted(ret.items(), key=lambda x: x[0]):
             if i in self._updated_nodes:
                 self.__log.debug("Processing updated node: %s", str(i.entry))
             elif i in self._new_nodes:
                 self.__log.debug("Processing new node: %s", str(i.entry))
-            elif i.state in ('modify', 'delete'):
+            elif i.state in (AddressState.MODIFIED, AddressState.DELETED):
                 self.__log.debug("Processing node - changed: %s, %s", i.state, str(i.entry))
 
-        return tuple(ret.values())
+        return list(ret.values())
 
-    def _get_all_visible(self):
+    def _get_all_visible(self) -> typing.List[typing.Union[OsmDbEntry, OsmAddress]]:
         ret = dict((x.osmid, x) for x in self._soup_visible)
         ret.update(dict(
-            (x.osmid, x) for x in self.osmdb.get_all_values() if x.state == 'visible' and x.osmid not in ret.keys()))
-        return tuple(ret.values())
+            (x.osmid, x) for x in self.osmdb.get_all_values() if x.state == AddressState.VISIBLE and x.osmid not in ret.keys()))
+        return list(ret.values())
 
     def _get_all_reffered_by(self, lst: typing.Iterable[OsmDbEntry]) -> typing.Iterable[OsmDbEntry]:
         ret = set()
@@ -757,11 +785,11 @@ class Merger(object):
                     (('way', node['id']),)
                 )
             if node['type'] == 'member':
-                return get_referred(self.osmdb.get_by_id(node['type'], int(node['ref'])))
+                return get_referred(self.osmdb.get_by_id(node['type'], node['ref']))
             if node['type'] == 'relation':
                 return itertools.chain(
                     itertools.chain.from_iterable(
-                        get_referred(self.osmdb.get_by_id(x['type'], int(x['ref']))) for x in node['members']
+                        get_referred(self.osmdb.get_by_id(x['type'], x['ref'])) for x in node['members']
                     ),
                     (('relation', node['id']),)
                 )
@@ -796,10 +824,10 @@ class Merger(object):
                 ),
                 tqdm.tqdm(self.osmdb.getalladdress(), desc="[8/14] Looking for not existing addresses")
             )
-        ) - imp_addr
+        ) - imp_addr  # type: typing.Set[OsmDbEntry]
 
         self.__log.debug("Marking %d not existing addresses", len(to_delete))
-        for addr in filter(any, to_delete): # type: OsmDbEntry
+        for addr in filter(any, to_delete):  # type: OsmDbEntry
             # at least on addr field is filled in
             for node in filter(
                     lambda x: self._import_area_shape.contains(x.shape),
@@ -815,7 +843,7 @@ class Merger(object):
                     self.__log.debug("Marking node to delete - address %s does not exist: %s, %s", addr, node.osmid,
                                      str(node.entry))
                     node.add_fixme('Check address existence')
-                    self.set_state(node, 'visible')
+                    self.set_state(node, AddressState.VISIBLE)
 
     def merge_addresses(self):
         self._merge_addresses_buffer(0, "[10/14]")
@@ -825,7 +853,7 @@ class Merger(object):
     def _merge_one_address(self, building: typing.Dict[str, typing.Any], addr: OsmDbEntry):
         # as we merge only address nodes, do not pass anything else
         if addr.get_fixme() and not addr.is_new():
-            self.set_state(addr, 'visible')
+            self.set_state(addr, AddressState.VISIBLE)
         else:
             building_obj = self.osmdb.get_by_id(building['type'], building['id'])
             fixme = building_obj.osm_fixme
@@ -840,8 +868,8 @@ class Merger(object):
             if fixme or building_obj.get_fixme():
                 building_obj.clear_fixme()
                 building_obj.add_fixme(fixme)
-            building_obj.set_state('modify')
-            self.set_state(addr, 'delete')
+            building_obj.set_state(AddressState.MODIFIED)
+            self.set_state(addr, AddressState.DELETED)
             self._updated_nodes.append(building_obj)
 
     def _merge_addresses_buffer(self, buf=0, message=""):
@@ -911,9 +939,9 @@ class Merger(object):
                         if x.shape.within(self._import_area_shape)
                 ],
                 desc="{} Preparing merge list (buf={})".format(message, buf)
-        ):  # type: OsmDbEntry
+        ):  # type: typing.Union[OsmDbEntry, OsmAddress]
             self.__log.debug("Looking for candidates for: %s", str(addr.entry))
-            if addr.only_address_node() and addr.state != 'delete' and (
+            if addr.only_address_node() and addr.state != AddressState.DELETED and (
                     self._import_area_shape.contains(addr.center)):
                 # do not use nodes as candidates, as they will never match
                 candidates = list(
@@ -925,7 +953,7 @@ class Merger(object):
                         0,
                         20
                     )
-                )
+                )  # type: typing.List[OsmDbEntry]
                 candidate_within = next(
                     (
                         x for x in candidates if
@@ -964,10 +992,10 @@ class Merger(object):
                         ret[candidate_within.osmid_tuple].append(addr)
                         self.__log.debug("Found: %s", candidate_within.osmid)
                     else:
-                        candidate_within.set_state('visible')
+                        candidate_within.set_state(AddressState.VISIBLE)
         return ret
 
-    def _get_osm_xml(self, nodes, log_io=None):
+    def _get_osm_xml(self, nodes: typing.Iterable[OsmAddress], log_io=None) -> lxml.etree.Element:
         return E.osm(
             E.note('The data included in this document is from www.openstreetmap.org. '
                    'The data is made available under ODbL.' + ('\n' + log_io.getvalue() if log_io else '')),
@@ -976,14 +1004,14 @@ class Merger(object):
             version='0.6', generator='import adresy merger.py'
         )
 
-    def get_incremental_result(self, log_io=None):
+    def get_incremental_result(self, log_io=None) -> lxml.etree.Element:
         changes = self._get_all_changed_nodes()
         self.__log.info("Generated %d changes", len(changes))
         nodes = self._get_all_reffered_by(changes + self._get_all_visible())
         return lxml.etree.tostring(self._get_osm_xml(nodes, log_io),
                                    pretty_print=True, xml_declaration=True, encoding='UTF-8')
 
-    def get_full_result(self, log_io=None):
+    def get_full_result(self, log_io=None) -> str:
         return lxml.etree.tostring(
             self._get_osm_xml(
                 sorted(
@@ -996,7 +1024,7 @@ class Merger(object):
             encoding='UTF-8'
         )
 
-    def handle_one_street_name_change(self, osm_addr, imp_addr) -> bool:
+    def handle_one_street_name_change(self, osm_addr: OsmAddress, imp_addr: Address) -> bool:
         if osm_addr \
                 and osm_addr.housenumber.upper().replace(' ', '') == imp_addr.housenumber.upper().replace(' ', '') \
                 and osm_addr.city == imp_addr.city \
@@ -1006,7 +1034,7 @@ class Merger(object):
             self._updated_nodes.append(osm_addr)
             return True
 
-    def handle_street_name_changes(self):
+    def handle_street_name_changes(self) -> None:
         """
             If the imported point is within a building, that has the same housenumber and city, and there is symul
             in imported data, then update the street name from imported point
@@ -1031,7 +1059,7 @@ class Merger(object):
                     ) if x.contains(entry.center)
                 ),
                 None
-            )
+            )  # type: typing.Union[OsmDbEntry, OsmAddress]
 
             if not self.handle_one_street_name_change(candidate, entry):
                 # try to find node
@@ -1048,12 +1076,12 @@ class Merger(object):
                 self.handle_one_street_name_change(candidate, entry)
 
     def mark_all_nodes_visible(self):
-        for obj in self.osmdb.get_all_values():
+        for obj in self.osmdb.get_all_values():  # type: typing.Union[OsmAddress, OsmDbEntry]
             if obj.housenumber and obj.entry['type'] == 'node' and obj.shape.within(self._import_area_shape):
                 self._mark_soup_visible(obj)
 
 
-def get_referenced_objects(query):
+def get_referenced_objects(query: str) -> str:
     return """
 [out:json]
 [timeout:600];
@@ -1110,7 +1138,7 @@ def get_addresses(bbox):
     return json.loads(overpass.query(get_referenced_objects(query)))
 
 
-def get_boundary_shape(terc):
+def get_boundary_shape(terc: str) -> shapely.geometry.base.BaseGeometry:
     query = """
 [out:json]
 [timeout:600];

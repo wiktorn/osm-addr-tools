@@ -2,21 +2,21 @@
 # TODO:
 # - add warning, when street exists as a part of name in sym_ul dictionary or in ULIC
 # - use http://norvig.com/spell-correct.html ideas to check if the name can be corrected
-import string
-
 import collections
 import functools
 import logging
 import os
 import pickle
+import re
+import string
 import tempfile
 import threading
 import time
+import typing
 import urllib.request
-from collections import namedtuple
 
-import tqdm
 import lxml.etree
+import tqdm
 
 import converters.teryt
 import overpass
@@ -24,7 +24,6 @@ from .mapping_custom import addr_map
 
 __log = logging.getLogger(__name__)
 
-TerytUlicEntry = namedtuple('TerytUlicEntry', ['sym_ul', 'nazwa', 'cecha'])
 
 __CECHA_MAPPING = {
     'UL.': '',
@@ -42,7 +41,6 @@ __CECHA_MAPPING = {
     'WYB.': 'Wybrzeże',
     'INNE': ''
 }
-
 
 __query_ql_tag = """
 [out:%(format)s]
@@ -71,10 +69,10 @@ class TqdmUpTo(tqdm.tqdm):
     def update_to(self, b=1, bsize=1, tsize=None):
         if tsize is not None:
             self.total = tsize
-        self.update(b*bsize - self.n)
+        self.update(b * bsize - self.n)
 
 
-def lxml_iter_cleaner(iter):
+def lxml_iter_cleaner(iter: typing.Iterable[lxml.etree.Element]):
     for ret in iter:
         yield ret
         elem = ret[1]
@@ -82,45 +80,49 @@ def lxml_iter_cleaner(iter):
             del elem.getparent()[0]
 
 
-def get_nodes_ways_with_tags(taglist, format="xml") -> str:
+def get_nodes_ways_with_tags(taglist: typing.List[str], format: str = "xml") -> str:
     tags = "\n\t".join(map(lambda x: '["' + x + '"]', taglist))
     return overpass.get_url_for_query(__query_ql_tag % {'tags': tags, 'format': format})
 
 
-def get_nodes_ways_with_tag(tagname, format="xml") -> str:
+def get_nodes_ways_with_tag(tagname: str, format: str = "xml") -> str:
     return get_nodes_ways_with_tags([tagname, ], format)
 
 
-def get_dict(keyname, valuename, coexitingtags=None):
+def get_dict(keyname: str, valuename: str, coexitingtags=None) -> typing.Dict[str, typing.Dict[str, str]]:
     __log.info("Updating %s data from OSM, it may take a while", keyname)
-    tags = [keyname, valuename]
+    tags = [keyname, valuename]  # type: typing.List[str]
     if coexitingtags:
         tags.extend(coexitingtags)
 
     with tempfile.NamedTemporaryFile() as temp_file:
         with TqdmUpTo(unit='B', unit_scale=True, miniters=1,
-                      desc="Retriving {} -> {} from Overpass".format(keyname, valuename)) as t:
-            urllib.request.urlretrieve(get_nodes_ways_with_tags(tags, 'xml'), filename=temp_file.name, reporthook=t.update_to)
+                      desc="Retrieving {} -> {} from Overpass".format(keyname, valuename)) as t:
+            urllib.request.urlretrieve(get_nodes_ways_with_tags(tags, 'xml'), filename=temp_file.name,
+                                       reporthook=t.update_to)
 
-        ret = collections.defaultdict(lambda: collections.defaultdict(int))
+        ret = collections.defaultdict(lambda: collections.defaultdict(int)
+                                      )  # type: typing.DefaultDict[str, typing.DefaultDict[str, int]]
         for (_, elem) in tqdm.tqdm(
                 lxml_iter_cleaner(
                     lxml.etree.iterparse(temp_file.name, events=('end',), tag=('node', 'way'))
                 ),
                 desc="Converting {} -> {}".format(keyname, valuename)
         ):
-            tags = dict((x.get('k'), x.get('v')) for x in elem.iter('tag') if x.get('k') in (keyname, valuename))
-            value = tags[valuename]
+            tags_kv = dict((x.get('k'), x.get('v')) for x in elem.iter('tag') if x.get('k') in (keyname, valuename)
+                           )  # type: typing.Dict[str, str]
+            value = tags_kv[valuename]
             if value:
-                ret[tags[keyname]][value] += 1
+                ret[tags_kv[keyname]][value] += 1
 
-    inconsistent = dict((x[0], x[1].keys()) for x in filter(lambda x: len(x[1]) > 1, ret.items()))
+    inconsistent = dict((k, v.keys()) for (k, v) in ret.items() if len(v) > 1)
     for (key, values) in inconsistent.items():
         __log.info("Inconsitent mapping for %s = %s, values: %s", keyname, key, ", ".join(values))
     return dict((k, dict(v)) for (k, v) in ret.items())
 
 
-def stored_dict(fetcher, filename):
+def stored_dict(fetcher: typing.Callable[[], typing.Dict[str, typing.Dict[str, str]]], filename: str
+                ) -> typing.Dict[str, typing.Dict[str, str]]:
     try:
         with open(filename, "rb") as f:
             data = pickle.load(f)
@@ -150,10 +152,10 @@ def stored_dict(fetcher, filename):
 __DB_OSM_TERYT_SYMUL = os.path.join(tempfile.gettempdir(), 'osm_teryt_symul_v2.db')
 __DB_OSM_TERYT_SIMC = os.path.join(tempfile.gettempdir(), 'osm_teryt_simc_v2.db')
 __DB_OSM_SIMC_POSTCODE = os.path.join(tempfile.gettempdir(), 'osm_teryt_simc_postcode_v1.db')
-__mapping_symul = {}
-__mapping_simc = {}
-__teryt_ulic = {}
-__mapping_simc_postcode = {}
+__mapping_symul = {}  # type: typing.Dict[str, typing.Dict[str, str]]
+__mapping_simc = {}  # type: typing.Dict[str, typing.Dict[str, str]]
+__teryt_ulic = {}  # type: converters.teryt.Cache[converters.teryt.UlicMultiEntry]
+__mapping_simc_postcode = {}  # type: typing.Dict[str, typing.Dict[str, str]]
 
 __init_lock = threading.Lock()
 __is_initialized = False
@@ -175,11 +177,11 @@ def __init():
 
 
 @functools.lru_cache(maxsize=None)
-def mapstreet(strname, symul):
+def mapstreet(strname: str, symul: str) -> str:
     __init()
     teryt_entry = __teryt_ulic.get(symul)
 
-    def check_and_add_cecha(street):
+    def check_and_add_cecha(street: str) -> str:
         teryt_nazwa = ""
         if teryt_entry and teryt_entry.cecha:
             teryt_nazwa = teryt_entry.nazwa[5:].strip() if \
@@ -264,7 +266,7 @@ def mapstreet(strname, symul):
 
 
 @functools.lru_cache(maxsize=None)
-def mapcity(cityname, simc):
+def mapcity(cityname: str, simc: str) -> str:
     __init()
     try:
         ret = __mapping_simc[simc]
@@ -280,13 +282,11 @@ def mapcity(cityname, simc):
         return cityname.replace(' - ', '-')
 
 
-import re
-
-__POSTCODE = re.compile('^[0-9]{2}-[0-9]{3}$')
+__POSTCODE = re.compile(r'^[0-9]{2}-[0-9]{3}$')
 
 
 @functools.lru_cache(maxsize=None)
-def mappostcode(postcode, simc):
+def mappostcode(postcode: str, simc: str) -> str:
     __init()
     if postcode:
         return postcode

@@ -1,12 +1,13 @@
 import json
 import logging
 import re
+import typing
 from urllib.parse import urlencode
 from urllib.request import urlopen
 
 import tqdm
 
-from data.base import AbstractImport, Address, e2180toWGS
+from .base import AbstractImport, Address, e2180_to_wgs, LocationStr
 
 
 class GISON(AbstractImport):
@@ -19,7 +20,7 @@ class GISON(AbstractImport):
     # maxrows=10000&lang=en&continentCode=&adminCode1=&adminCode2=&adminCode3=&tag=&charset=UTF8&nazwa=
     __log = logging.getLogger(__name__).getChild('GISON')
 
-    def __init__(self, gmina, terc):
+    def __init__(self, gmina: str, terc: str):
         super(GISON, self).__init__(terc=terc)
         self.terc = terc
         self.gmina = gmina
@@ -27,8 +28,8 @@ class GISON(AbstractImport):
         self.__log.debug("Fetching configuration from: %s", url)
         map_config = urlopen(url).read().decode('utf-8')
 
-        def make_extract(data):
-            def extract(begin, end):
+        def make_extract(data: str) -> typing.Callable[[str, str], str]:
+            def extract(begin: str, end: str) -> typing.Optional[str]:
                 start_pos = data.rfind(begin)
                 end_pos = data.find(end, start_pos + 1)
                 if start_pos < 0 or end_pos < 0:
@@ -44,7 +45,7 @@ class GISON(AbstractImport):
         self.osmid = map_config_extract("var osmid=-", ";")
         self.lonlat_conv = lambda x, y: (x, y)
 
-    def _convert_to_address(self, addr):
+    def _convert_to_address(self, addr: typing.Dict[str, str]) -> Address:
         # {'lat': 49.96449599576943, 'lng': 19.63283898037835, 'toponymName': 'Adama Gorczyńskiego 1, Brzeźnica',
         # 'fcodeName': 'ul. ', 'obreb': 'null', 'geom': None}
         street = ""
@@ -56,27 +57,27 @@ class GISON(AbstractImport):
 
         old_housenumber = None
         if 'stary numer' in city:
-            m = re.search('^([^(]*) \(stary numer: (.+)( \))?$', city)
+            m = re.search(r'^([^(]*) \(stary numer: (.+)( \))?$', city)
             city = m.group(1)
             old_housenumber = m.group(2)
         lon, lat = self.lonlat_conv(addr['lng'], addr['lat'])
         ret = Address.mapped_address(
-            housenumber,
-            '',
-            street,
-            city,
-            '',  # teryt ulicy
-            '',  # teryt miejscowosci
-            self.__base_url + self.gmina,
-            {'lat': lat, 'lon': lon},
-            ''  # identyfikator punktu
+            housenumber=housenumber,
+            postcode='',
+            street=street,
+            city=city,
+            sym_ul='',
+            simc='',
+            source=self.__base_url + self.gmina,
+            location=LocationStr(lat=lat, lon=lon),
+            id_=''
         )
         if old_housenumber:
             ret.add_extra_tag('addr:houseumber_old', old_housenumber)
         return ret
 
-    def fetch_tiles(self):
-        def real_fetch(parameters):
+    def fetch_tiles(self) -> typing.List[Address]:
+        def real_fetch(parameters) -> list:
             url = "http://" + self.searchAdminService + '?' + urlencode(parameters)
             self.__log.debug("Fetching data from URL: %s", url)
             resp = urlopen(url).read().decode('utf-8')
@@ -103,7 +104,7 @@ class GISON(AbstractImport):
             params['typ'] = 'adresy'
             data = real_fetch(params)
             # adresy layer uses EPSG:2180, and adresygemaOL uses WGS84/EPSG:4326
-            self.lonlat_conv = e2180toWGS
+            self.lonlat_conv = e2180_to_wgs
             if len(data[0]['geonames']) != data[0]['totalResultsCount'] or data[0]['totalResultsCount'] == maxrows:
                 raise ValueError(
                     "Problem fetching data. {0} available to parse, while totalResulsts is {1}. Maxrows was {2}".format(

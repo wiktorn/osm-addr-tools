@@ -2,3 +2,4 @@ latest_actual.osm
 venv
 *.osm
 .idea
+**/__pycache__
