@@ -2,9 +2,32 @@ from urllib.request import urlopen
 from urllib.parse import urlencode
 import argparse
 import logging
+import requests
+from requests.adapters import HTTPAdapter
+from requests.packages.urllib3.util.retry import Retry
+
 
 __log = logging.getLogger(__name__)
 
+
+def requests_retry_session(
+    retries=3,
+    backoff_factor=0.3,
+    status_forcelist=(500, 502, 504),
+    session=None,
+):
+    session = session or requests.Session()
+    retry = Retry(
+        total=retries,
+        read=retries,
+        connect=retries,
+        backoff_factor=backoff_factor,
+        status_forcelist=status_forcelist,
+    )
+    adapter = HTTPAdapter(max_retries=retry)
+    session.mount('http://', adapter)
+    session.mount('https://', adapter)
+    return session
 
 # these below server as documentation
 __query_terc = """
@@ -99,7 +122,8 @@ def get_url_for_query(qry: str):
 def query(qry):
     # TODO - check if the query succeeded
     __log.debug("Query %s , server: %s", qry, __overpassurl)
-    return urlopen(get_url_for_query(qry)).read().decode('utf-8')
+    return requests_retry_session().get(get_url_for_query(qry), timeout=180).text
+    # return urlopen(get_url_for_query(qry)).read().decode('utf-8')
 
 
 def main():
