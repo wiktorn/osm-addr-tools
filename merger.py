@@ -353,7 +353,7 @@ class Merger(object):
             valuefunc=from_soup,
             indexes={'address': lambda x: x.get_index_key(), 'id': lambda x: x.osmid},
             index_filter=lambda x: (x['tags'].get('building', False)
-                                    or x.entry.housenumber) and self._import_area_shape.contains(x.shape)
+                                    or x.entry.housenumber) and self._import_area_shape.contains(x.shape_noerror)
         )
 
     def create_index(self, message=""):
@@ -1259,7 +1259,6 @@ def main():
     m = Merger(data, addr, terc, source_addr)
     if not args.no_merge:
         m.post_func.append(m.merge_addresses)
-    m.post_func.append(m.mark_all_nodes_visible)
     m.merge()
 
     if args.full_mode:
