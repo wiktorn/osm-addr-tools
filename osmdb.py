@@ -74,6 +74,16 @@ def buffered_shape_poland(shape: shapely.geometry.base.BaseGeometry, buffer: int
     return shapely.ops.transform(_epsg_2180_to_4326, ret)
 
 
+def skip_exceptions(gen):
+    while True:
+        try:
+            yield next(gen)
+        except StopIteration:
+            raise
+        except Exception:
+            pass
+
+
 class OsmDbEntry(object):
     def __init__(self, entry, raw, osmdb):
         self._entry = entry
@@ -87,6 +97,10 @@ class OsmDbEntry(object):
     @property
     def shape(self):
         return self._osmdb.get_shape(self._raw)
+
+    @property
+    def shape_noerror(self):
+        return self._osmdb.get_shape(self._raw, True)
     
     @property
     def center(self):
@@ -203,20 +217,30 @@ class OsmDb(object):
             point = (point.y, point.x)
         return (self.__index_entries.get(x) for x in self.__index.intersection(point * 2))
 
-    def get_shape(self, soup):
+    def get_shape(self, soup, ignore_errors=False):
         id_ = soup['id']
         ret = self.__cached_shapes.get(id_)
         if not ret:
-            ret = self.get_shape_cached(soup)
+            ret = self.get_shape_cached(soup, ignore_errors)
             self.__cached_shapes[id_] = ret
         return ret
 
-    def get_shape_cached(self, soup):
+    def get_shape_cached(self, soup, ignore_errors=False):
         if soup['type'] == 'node':
             return Point(float(soup['lon']), float(soup['lat']))
 
         if soup['type'] == 'way':
-            nodes = tuple(self.get_by_id('node', y) for y in soup['nodes'])
+            nodes_gen = (self.get_by_id('node', y) for y in soup['nodes'])
+            if ignore_errors:
+                nodes = tuple(skip_exceptions(nodes_gen))
+            else:
+                nodes = tuple(nodes_gen)
+
+            if not nodes and ignore_errors:
+                self.__log.warning("Way has no nodes. Check geometry. way:%s" % (soup['id'],))
+                self.__log.warning("Returning geometry as a point not on earth")
+                return Point(-360, -360)
+
             if len(nodes) < 3:
                 self.__log.warning("Way has less than 3 nodes. Check geometry. way:%s" % (soup['id'],))
                 self.__log.warning("Returning geometry as a point")
