@@ -26,6 +26,7 @@ from data.gugik import GUGiK, GUGiK_GML
 from data.impa import iMPA
 from data.warszawaum import WarszawaUM
 from osmdb import OsmDb, OsmDbEntry, get_soup_center, distance
+import utils.osmshapedb
 
 __log = logging.getLogger(__name__)
 
@@ -1055,7 +1056,7 @@ class Merger(object):
 
 def get_referenced_objects(query):
     return """
-[out:json]
+[out:xml]
 [timeout:600];
 (
     %s
@@ -1076,10 +1077,10 @@ def get_referenced_objects(query):
 (
     node(w.c);
 )->.d;
-.a out meta bb qt;
-.b out meta bb qt;
-.c out meta bb qt;
-.d out meta bb qt;
+.a out meta ;
+.b out meta ;
+.c out meta ;
+.d out meta ;
     """ % (query,)
 
 
@@ -1107,22 +1108,25 @@ def get_addresses(bbox):
     (%s)
     ["building"];
 """ % (bbox, bbox, bbox, bbox, bbox,)
-    return json.loads(overpass.query(get_referenced_objects(query)))
+    index = utils.osmshapedb.get_geometries(overpass.query(get_referenced_objects(query)))
+    return index
 
 
 def get_boundary_shape(terc):
     query = """
-[out:json]
+[out:xml]
 [timeout:600];
 relation
     ["teryt:terc"~"^%s"];
-out meta bb qt;
+out meta ;
 >;
-out meta bb qt;
+out meta ;
 """ % (terc,)
-    soup = json.loads(overpass.query(query))
-    osmdb = OsmDb(soup)
-    boundaries = tuple(x for x in soup['elements'] if x['type'] == 'relation' and
+    soup = overpass.query(query)
+    index = utils.osmshapedb.get_geometries(soup)
+
+    
+    boundaries = tuple(x for x in index.elements if x['type'] == 'relation' and
                        x['tags'].get('teryt:terc', '') == terc)
     if len(boundaries) > 1:
         __log.error("More than one relation found with terc: %s. Names: %s. Fix before continuing",
@@ -1131,10 +1135,10 @@ out meta bb qt;
     if len(boundaries) == 1:
         rel = boundaries[0]
     else:
-        rel = tuple(x for x in soup['elements'] if x['type'] == 'relation' and
+        rel = tuple(x for x in index.elements if x['type'] == 'relation' and
                     x['tags'].get('teryt:terc', '').startswith(terc))[0]
     __log.info("Loading shape of import area - relation id: %s, relation name: %s", rel['id'], rel['tags'].get('name'))
-    return osmdb.get_shape(rel)
+    return index.geometries["{}:{}".format(rel['type'], rel['id'])]
 
 
 def main():
@@ -1235,7 +1239,7 @@ def main():
 
     if args.addresses_file:
         def addr_func():
-            return converter.osm_to_json(lxml.etree.parse(args.addresses_file))
+            return lxml.etree.parse(args.addresses_file)
     else:
         # union with bounds of administrative boundary
         s = min(map(lambda x: x.center.y, data))
@@ -1252,7 +1256,7 @@ def main():
         __log.warning("Warning - import data is empty. Check your import")
     __log.info('Processing %d addresses', len(data))
 
-    if len(addr['elements']) == 0:
+    if len(addr.elements) == 0:
         __log.warning("Warning - no data fetched from OSM. Check your file/terc code")
 
     # m = Merger(data, addr, terc, parallel_process_func=parallel_map)

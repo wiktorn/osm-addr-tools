@@ -11,6 +11,7 @@ from rtree import index
 from shapely.geometry import Point, Polygon, LineString
 
 import utils
+import utils.osmshapedb
 
 __multipliers = {
     'node'    : lambda x: x*3,
@@ -85,10 +86,10 @@ def skip_exceptions(gen):
 
 
 class OsmDbEntry(object):
-    def __init__(self, entry, raw, osmdb):
+    def __init__(self, entry, raw, shape: shapely.geometry.base.BaseGeometry):
         self._entry = entry
         self._raw = raw
-        self._osmdb = osmdb
+        self._shape = shape
 
     @property
     def entry(self):
@@ -96,11 +97,11 @@ class OsmDbEntry(object):
 
     @property
     def shape(self):
-        return self._osmdb.get_shape(self._raw)
+        return self.shape
 
     @property
     def shape_noerror(self):
-        return self._osmdb.get_shape(self._raw, True)
+        return self.shape
     
     @property
     def center(self):
@@ -138,6 +139,7 @@ class OsmDb(object):
         if not indexes:
             indexes = {}
         self._osmdata = osmdata
+        self._shapedb = osmdata.geometries
         self.__custom_indexes = dict((x, {}) for x in indexes.keys())
         self._valuefunc = valuefunc
         self.__custom_indexes_conf = indexes
@@ -163,7 +165,7 @@ class OsmDb(object):
         self.__osm_obj: typing.Dict[typing.Tuple[str, int], OsmDbEntry] = dict(
             (
                 (x['type'], int(x['id'])),
-                OsmDbEntry(self._valuefunc(x), x, self)
+                OsmDbEntry(self._valuefunc(x), x, self._shapedb["{}:{}".format(x['type'], x['id'])])
             ) for x in self._osmdata['elements']
         )
         self.update_index("[1/14]")
@@ -180,7 +182,8 @@ class OsmDb(object):
                 desc="{} Creating index".format(message)
         ):
             try:
-                pos = self.get_shape(val._raw).centroid
+                # pos = self.get_shape(val._raw).centroid
+                pos = self._shapedb["{}:{}".format(val._raw['type'], val._raw['id'])].centroid
             except KeyError:
                 raise KeyError("Problem with getting shape of {}:{}".format(val.entry['type'], val.entry['id']))
             pos = (pos.y, pos.x)
@@ -195,7 +198,8 @@ class OsmDb(object):
 
     def add_new(self, new):
         self._osmdata['elements'].append(new)
-        ret = OsmDbEntry(self._valuefunc(new), new, self)
+        shapes = utils.osmshapedb.get_geometries(new)
+        ret = OsmDbEntry(self._valuefunc(new), new, shapes["{}:{}".format(new['type'], new['id'])])
         self.__osm_obj[(new['type'], int(new['id']))] = ret
         return ret
 

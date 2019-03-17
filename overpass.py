@@ -122,7 +122,7 @@ def get_url_for_query(qry: str):
 def query(qry):
     # TODO - check if the query succeeded
     __log.debug("Query %s , server: %s", qry, __overpassurl)
-    return requests_retry_session().get(get_url_for_query(qry), timeout=180).text
+    return requests_retry_session().get(get_url_for_query(qry), timeout=180).content
     # return urlopen(get_url_for_query(qry)).read().decode('utf-8')
 
 
