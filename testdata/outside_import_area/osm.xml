@@ -20,7 +20,6 @@
     <tag k="addr:street:sym_ul" v="05015"/>
   </node>
   <way id="217951194" version="6" timestamp="2018-04-21T22:21:09Z" changeset="58299517" uid="2381492" user="WiktorN-import">
-    <bounds minlat="52.2193601" minlon="20.9873747" maxlat="52.2205179" maxlon="20.9887921"/>
     <nd ref="4313753561"/>
     <nd ref="4313753563"/>
     <nd ref="4313753569"/>

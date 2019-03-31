@@ -5,6 +5,7 @@ import typing
 import collections
 import pyproj
 import shapely
+import shapely.geometry
 import shapely.ops
 import tqdm
 from rtree import index
@@ -12,6 +13,7 @@ from shapely.geometry import Point, Polygon, LineString
 
 import utils
 import utils.osmshapedb
+from utils import osmshapedb
 
 __multipliers = {
     'node'    : lambda x: x*3,
@@ -97,7 +99,7 @@ class OsmDbEntry(object):
 
     @property
     def shape(self):
-        return self.shape
+        return self._shape
 
     @property
     def shape_noerror(self):
@@ -133,13 +135,14 @@ class OsmDbEntry(object):
 class OsmDb(object):
     __log = logging.getLogger(__name__).getChild('OsmDb')
 
-    def __init__(self, osmdata, valuefunc=lambda x: x, indexes=None, index_filter=lambda x: True):
+    def __init__(self, osmdata: osmshapedb.GeometryHandler, valuefunc=lambda x, location: x, indexes=None,
+                 index_filter=lambda x: True):
         # assume osmdata is a BeautifulSoup object already
         # do it an assert
         if not indexes:
             indexes = {}
-        self._osmdata = osmdata
-        self._shapedb = osmdata.geometries
+        self._osmdata = osmdata.elements  # type: typing.List[dict]
+        self._shapedb = osmdata.geometries  # type: typing.Dict[str, shapely.geometry.base.BaseGeometry]
         self.__custom_indexes = dict((x, {}) for x in indexes.keys())
         self._valuefunc = valuefunc
         self.__custom_indexes_conf = indexes
@@ -162,12 +165,12 @@ class OsmDb(object):
             setattr(self, 'getby' + i, makegetfromindex(i))
             setattr(self, 'getall' + i, makegetallindexed(i))
 
-        self.__osm_obj: typing.Dict[typing.Tuple[str, int], OsmDbEntry] = dict(
-            (
-                (x['type'], int(x['id'])),
-                OsmDbEntry(self._valuefunc(x), x, self._shapedb["{}:{}".format(x['type'], x['id'])])
-            ) for x in self._osmdata['elements']
-        )
+        self.__osm_obj: typing.Dict[typing.Tuple[str, int], OsmDbEntry] = dict()
+        for x in self._osmdata:
+            shape_obj = self._shapedb.get("{}:{}".format(x['type'], x['id']))
+            if shape_obj:
+                key = (x['type'], int(x['id']))
+                self.__osm_obj[key] = OsmDbEntry(self._valuefunc(x, location=shape_obj.centroid), x, shape_obj)
         self.update_index("[1/14]")
 
     def update_index(self, message=""):
@@ -197,9 +200,11 @@ class OsmDb(object):
                     self.__custom_indexes[custom_index_name][custom_index_func(val)].append(val)
 
     def add_new(self, new):
-        self._osmdata['elements'].append(new)
-        shapes = utils.osmshapedb.get_geometries(new)
-        ret = OsmDbEntry(self._valuefunc(new), new, shapes["{}:{}".format(new['type'], new['id'])])
+        self._osmdata.append(new)
+        key = "{}:{}".format(new['type'], new['id'])
+        location = shapely.geometry.Point(float(new['lon']), float(new['lat']))
+        self._shapedb[key] = location
+        ret = OsmDbEntry(self._valuefunc(new, location=location), new, location)
         self.__osm_obj[(new['type'], int(new['id']))] = ret
         return ret
 

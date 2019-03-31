@@ -12,6 +12,7 @@ from collections import defaultdict, OrderedDict
 
 import lxml.etree
 import rtree
+import shapely
 import tqdm
 from lxml.builder import E
 from shapely.geometry import Point
@@ -27,6 +28,7 @@ from data.impa import iMPA
 from data.warszawaum import WarszawaUM
 from osmdb import OsmDb, OsmDbEntry, get_soup_center, distance
 import utils.osmshapedb
+from utils import osmshapedb
 
 __log = logging.getLogger(__name__)
 
@@ -58,6 +60,10 @@ def create_property_funcs(field):
     return property(getx, setx, delx, '%s property' % (field,))
 
 
+class Location(typing.NamedTuple):
+    lat: float
+    lon: float
+
 class OsmAddress(Address):
     __log = logging.getLogger(__name__).getChild('OsmAddress')
 
@@ -85,11 +91,14 @@ class OsmAddress(Address):
         return self._soup[key]
 
     @staticmethod
-    def from_soup(obj, ways_for_node=None):
+    def from_soup(obj, location: shapely.geometry.Point = None, ways_for_node=None):
         tags = dict(
             (k, v.strip()) for (k, v) in obj.get('tags', {}).items()
         )
-        loc = get_soup_center(obj)
+        if location is None:
+            loc = dict(zip(('lat', 'lon'), get_soup_center(obj)))
+        else:
+            loc = {'lat': location.y, 'lon': location.x}
 
         ret = OsmAddress(
             housenumber=tags.get('addr:housenumber', ''),
@@ -99,7 +108,7 @@ class OsmAddress(Address):
             sym_ul=tags.get('addr:street:sym_ul', ''),
             simc=tags.get('addr:city:simc', ''),
             source=tags.get('source:addr', ''),
-            location=dict(zip(('lat', 'lon'), loc)),
+            location=loc,
             id_=tags.get('ref:addr', ''),
             soup=obj
         )
@@ -292,8 +301,8 @@ class OsmAddress(Address):
                          sorted(tags.items())))
         if s['type'] == 'node':
             root = lxml.etree.Element('node', attrib=OrderedDict((
-                                                                     ('lat', str(s['lat'])),
-                                                                     ('lon', str(s['lon']))) +
+                                                                     ('lat', "{:0.7f}".format(s['lat'])),
+                                                                     ('lon', "{:0.7f}".format(s['lon']))) +
                                                                  tuple(meta_kv.items())
                                                                  ))
             for i in tags:
@@ -325,7 +334,7 @@ class OsmAddress(Address):
 class Merger(object):
     __log = logging.getLogger(__name__).getChild('Merger')
 
-    def __init__(self, impdata: typing.List[Address], asis: typing.Dict[str, typing.Any], terc: str, source_addr: str):
+    def __init__(self, impdata: typing.List[Address], asis: osmshapedb.GeometryHandler, terc: str, source_addr: str):
         self.impdata = impdata
         self.asis = asis
         self._import_area_shape = Point(0, 0).buffer(400) if not terc else get_boundary_shape(terc)
@@ -344,7 +353,7 @@ class Merger(object):
         self.source_addr = source_addr
 
         ways_for_node = defaultdict(list)
-        for way in filter(lambda x: x['type'] == 'way', asis['elements']):
+        for way in filter(lambda x: x['type'] == 'way', asis.elements):
             for node in way['nodes']:
                 ways_for_node[node].append(way['id'])
 
@@ -673,8 +682,8 @@ class Merger(object):
         soup = {
             'type': 'node',
             'id': self._get_node_id(),
-            'lat': entry.location['lat'],
-            'lon': entry.location['lon'],
+            'lat': float(entry.location['lat']),
+            'lon': float(entry.location['lon']),
         }
         new = self.osmdb.add_new(soup)
         new.update_from(entry)
@@ -849,7 +858,7 @@ class Merger(object):
         self.__log.info("Merging building with buffer: %d", buf)
         to_merge = self._prepare_merge_list(buf, message)
         buildings = dict(
-            ((x['type'], x['id']), x) for x in self.asis['elements'] if x['type'] in ('way', 'relation')
+            ((x['type'], x['id']), x) for x in self.asis.elements if x['type'] in ('way', 'relation')
         )
 
         self.__log.info("Merging %d addresses with buildings",
@@ -906,7 +915,7 @@ class Merger(object):
                 [
                         x for x in
                         (
-                                self.osmdb.get_by_id(x['type'], x['id']) for x in self.asis['elements']
+                                self.osmdb.get_by_id(x['type'], x['id']) for x in self.asis.elements
                                 if x['type'] == 'node' and x.get('tags', {}).get('addr:housenumber')
                         )
                         if x.shape.within(self._import_area_shape)
@@ -972,7 +981,7 @@ class Merger(object):
         return E.osm(
             E.note('The data included in this document is from www.openstreetmap.org. '
                    'The data is made available under ODbL.' + ('\n' + log_io.getvalue() if log_io else '')),
-            E.meta(osm_base=self.asis.get('osm3s', {}).get('timestamp_osm_base', '')),
+            E.meta(osm_base=""),  # self.asis.get('osm3s', {}).get('timestamp_osm_base', '')),
             *tuple(map(OsmAddress.to_osm_soup, nodes)),
             version='0.6', generator='import adresy merger.py'
         )

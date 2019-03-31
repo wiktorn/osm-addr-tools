@@ -2,7 +2,7 @@
 <osm version="0.6" generator="import adresy merger.py">
   <note>The data included in this document is from www.openstreetmap.org. The data is made available under ODbL.</note>
   <meta osm_base=""/>
-  <node lat="52.55123" lon="21.62363" id="-1" action="modify">
+  <node lat="52.5512300" lon="21.6236300" id="-1" action="modify">
     <tag k="addr:city" v="Gwizdały"/>
     <tag k="addr:city:simc" v="0678794"/>
     <tag k="addr:housenumber" v="3"/>

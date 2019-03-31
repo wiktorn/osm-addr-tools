@@ -1,6 +1,6 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <osm version='0.6' generator='JOSM'>
-  <node id='-103082'  lat='52.3042635' lon='20.9868795'>
+  <node id='103082'  lat='52.3042635' lon='20.9868795'>
     <tag k='addr:city' v='Warszawa' />
     <tag k='addr:city:simc' v='0918123' />
     <tag k='addr:housenumber' v='35A' />
@@ -9,7 +9,7 @@
     <tag k='addr:street:sym_ul' v='13171' />
     <tag k='source:addr' v='mapa.um.warszawa.pl' />
   </node>
-  <node id='-103083' lat='52.3041648' lon='20.9865291'>
+  <node id='103083' lat='52.3041648' lon='20.9865291'>
     <tag k='addr:city' v='Warszawa' />
     <tag k='addr:city:simc' v='0918123' />
     <tag k='addr:housenumber' v='35' />
@@ -18,17 +18,16 @@
     <tag k='addr:street:sym_ul' v='04125' />
     <tag k='source:addr' v='mapa.um.warszawa.pl' />
   </node>
-  <node id='-103085'  lat='52.3042804' lon='20.9867997' />
-  <node id='-103086'  lat='52.3040572' lon='20.9870981' />
-  <node id='-103087'  lat='52.3036887' lon='20.9863608' />
-  <node id='-103088'  lat='52.3039119' lon='20.9860624' />
-  <way id='-103084'>
-    <bounds minlat="52.3036887" minlon="20.9860624" maxlat="52.3042804" maxlon="20.9870981"/>
-    <nd ref='-103085' />
-    <nd ref='-103086' />
-    <nd ref='-103087' />
-    <nd ref='-103088' />
-    <nd ref='-103085' />
+  <node id='103085'  lat='52.3042804' lon='20.9867997' />
+  <node id='103086'  lat='52.3040572' lon='20.9870981' />
+  <node id='103087'  lat='52.3036887' lon='20.9863608' />
+  <node id='103088'  lat='52.3039119' lon='20.9860624' />
+  <way id='103084'>
+    <nd ref='103085' />
+    <nd ref='103086' />
+    <nd ref='103087' />
+    <nd ref='103088' />
+    <nd ref='103085' />
     <tag k='addr:city' v='Warszawa' />
     <tag k='addr:city:simc' v='0918123' />
     <tag k='addr:housenumber' v='35' />

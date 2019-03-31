@@ -68,7 +68,6 @@
   <node id="2883967649" lat="50.5223512" lon="17.2169079" version="1" timestamp="2014-05-27T18:40:54Z" changeset="22587047" uid="1246157" user="Jedrzej Pelka"/>
   <node id="2883967650" lat="50.5223552" lon="17.2168678" version="1" timestamp="2014-05-27T18:40:54Z" changeset="22587047" uid="1246157" user="Jedrzej Pelka"/>
   <way id="284675179" version="1" timestamp="2014-05-27T18:40:57Z" changeset="22587047" uid="1246157" user="Jedrzej Pelka">
-    <bounds minlat="50.5221201" minlon="17.2165410" maxlat="50.5222658" maxlon="17.2168096" />
     <nd ref="2883967600"/>
     <nd ref="2883967613"/>
     <nd ref="2883967616"/>
@@ -77,7 +76,6 @@
     <tag k="source:geometry" v="geoportal.gov.pl:ortofoto"/>
   </way>
   <way id="284675180" version="2" timestamp="2017-12-02T19:26:03Z" changeset="54279453" uid="1879367" user="Zibi-importy">
-    <bounds minlat="50.5219915" minlon="17.2163414" maxlat="50.5223552" maxlon="17.2170255" />
     <nd ref="2883967615"/>
     <nd ref="2883967621"/>
     <nd ref="2883967620"/>
@@ -141,7 +139,6 @@
     <nd ref="2883967615"/>
   </way>
   <relation id="3776337" version="3" timestamp="2017-12-03T09:17:50Z" changeset="54292108" uid="1879367" user="Zibi-importy">
-    <bounds minlat="50.5219915" minlon="17.2163414" maxlat="50.5223552" maxlon="17.2170255" />
     <member type="way" ref="284675180" role="outer"/>
     <member type="way" ref="284675179" role="inner"/>
     <tag k="building" v="yes"/>

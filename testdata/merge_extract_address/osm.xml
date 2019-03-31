@@ -4,7 +4,6 @@
 <meta osm_base="2018-04-15T10:50:02Z"/>
 
   <way id="394996638" version="1" timestamp="2016-01-30T23:40:05Z" changeset="36907993" uid="52087" user="kocio">
-    <bounds minlat="52.2848397" minlon="21.0395092" maxlat="52.2852153" maxlon="21.0398957"/>
     <nd ref="3978808183"/>
     <nd ref="3978808182"/>
     <nd ref="3978808199"/>
@@ -24,7 +23,6 @@
   <node id="3978808199" lat="52.2851736" lon="21.0395092" version="1" timestamp="2016-01-30T23:40:04Z" changeset="36907993" uid="52087" user="kocio"/>
   <node id="3978808202" lat="52.2852153" lon="21.0396889" version="1" timestamp="2016-01-30T23:40:04Z" changeset="36907993" uid="52087" user="kocio"/>
   <way id="166960188" version="5" timestamp="2016-01-12T08:19:34Z" changeset="36521660" uid="3183432" user="pawel200388">
-    <bounds minlat="52.2849903" minlon="21.0398890" maxlat="52.2851971" maxlon="21.0404500"/>
     <nd ref="1783497026"/>
     <nd ref="1783497030"/>
     <nd ref="1783497040"/>
