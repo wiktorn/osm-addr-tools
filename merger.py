@@ -888,7 +888,7 @@ class Merger(object):
             ):
                 # if building has different address, than we want to put
                 self.__log.info("Skipping merging address: %s, as building already has an address: %s.",
-                                str(nodes[0].entry), OsmAddress.from_soup(building))
+                                str(nodes[0].entry), OsmAddress.from_soup(building, location=shapely.geometry.Point(0, 0)))
                 # mark only visible, allow for other rules to work - so no return
                 for node in nodes:
                     self._mark_soup_visible(node)
