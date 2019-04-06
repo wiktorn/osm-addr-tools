@@ -2,6 +2,7 @@ import functools
 import os
 import tempfile
 import typing
+import logging
 
 import osmium
 import shapely.wkb
@@ -30,14 +31,21 @@ _REL_TYPE_MAP = {
     'r': 'relation'
 }
 
+
 class GeometryHandler(osmium.SimpleHandler):
+    __log = logging.getLogger(__name__).getChild('GeometryHandler')  # type: logging.Logger
+
     def __init__(self):
         super(GeometryHandler, self).__init__()
         self.__geometries = {}  # type: typing.Dict[str, shapely.geometry.base.BaseGeometry]
         self.__elements = []  # type: typing.List[dict]
 
-    def way(self, w):
-        wkb = _wkb_factory.create_linestring(w)
+    def way(self, w: osmium.osm.Way):
+        try:
+            wkb = _wkb_factory.create_linestring(w)
+        except RuntimeError:
+            self.__log.exception("Unable to create geometry for way:%s", w.id)
+            return
         shape = shapely.wkb.loads(wkb, hex=True)
         id_ = self._get_key("way", w.id)
         if id_ not in self.__geometries:
@@ -48,14 +56,17 @@ class GeometryHandler(osmium.SimpleHandler):
         })
         self.__elements.append(elem)
 
-    def area(self, a):
-        wkb = _wkb_factory.create_multipolygon(a)
-        shape = shapely.wkb.loads(wkb, hex=True)
+    def area(self, a: osmium.osm.Area):
         type_ = "way" if a.id % 2 == 0 else "relation"
         id_ = self._get_key(type_, a.orig_id())
+        if a.num_rings() == (0, 0):
+            self.__log.error("Unable to create geometry for %s - no data available", id_)
+            return
+        wkb = _wkb_factory.create_multipolygon(a)
+        shape = shapely.wkb.loads(wkb, hex=True)
         self.__geometries[id_] = shape
 
-    def node(self, n):
+    def node(self, n: osmium.osm.Node):
         wkb = _wkb_factory.create_point(n)
         shape = shapely.wkb.loads(wkb, hex=True)
         self.__geometries[self._get_key("node", n.id)] = shape
