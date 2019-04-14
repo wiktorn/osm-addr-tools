@@ -1,3 +1,4 @@
+import functools
 import itertools
 import json
 import logging
@@ -5,18 +6,17 @@ import re
 import ssl
 import urllib.request
 import uuid
-import typing
 from urllib import request as urequest
 
+import pyproj
 from bs4 import BeautifulSoup
 from shapely.geometry import Point
 
 import overpass
 from osmdb import OsmDb, distance
+from utils import osmshapedb
 from utils.mapping import mapstreet, mapcity, mappostcode
 from utils.utils import groupby
-
-from .data import LocationStr, LonType, LatType, XType, YType, wgs_to_2180, e2180_to_wgs
 
 __log = logging.getLogger(__name__)
 __opener = urequest.build_opener()
@@ -29,17 +29,52 @@ __opener.addheaders = __headers.items()
 # setup
 urequest.install_opener(__opener)
 
+__WGS84 = pyproj.Proj(proj='latlong', datum='WGS84')
+__EPSG2180 = pyproj.Proj(init="epsg:2180")
 
-def _filter_ones(lst: typing.Iterable[float]) -> typing.List[float]:
+
+def wgsTo2180(lon, lat):
+    # returns lon,lat
+    return pyproj.transform(__WGS84, __EPSG2180, lon, lat)
+
+
+def e2180toWGS(lon, lat):
+    # returns lon,lat
+    return srs_to_wgs('epsg:2180', lon, lat)
+
+
+@functools.lru_cache(maxsize=None)
+def get_proj(srs):
+    return pyproj.Proj(init=srs)
+
+
+def srs_to_wgs(srs, lon, lat):
+    if srs.startswith("urn:ogc:def:crs:"):
+        srs = srs[16:].replace('::', ':')
+    return pyproj.transform(get_proj(srs), __WGS84, lon, lat)
+
+
+def _filter_ones(lst):
     return list(filter(lambda x: x > 0, lst))
 
 
-class Address(object):
-    __POSTCODE = re.compile(r'^[0-9]{2}-[0-9]{3}$')
-    __NUMERIC = re.compile(r'^[0-9]*$')
+def convert_to_osm(lst):
+    ret = BeautifulSoup("", "xml")
+    osm = ret.new_tag('osm', version='0.6', upload='false', generator='punktyadresowe_import.py')
+    ret.append(osm)
 
-    def __init__(self, *, housenumber: str = '', postcode: str = '', street: str = '', city: str = '', sym_ul: str = '',
-                 simc: str = '', source: str = '', location: LocationStr, id_: str = '', last_change: str = ''):
+    for (node_id, val) in enumerate(lst):
+        osm.append(val.as_osm_soup(-1 * (node_id + 1)))
+
+    return ret.prettify()
+
+
+class Address(object):
+    __POSTCODE = re.compile('^[0-9]{2}-[0-9]{3}$')
+    __NUMERIC = re.compile('^[0-9]*$')
+
+    def __init__(self, housenumber='', postcode='', street='', city='', sym_ul='', simc='', source='', location={},
+                 id_='', last_change=''):
         self.housenumber = housenumber
 
         if simc and self.__NUMERIC.match(simc):
@@ -66,40 +101,36 @@ class Address(object):
 
         self.source = source
         self.location = location
-        self._fixme = []  # type: typing.List[str]
+        self._fixme = []
         self.id_ = id_
         self.last_change = last_change
         self.extra_tags = {}
         assert all(map(lambda x: isinstance(getattr(self, x, ''), str),
                        ('housenumber', 'postcode', 'street', 'city', 'sym_ul', 'simc', 'source')))
+        assert isinstance(self.location, dict)
+        assert 'lon' in self.location
+        assert 'lat' in self.location
         assert not street or street == street.strip()
 
     @staticmethod
-    def mapped_address(*, housenumber: str = '', postcode: str = '', street: str = '', city: str = '', sym_ul: str = '',
-                       simc: str = '', source: str = '', location: LocationStr, id_: str = '', last_change: str = ''
-                       ) -> 'Address':
-        ret = Address.mapped_address_kpc(housenumber=housenumber, postcode=mappostcode(postcode, simc),
-                                         street=street, city=city, sym_ul=sym_ul, simc=simc, source=source,
-                                         location=location, id_=id_, last_change=last_change)
+    def mapped_address(*args, **kwargs):
+        ret = Address.mapped_address_kpc(*args, **kwargs)
+        ret.postcode = mappostcode('', ret.simc)
         return ret
 
     @staticmethod
-    def mapped_address_kpc(*, housenumber: str = '', postcode: str = '', street: str = '', city: str = '',
-                           sym_ul: str = '', simc: str = '', source: str = '', location: LocationStr, id_: str = '',
-                           last_change: str = '') -> 'Address':
-        ret = Address(housenumber=housenumber, postcode=postcode, street=street, city=city, sym_ul=sym_ul, simc=simc,
-                      source=source, location=location, id_=id_, last_change=last_change)
-
+    def mapped_address_kpc(*args, **kwargs):
+        ret = Address(*args, **kwargs)
         ret.housenumber = ret.housenumber.strip()
         if ret.street:
             assert ret.street == ret.street.strip()
-            newstreet = mapstreet(re.sub(r' +', ' ', ret.street), ret.sym_ul)
+            newstreet = mapstreet(re.sub(' +', ' ', ret.street), ret.sym_ul)
             assert newstreet == newstreet.strip()
             ret.street = newstreet
         ret.city = mapcity(ret.city, ret.simc)
         return ret
 
-    def add_fixme(self, value: str) -> None:
+    def add_fixme(self, value):
         self._fixme.append(value)
 
     @property
@@ -110,38 +141,43 @@ class Address(object):
         return ", ".join(self._fixme)
 
     def clear_fixme(self):
-        self._fixme = []  # type: typing.List[str]
+        self._fixme = []
 
     def as_osm_soup(self, node_id):
         ret = BeautifulSoup("", "xml")
-        node = ret.new_tag('node', id=node_id, action='modify', visible='true', lat=self.location.lat,
-                           lon=self.location.lon)
+        node = ret.new_tag('node', id=node_id, action='modify', visible='true',
+                           lat="{:07f}".format(self.location['lat']), lon="{:07f}".format(self.location['lon']))
 
-        def add_tag(k: str, v: str) -> None:
-            if v:
-                node.append(ret.new_tag('tag', k=k, v=v))
+        def addTag(key, value):
+            if value:
+                node.append(ret.new_tag('tag', k=key, v=value))
 
-        add_tag('addr:housenumber', self.housenumber)
-        add_tag('addr:postcode', self.postcode)
+        addTag('addr:housenumber', self.housenumber)
+        addTag('addr:postcode', self.postcode)
         if self.street:
-            add_tag('addr:street', self.street)
-            add_tag('addr:city', self.city)
+            addTag('addr:street', self.street)
+            addTag('addr:city', self.city)
         else:
-            add_tag('addr:place', self.city)
+            addTag('addr:place', self.city)
 
-        add_tag('addr:city:simc', self.simc)
-        add_tag('addr:street:sym_ul', self.sym_ul)
-        add_tag('source:addr', self.source)
+        addTag('addr:city:simc', self.simc)
+        addTag('addr:street:sym_ul', self.sym_ul)
+        addTag('source:addr', self.source)
         if self._fixme:
-            add_tag('fixme', self.get_fixme())
+            addTag('fixme', self.get_fixme())
         if self.extra_tags:
             for key, value in self.extra_tags:
-                add_tag(key, value)
+                addTag(key, value)
         return node
 
-    def get_point(self) -> Point:
-        location = self.location.to_location()  # convert to floats
-        return Point(location.lon, location.lat)
+    def as_osm_xml(self, node_id):
+        return self.as_osm_soup().prettify()
+
+    def get_lat_lon(self):
+        return tuple(map(float, (self.location['lat'], self.location['lon'])))
+
+    def get_point(self):
+        return Point(reversed(self.get_lat_lon()))
 
     @property
     def center(self):
@@ -164,7 +200,7 @@ class Address(object):
             ret &= True
         else:
             ret &= (other.city == self.city)
-        # if self.sym_ul and other.sym_ul:
+        #if self.sym_ul and other.sym_ul:
         #    ret &= (self.sym_ul == other.sym_ul)
         # skip compare by streets, callers should do this by themselvs
         return ret
@@ -182,12 +218,10 @@ class Address(object):
                 'simc', 'source', 'location')
         ) + ")"
 
-    def get_index_key(self) -> typing.Tuple[str, str, str]:
-        return (self.city.strip().upper(),
-                self.street.strip().upper(),
-                self.housenumber.replace(' ', '').upper())
+    def get_index_key(self):
+        return tuple(map(str.upper, (self.city.strip(), self.street.strip(), self.housenumber.replace(' ', ''))))
 
-    def to_json(self) -> typing.Dict[str, typing.Union[str, typing.Dict[str, str]]]:
+    def to_json(self):
         ret = self.extra_tags.copy()
         ret.update({
             'addr:housenumber': self.housenumber,
@@ -197,31 +231,31 @@ class Address(object):
             'addr:street:sym_ul': self.sym_ul,
             'addr:city:simc': self.simc,
             'source:addr': self.source,
-            'location': {'lon': self.location.lon, 'lat': self.location.lat},
+            'location': self.location,
             'fixme': ",".join(self._fixme),
             'id': self.id_,
             'last_change': self.last_change,
         })
         return ret
 
-    def to_geo_json(self) -> dict:
+    def to_geo_json(self):
         return {
             "type": "Feature",
             "geometry": {
                 "type": "Point",
-                "coordinates": [self.location.lon, self.location.lat]
+                "coordinates": [self.location['lon'], self.location['lat']]
             },
             "properties": self.to_json()
         }
 
-    def add_extra_tag(self, key: str, value: str) -> None:
+    def add_extra_tag(self, key, value):
         if key in ['addr:housenumber', 'addr:postcode', 'addr:street', 'addr:city',
                    'addr:street:sym_ul', 'addr:city:simc', 'source:addr', 'addr:place', 'fixme']:
             raise KeyError("Can't use {0} as extra key".format(key))
         self.extra_tags[key] = value
 
     @staticmethod
-    def from_json(obj: typing.Dict[str, typing.Union[str, typing.Dict[str, str]]]):
+    def from_json(obj):
         ret = Address(
             housenumber=obj['addr:housenumber'],
             postcode=obj.get('addr:postcode'),
@@ -230,7 +264,7 @@ class Address(object):
             sym_ul=obj.get('addr:street:sym_ul'),
             simc=obj.get('addr:city:simc'),
             source=obj['source:addr'],
-            location=LocationStr(lat=obj['location']['lat'], lon=obj['location']['lon']),
+            location=obj['location'],
             id_=obj['id'],
         )
         if obj.get('fixme'):
@@ -252,75 +286,58 @@ class Address(object):
         return Address.from_json(tags)
 
 
-def convert_to_osm(lst: typing.Iterable[Address]) -> str:
-    ret = BeautifulSoup("", "xml")
-    osm = ret.new_tag('osm', version='0.6', upload='false', generator='punktyadresowe_import.py')
-    ret.append(osm)
-
-    for (node_id, val) in enumerate(lst):
-        osm.append(val.as_osm_soup(-1 * (node_id + 1)))
-
-    return ret.prettify()
-
-
 class AbstractImport(object):
     __log = logging.getLogger(__name__).getChild('AbstractImport')
 
-    def __init__(self, terc: str, *args, **kwargs):
+    def __init__(self, terc, *args, **kwargs):
         if terc:
             query = """
-[out:json];
+[out:xml];
 relation
     ["teryt:terc"="%s"]
     ["boundary"="administrative"]
     ["admin_level"~"[79]"];
-out bb;
+out;
 >;
-out bb;
+out;
             """ % (terc,)
-            data = json.loads(overpass.query(query))
+            data = osmshapedb.get_geometries(overpass.query(query))
             try:
-                relation = tuple(x for x in data['elements'] if x['type'] == 'relation')[0]
+                relation = tuple(x for x in data.elements if x['type'] == 'relation')[0]
             except IndexError as e:
                 raise IndexError("No relation found in OSM for TERC: %s" % (terc,), e)
-            bounds = relation['bounds']
-            self.bbox = (
-                LonType(float(bounds['minlon'])),
-                LatType(float(bounds['minlat'])),
-                LonType(float(bounds['maxlon'])),
-                LatType(float(bounds['maxlat'])),
-            )  # type: typing.Tuple[LonType, LatType, LonType, LatType]
-            osmdb = OsmDb(data)
-            self.shape = osmdb.get_shape(relation)
 
-    def get_bbox(self) -> typing.Tuple[LonType, LatType, LonType, LatType]:
+            self.shape = data.get_geometry(relation)
+            self.bbox = self.shape.bounds
+
+    def get_bbox(self):
         """
         this functions returns bbox of imported area using WGS84 lonlat as tuple:
         (minlon, minlat, maxlon, maxlat)
         """
         return self.bbox
 
-    def get_bbox_2180(self) -> typing.Tuple[XType, YType, XType, YType]:
-        return wgs_to_2180(*self.bbox[:2]) + wgs_to_2180(*self.bbox[2:])
+    def get_bbox_2180(self):
+        return wgsTo2180(*self.bbox[:2]) + wgsTo2180(*self.bbox[2:])
 
-    def set_bbox_from_2180(self, bbox: typing.Tuple[XType, YType, XType, YType]) -> None:
-        self.bbox = e2180_to_wgs(*bbox[:2]) + e2180_to_wgs(*bbox[2:])
+    def set_bbox_from_2180(self, bbox):
+        self.bbox = e2180toWGS(*bbox[:2]) + e2180toWGS(*bbox[2:])
 
-    def fetch_tiles(self) -> typing.List[Address]:
+    def fetch_tiles(self):
         """
         this function returns list of Address'es of imported area
         """
         raise NotImplementedError("")
 
-    def _check_duplicates_in_import(self, data) -> None:
+    def _check_duplicates_in_import(self, data):
         addr_index = groupby(data, lambda x: (x.city, x.simc, x.housenumber.replace(' ', '').upper(), x.street))
         # remove duplicates closer than 2m
-        for (addr, occurrences) in sorted(
+        for (addr, occurances) in sorted(
                 filter(lambda x: len(x[1]) > 1, addr_index.items()),
                 key=lambda x: str(x[1][0])
         ):
             for (a, b) in filter(lambda x: distance(x[0].center, x[1].center) < 10,
-                                 itertools.combinations(occurrences, 2)):
+                                 itertools.combinations(occurances, 2)):
                 # if any two duplicates are closer than 2m, remove from data
                 self.__log.info("Removing duplicate address: %s", a)
                 try:
@@ -330,30 +347,30 @@ out bb;
 
         # mark duplicates
         addr_index = groupby(data, lambda x: (x.city, x.simc, x.housenumber.replace(' ', '').upper(), x.street))
-        for (addr, occurrences) in sorted(
+        for (addr, occurances) in sorted(
                 filter(lambda x: len(x[1]) > 1, addr_index.items()),
                 key=lambda x: str(x[1][0])
         ):
-            self.__log.warning("Duplicate addresses in import: %s", occurrences[0])
+            self.__log.warning("Duplicate addresses in import: %s", occurances[0])
             uid = uuid.uuid4()
-            for i in occurrences:
+            for i in occurances:
                 i.add_fixme('Duplicate address in import (id: %s)' % (uid,))
             if any(
                     map(
                         lambda x: distance(x[0].center, x[1].center) > 100,
-                        itertools.combinations(occurrences, 2)
+                        itertools.combinations(occurances, 2)
                     )
             ):
-                self.__log.warning("Address points doesn't fit into 100m circle. Points count: %d", len(occurrences))
-                for i in occurrences:
-                    i.add_fixme('(distance over 100m, points: %d)' % (len(occurrences),))
+                self.__log.warning("Address points doesn't fit into 100m circle. Points count: %d", len(occurances))
+                for i in occurances:
+                    i.add_fixme('(distance over 100m, points: %d)' % (len(occurances),))
 
-    def _check_mixed_scheme(self, data) -> None:
+    def _check_mixed_scheme(self, data):
         dups = groupby((x for x in data if x.simc), lambda x: x.simc, lambda x: bool(x.street))
 
         dups_count = dict((k, len(_filter_ones(v))) for k, v in dups.items())
         dups = dict((k, len(_filter_ones(v)) / len(v)) for k, v in dups.items())
-        dups = dict((k, v) for k, v in filter(lambda x: 0 < x[1] < 1, dups.items()))
+        dups = dict((k, v) for k, v in filter(lambda x: 0 < x[1] and x[1] < 1, dups.items()))
 
         for i in filter(
                 lambda x: not bool(x.street) and x.simc in dups.keys(),
@@ -362,7 +379,7 @@ out bb;
             i.add_fixme('Mixed addressing scheme in city - with streets and without. %.1f%% (%d) with streets.' % (
                 dups[i.simc] * 100, dups_count[i.simc]))
 
-    def get_addresses(self) -> typing.List[Address]:
+    def get_addresses(self):
         data = list(sorted(self.fetch_tiles(), key=lambda x: str(x)))
         self._check_duplicates_in_import(data)
         self._check_mixed_scheme(data)
@@ -376,7 +393,7 @@ class AddressEncoder(json.JSONEncoder):
         return json.JSONEncoder.default(self, obj)
 
 
-def get_ssl_no_verify_opener() -> urllib.request.OpenerDirector:
+def get_ssl_no_verify_opener():
     ssl_ctx = ssl.create_default_context()
     ssl_ctx.check_hostname = False
     ssl_ctx.verify_mode = ssl.CERT_NONE

@@ -2,7 +2,7 @@
 <osm version="0.6" generator="import adresy merger.py">
   <note>The data included in this document is from www.openstreetmap.org. The data is made available under ODbL.</note>
   <meta osm_base=""/>
-  <node lat="52.18215286" lon="20.94386343" id="-1" action="delete">
+  <node lat="52.1821529" lon="20.9438634" id="-1" action="delete">
     <tag k="addr:city" v="Warszawa"/>
     <tag k="addr:city:simc" v="0918123"/>
     <tag k="addr:housenumber" v="12"/>
@@ -10,7 +10,7 @@
     <tag k="addr:street:sym_ul" v="17571"/>
     <tag k="source:addr" v="mapa.um.warszawa.pl"/>
   </node>
-  <node lat="52.18228308166" lon="20.94399240214" id="-2" action="delete">
+  <node lat="52.1822831" lon="20.9439924" id="-2" action="delete">
     <tag k="addr:city" v="Warszawa"/>
     <tag k="addr:city:simc" v="0918123"/>
     <tag k="addr:housenumber" v="16"/>

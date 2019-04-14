@@ -7,6 +7,8 @@ import merger
 import lxml.etree
 import pathlib
 
+from utils import osmshapedb
+
 
 def osm_xml_to_addresses(filename):
     return osm_xml_etree_to_addresses(lxml.etree.parse(filename))
@@ -23,7 +25,10 @@ def osm_xml_etree_to_addresses(e):
 
 def get_merger(directory: os.PathLike, merge_addresses_with_outlines=True, terc:str = None):
     imported = osm_xml_to_addresses(os.path.join(directory, 'imp.xml'))
-    osm = converter.osm_to_json(lxml.etree.parse(os.path.join(directory, 'osm.xml')))
+    # osm = converter.osm_to_json(lxml.etree.parse(os.path.join(directory, 'osm.xml')))
+    with open(os.path.join(directory, 'osm.xml'), "rb") as f:
+        data = f.read()
+    osm = osmshapedb.get_geometries(data)
     m = merger.Merger(imported, osm, terc if terc else "", "test")
     if merge_addresses_with_outlines:
         m.post_func.append(m.merge_addresses)
@@ -139,7 +144,7 @@ class MergerTests(unittest.TestCase):
         self.assertEqual(sorted_addresses(test), expected)
 
     def test_explicit(self):
-        test_name = "different_street_within"
+        test_name = "deterministic_order"
         # terc = "1465188"
         terc = None
         make_incremental_test(pathlib.Path(__file__).parent.parent / "testdata" / test_name, terc)(self)

@@ -1,46 +1,45 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <osm version='0.6' generator='JOSM'>
-  <node id='-42482' action='modify' lat='52.2721565' lon='21.0138241' />
-  <node id='-42483' action='modify' lat='52.2720056' lon='21.0139157' />
-  <node id='-42484' action='modify' lat='52.2721005' lon='21.0140453' />
-  <node id='-42485' action='modify' lat='52.272207' lon='21.0145203' />
-  <node id='-42486' action='modify' lat='52.2720812' lon='21.0145957' />
-  <node id='-42487' action='modify' lat='52.2719746' lon='21.0141207' />
-  <node id='-42488' action='modify' lat='52.2719237' lon='21.0141574' />
-  <node id='-42489' action='modify' lat='52.2720771' lon='21.0148566' />
-  <node id='-42490' action='modify' lat='52.2724601' lon='21.0146233' />
-  <node id='-42491' action='modify' lat='52.2725067' lon='21.0148271' />
-  <node id='-42492' action='modify' lat='52.2719507' lon='21.0151664' />
-  <node id='-42493' action='modify' lat='52.2719041' lon='21.0149626' />
-  <node id='-42494' action='modify' lat='52.271922' lon='21.0149474' />
-  <node id='-42495' action='modify' lat='52.2718761' lon='21.0147381' />
-  <node id='-42496' action='modify' lat='52.2718629' lon='21.0146775' />
-  <node id='-42497' action='modify' lat='52.2717325' lon='21.014083' />
-  <node id='-42498' action='modify' lat='52.2716998' lon='21.0141014' />
-  <node id='-42499' action='modify' lat='52.271621' lon='21.0137548' />
-  <node id='-42500' action='modify' lat='52.2720777' lon='21.0134774' />
-  <way id='-42481' action='modify'>
-    <bounds minlat="52.271621" minlon="21.0134774" maxlat="52.2725067" maxlon="21.0151664" />
-    <nd ref='-42482' />
-    <nd ref='-42483' />
-    <nd ref='-42484' />
-    <nd ref='-42485' />
-    <nd ref='-42486' />
-    <nd ref='-42487' />
-    <nd ref='-42488' />
-    <nd ref='-42489' />
-    <nd ref='-42490' />
-    <nd ref='-42491' />
-    <nd ref='-42492' />
-    <nd ref='-42493' />
-    <nd ref='-42494' />
-    <nd ref='-42495' />
-    <nd ref='-42496' />
-    <nd ref='-42497' />
-    <nd ref='-42498' />
-    <nd ref='-42499' />
-    <nd ref='-42500' />
-    <nd ref='-42482' />
+  <node id='42482' action='modify' lat='52.2721565' lon='21.0138241' />
+  <node id='42483' action='modify' lat='52.2720056' lon='21.0139157' />
+  <node id='42484' action='modify' lat='52.2721005' lon='21.0140453' />
+  <node id='42485' action='modify' lat='52.272207' lon='21.0145203' />
+  <node id='42486' action='modify' lat='52.2720812' lon='21.0145957' />
+  <node id='42487' action='modify' lat='52.2719746' lon='21.0141207' />
+  <node id='42488' action='modify' lat='52.2719237' lon='21.0141574' />
+  <node id='42489' action='modify' lat='52.2720771' lon='21.0148566' />
+  <node id='42490' action='modify' lat='52.2724601' lon='21.0146233' />
+  <node id='42491' action='modify' lat='52.2725067' lon='21.0148271' />
+  <node id='42492' action='modify' lat='52.2719507' lon='21.0151664' />
+  <node id='42493' action='modify' lat='52.2719041' lon='21.0149626' />
+  <node id='42494' action='modify' lat='52.271922' lon='21.0149474' />
+  <node id='42495' action='modify' lat='52.2718761' lon='21.0147381' />
+  <node id='42496' action='modify' lat='52.2718629' lon='21.0146775' />
+  <node id='42497' action='modify' lat='52.2717325' lon='21.014083' />
+  <node id='42498' action='modify' lat='52.2716998' lon='21.0141014' />
+  <node id='42499' action='modify' lat='52.271621' lon='21.0137548' />
+  <node id='42500' action='modify' lat='52.2720777' lon='21.0134774' />
+  <way id='42481' action='modify'>
+    <nd ref='42482' />
+    <nd ref='42483' />
+    <nd ref='42484' />
+    <nd ref='42485' />
+    <nd ref='42486' />
+    <nd ref='42487' />
+    <nd ref='42488' />
+    <nd ref='42489' />
+    <nd ref='42490' />
+    <nd ref='42491' />
+    <nd ref='42492' />
+    <nd ref='42493' />
+    <nd ref='42494' />
+    <nd ref='42495' />
+    <nd ref='42496' />
+    <nd ref='42497' />
+    <nd ref='42498' />
+    <nd ref='42499' />
+    <nd ref='42500' />
+    <nd ref='42482' />
     <tag k='addr:city' v='Warszawa' />
     <tag k='addr:housenumber' v='59' />
     <tag k='addr:postcode' v='03-301' />

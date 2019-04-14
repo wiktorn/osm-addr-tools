@@ -4,7 +4,6 @@
 <meta osm_base="2018-04-15T13:50:02Z"/>
 
   <way id="369655084" version="3" timestamp="2015-10-28T19:37:58Z" changeset="34934617" uid="2381492" user="WiktorN-import">
-    <bounds minlat="52.2022971" minlon="20.8634734" maxlat="52.2024339" maxlon="20.8636833"/>
     <nd ref="3734314843"/>
     <nd ref="3734314824"/>
     <nd ref="3734314829"/>

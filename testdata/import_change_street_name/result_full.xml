@@ -2,27 +2,27 @@
 <osm version="0.6" generator="import adresy merger.py">
   <note>The data included in this document is from www.openstreetmap.org. The data is made available under ODbL.</note>
   <meta osm_base=""/>
-  <node lat="52.3163382" lon="20.954519" id="-76304" action="modify"/>
-  <node lat="52.316261" lon="20.9544224" id="-76305" action="modify"/>
-  <node lat="52.3162004" lon="20.9545519" id="-76306" action="modify"/>
-  <node lat="52.3162134" lon="20.9545681" id="-76307" action="modify"/>
-  <node lat="52.3161343" lon="20.954737" id="-76308" action="modify"/>
-  <node lat="52.3161435" lon="20.9547485" id="-76309" action="modify"/>
-  <node lat="52.3160638" lon="20.9549188" id="-76310" action="modify"/>
-  <node lat="52.3160754" lon="20.9549332" id="-76311" action="modify"/>
-  <node lat="52.3159775" lon="20.9551423" id="-76312" action="modify"/>
-  <node lat="52.3160502" lon="20.9552333" id="-76313" action="modify"/>
-  <node lat="52.3160679" lon="20.9551954" id="-76314" action="modify"/>
-  <node lat="52.3160793" lon="20.9552096" id="-76315" action="modify"/>
-  <node lat="52.3161221" lon="20.9551182" id="-76316" action="modify"/>
-  <node lat="52.3161107" lon="20.955104" id="-76317" action="modify"/>
-  <node lat="52.3161876" lon="20.9549398" id="-76318" action="modify"/>
-  <node lat="52.3161768" lon="20.9549262" id="-76319" action="modify"/>
-  <node lat="52.3162557" lon="20.9547576" id="-76320" action="modify"/>
-  <node lat="52.3162448" lon="20.954744" id="-76321" action="modify"/>
-  <node lat="52.3163237" lon="20.9545754" id="-76322" action="modify"/>
-  <node lat="52.3163162" lon="20.954566" id="-76323" action="modify"/>
-  <way id="-76303" action="modify">
+  <node lat="52.3163382" lon="20.9545190" changeset="0" id="76304" timestamp="1970-01-01T00:00:00Z" uid="0" user="" version="0"/>
+  <node lat="52.3162610" lon="20.9544224" changeset="0" id="76305" timestamp="1970-01-01T00:00:00Z" uid="0" user="" version="0"/>
+  <node lat="52.3162004" lon="20.9545519" changeset="0" id="76306" timestamp="1970-01-01T00:00:00Z" uid="0" user="" version="0"/>
+  <node lat="52.3162134" lon="20.9545681" changeset="0" id="76307" timestamp="1970-01-01T00:00:00Z" uid="0" user="" version="0"/>
+  <node lat="52.3161343" lon="20.9547370" changeset="0" id="76308" timestamp="1970-01-01T00:00:00Z" uid="0" user="" version="0"/>
+  <node lat="52.3161435" lon="20.9547485" changeset="0" id="76309" timestamp="1970-01-01T00:00:00Z" uid="0" user="" version="0"/>
+  <node lat="52.3160638" lon="20.9549188" changeset="0" id="76310" timestamp="1970-01-01T00:00:00Z" uid="0" user="" version="0"/>
+  <node lat="52.3160754" lon="20.9549332" changeset="0" id="76311" timestamp="1970-01-01T00:00:00Z" uid="0" user="" version="0"/>
+  <node lat="52.3159775" lon="20.9551423" changeset="0" id="76312" timestamp="1970-01-01T00:00:00Z" uid="0" user="" version="0"/>
+  <node lat="52.3160502" lon="20.9552333" changeset="0" id="76313" timestamp="1970-01-01T00:00:00Z" uid="0" user="" version="0"/>
+  <node lat="52.3160679" lon="20.9551954" changeset="0" id="76314" timestamp="1970-01-01T00:00:00Z" uid="0" user="" version="0"/>
+  <node lat="52.3160793" lon="20.9552096" changeset="0" id="76315" timestamp="1970-01-01T00:00:00Z" uid="0" user="" version="0"/>
+  <node lat="52.3161221" lon="20.9551182" changeset="0" id="76316" timestamp="1970-01-01T00:00:00Z" uid="0" user="" version="0"/>
+  <node lat="52.3161107" lon="20.9551040" changeset="0" id="76317" timestamp="1970-01-01T00:00:00Z" uid="0" user="" version="0"/>
+  <node lat="52.3161876" lon="20.9549398" changeset="0" id="76318" timestamp="1970-01-01T00:00:00Z" uid="0" user="" version="0"/>
+  <node lat="52.3161768" lon="20.9549262" changeset="0" id="76319" timestamp="1970-01-01T00:00:00Z" uid="0" user="" version="0"/>
+  <node lat="52.3162557" lon="20.9547576" changeset="0" id="76320" timestamp="1970-01-01T00:00:00Z" uid="0" user="" version="0"/>
+  <node lat="52.3162448" lon="20.9547440" changeset="0" id="76321" timestamp="1970-01-01T00:00:00Z" uid="0" user="" version="0"/>
+  <node lat="52.3163237" lon="20.9545754" changeset="0" id="76322" timestamp="1970-01-01T00:00:00Z" uid="0" user="" version="0"/>
+  <node lat="52.3163162" lon="20.9545660" changeset="0" id="76323" timestamp="1970-01-01T00:00:00Z" uid="0" user="" version="0"/>
+  <way changeset="0" id="76303" timestamp="1970-01-01T00:00:00Z" uid="0" user="" version="0" action="modify">
     <tag k="addr:city" v="Warszawa"/>
     <tag k="addr:city:simc" v="0918123"/>
     <tag k="addr:housenumber" v="9"/>
@@ -33,26 +33,26 @@
     <tag k="fixme" v="Street name in OSM: Józefa Antalla"/>
     <tag k="source:addr" v="mapa.um.warszawa.pl"/>
     <tag k="source:geometry" v="geoportal.gov.pl:ortofoto"/>
-    <nd ref="-76304"/>
-    <nd ref="-76305"/>
-    <nd ref="-76306"/>
-    <nd ref="-76307"/>
-    <nd ref="-76308"/>
-    <nd ref="-76309"/>
-    <nd ref="-76310"/>
-    <nd ref="-76311"/>
-    <nd ref="-76312"/>
-    <nd ref="-76313"/>
-    <nd ref="-76314"/>
-    <nd ref="-76315"/>
-    <nd ref="-76316"/>
-    <nd ref="-76317"/>
-    <nd ref="-76318"/>
-    <nd ref="-76319"/>
-    <nd ref="-76320"/>
-    <nd ref="-76321"/>
-    <nd ref="-76322"/>
-    <nd ref="-76323"/>
-    <nd ref="-76304"/>
+    <nd ref="76304"/>
+    <nd ref="76305"/>
+    <nd ref="76306"/>
+    <nd ref="76307"/>
+    <nd ref="76308"/>
+    <nd ref="76309"/>
+    <nd ref="76310"/>
+    <nd ref="76311"/>
+    <nd ref="76312"/>
+    <nd ref="76313"/>
+    <nd ref="76314"/>
+    <nd ref="76315"/>
+    <nd ref="76316"/>
+    <nd ref="76317"/>
+    <nd ref="76318"/>
+    <nd ref="76319"/>
+    <nd ref="76320"/>
+    <nd ref="76321"/>
+    <nd ref="76322"/>
+    <nd ref="76323"/>
+    <nd ref="76304"/>
   </way>
 </osm>
