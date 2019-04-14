@@ -1063,10 +1063,11 @@ class Merger(object):
                 self._mark_soup_visible(obj)
 
 
-def get_referenced_objects(query):
+def get_referenced_objects(query, prefix=""):
     return """
 [out:xml]
 [timeout:600];
+%s
 (
     %s
 )->.a;
@@ -1090,7 +1091,7 @@ def get_referenced_objects(query):
 .b out meta ;
 .c out meta ;
 .d out meta ;
-    """ % (query,)
+    """ % (prefix, query)
 
 
 def get_addresses(bbox):
@@ -1122,11 +1123,13 @@ def get_addresses(bbox):
 
 
 def get_addresses_terc(terc):
-    query = """
+    prefix = """
     area["boundary"="administrative"]
         ["admin_level"="7"]
         ["teryt:terc"~"^%s"]
-        ["type"="boundary"]->.boundary_area;
+        ["type"="boundary"]->.boundary_area;    
+    """ % (terc, )
+    query = """
     (
         node(area.boundary_area)["addr:housenumber"];
         way(area.boundary_area)["addr:housenumber"];
@@ -1134,8 +1137,8 @@ def get_addresses_terc(terc):
         relation(area.boundary_area)["addr:housenumber"];
         relation(area.boundary_area)["building"];
     );
-    """ % (terc, )
-    return utils.osmshapedb.get_geometries(overpass.query(get_referenced_objects(query)))
+    """
+    return utils.osmshapedb.get_geometries(overpass.query(get_referenced_objects(query, prefix)))
 
 
 def get_boundary_shape(terc):
