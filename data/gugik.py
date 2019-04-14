@@ -9,6 +9,9 @@ import converters.emuia
 from data.base import AbstractImport, Address, srs_to_wgs, e2180toWGS
 
 
+def nvl(obj, replacement):
+    return obj if obj else replacement
+
 class GUGiK(AbstractImport):
     # parametry do EPSG 2180
     __MAX_BBOX_X = 20000
@@ -30,8 +33,8 @@ class GUGiK(AbstractImport):
         coords = e2180toWGS(dct['pktY'], dct['pktX'])
         ret = Address.mapped_address(
             dct['pktNumer'],
-            dct.get('pktKodPocztowy', ""),
-            (dct.get('ulNazwaCzesc', "") + " " + dct.get('ulNazwaGlowna', "")).strip(),
+            nvl(dct.get('pktKodPocztowy'), ""),
+            (nvl(dct.get('ulNazwaCzesc'), "") + " " + nvl(dct.get('ulNazwaGlowna'), "")).strip(),
             dct['miejscNazwa'],
             dct.get('ulIdTeryt'),
             dct.get('miejscIdTeryt'),
