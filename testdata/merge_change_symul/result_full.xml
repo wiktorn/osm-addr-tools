@@ -2,11 +2,11 @@
 <osm version="0.6" generator="import adresy merger.py">
   <note>The data included in this document is from www.openstreetmap.org. The data is made available under ODbL.</note>
   <meta osm_base=""/>
-  <node lat="52.2428201" lon="21.073027" id="-52700" action="modify"/>
-  <node lat="52.2431118" lon="21.0744446" id="-52701" action="modify"/>
-  <node lat="52.2432049" lon="21.0743935" id="-52702" action="modify"/>
-  <node lat="52.2429131" lon="21.072976" id="-52703" action="modify"/>
-  <way id="-52699" action="modify">
+  <node lat="52.2428201" lon="21.0730270" changeset="0" id="52700" timestamp="1970-01-01T00:00:00Z" uid="0" user="" version="0"/>
+  <node lat="52.2431118" lon="21.0744446" changeset="0" id="52701" timestamp="1970-01-01T00:00:00Z" uid="0" user="" version="0"/>
+  <node lat="52.2432049" lon="21.0743935" changeset="0" id="52702" timestamp="1970-01-01T00:00:00Z" uid="0" user="" version="0"/>
+  <node lat="52.2429131" lon="21.0729760" changeset="0" id="52703" timestamp="1970-01-01T00:00:00Z" uid="0" user="" version="0"/>
+  <way changeset="0" id="52699" timestamp="1970-01-01T00:00:00Z" uid="0" user="" version="0">
     <tag k="addr:city" v="Warszawa"/>
     <tag k="addr:city:simc" v="0918123"/>
     <tag k="addr:housenumber" v="41"/>
@@ -16,10 +16,10 @@
     <tag k="building" v="residential"/>
     <tag k="building:levels" v="8"/>
     <tag k="source:addr" v="mapa.um.warszawa.pl"/>
-    <nd ref="-52700"/>
-    <nd ref="-52701"/>
-    <nd ref="-52702"/>
-    <nd ref="-52703"/>
-    <nd ref="-52700"/>
+    <nd ref="52700"/>
+    <nd ref="52701"/>
+    <nd ref="52702"/>
+    <nd ref="52703"/>
+    <nd ref="52700"/>
   </way>
 </osm>
