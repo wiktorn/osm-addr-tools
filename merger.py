@@ -1121,6 +1121,23 @@ def get_addresses(bbox):
     return index
 
 
+def get_addresses_terc(terc):
+    query = """
+    area["boundary"="administrative"]
+        ["admin_level"="7"]
+        ["teryt:terc"~"^%s"]
+        ["type"="boundary"]->.boundary_area;
+    (
+        node(area.boundary_area)["addr:housenumber"];
+        way(area.boundary_area)["addr:housenumber"];
+        way(area.boundary_area)["building"];
+        relation(area.boundary_area)["addr:housenumber"];
+        relation(area.boundary_area)["building"];
+    );
+    """ % (terc, )
+    return utils.osmshapedb.get_geometries(overpass.query(get_referenced_objects(query)))
+
+
 def get_boundary_shape(terc):
     query = """
 [out:xml]
