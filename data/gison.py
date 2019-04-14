@@ -7,7 +7,8 @@ from urllib.request import urlopen
 
 import tqdm
 
-from .base import AbstractImport, Address, e2180_to_wgs, LocationStr
+from .base import AbstractImport, Address
+from .data import e2180_to_wgs, LocationStr
 
 
 class GISON(AbstractImport):

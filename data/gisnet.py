@@ -6,7 +6,8 @@ import lxml.html
 import lxml.etree
 import tqdm
 
-from .base import AbstractImport, Address, get_ssl_no_verify_opener, LocationStr
+from .base import AbstractImport, Address, get_ssl_no_verify_opener
+from .data import LocationStr
 from utils.utils import groupby
 
 

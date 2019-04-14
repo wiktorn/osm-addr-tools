@@ -7,7 +7,8 @@ import lxml.etree
 import lxml.html
 import tqdm
 
-from data.base import Address, get_ssl_no_verify_opener, LocationStr
+from data.base import Address, get_ssl_no_verify_opener
+from .data import LocationStr
 from data.gugik import GUGiK
 
 

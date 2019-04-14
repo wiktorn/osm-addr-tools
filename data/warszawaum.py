@@ -6,8 +6,9 @@ import typing
 import rtree
 import tqdm
 
-from data.base import AbstractImport, Address, get_ssl_no_verify_opener, LocationStr
-from data.gugik import GUGiK
+from .base import AbstractImport, Address, get_ssl_no_verify_opener
+from .data import LocationStr
+from .gugik import GUGiK
 from osmdb import distance, buffered_shape_poland
 
 

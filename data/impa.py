@@ -10,7 +10,8 @@ import tqdm
 from bs4 import BeautifulSoup
 from bs4.element import Tag
 
-from data.base import AbstractImport, Address, e2180_to_wgs, LocationStr
+from data.base import AbstractImport, Address
+from .data import e2180_to_wgs, LocationStr
 
 
 class TqdmUpTo(tqdm.tqdm):
