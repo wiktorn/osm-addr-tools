@@ -2,6 +2,7 @@ requests
 beautifulsoup4
 flask
 lxml
+osmium
 protobuf
 pyproj
 Rtree

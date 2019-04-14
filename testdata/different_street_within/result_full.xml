@@ -2,7 +2,7 @@
 <osm version="0.6" generator="import adresy merger.py">
   <note>The data included in this document is from www.openstreetmap.org. The data is made available under ODbL.</note>
   <meta osm_base=""/>
-  <node lat="52.55123" lon="21.62363" id="-1" action="modify">
+  <node lat="52.5512300" lon="21.6236300" id="-1" action="modify">
     <tag k="addr:city" v="Gwizdały"/>
     <tag k="addr:city:simc" v="0678794"/>
     <tag k="addr:housenumber" v="3"/>
@@ -11,13 +11,13 @@
     <tag k="addr:street:sym_ul" v="1"/>
     <tag k="source:addr" v="lochow.e-mapa.net"/>
   </node>
-  <node lat="52.55087959542965" lon="21.626959659817015" id="-2">
+  <node lat="52.5508796" lon="21.6269597" id="-2">
     <tag k="addr:city" v="Gwizdały"/>
     <tag k="addr:housenumber" v="5"/>
     <tag k="addr:street" v="Debowa"/>
     <tag k="fixme" v="Check address existence"/>
   </node>
-  <node lat="52.55082916868" lon="21.62693069171" id="-3" action="modify">
+  <node lat="52.5508292" lon="21.6269307" id="-3" action="modify">
     <tag k="addr:city" v="Gwizdały"/>
     <tag k="addr:city:simc" v="0678794"/>
     <tag k="addr:housenumber" v="5"/>
@@ -26,15 +26,7 @@
     <tag k="addr:street:sym_ul" v="1"/>
     <tag k="source:addr" v="lochow.e-mapa.net"/>
   </node>
-  <node lat="52.55100154478" lon="21.62668583701" id="-38986"/>
-  <node lat="52.55076881428" lon="21.626673288" id="-38988"/>
-  <node lat="52.55075764605" lon="21.6272334826" id="-38990"/>
-  <node lat="52.55099037661" lon="21.62724603161" id="-38992"/>
-  <node lat="52.55134849485" lon="21.62344916113" id="-38994"/>
-  <node lat="52.55108824961" lon="21.62346748522" id="-38996"/>
-  <node lat="52.55110342564" lon="21.62405044157" id="-38998"/>
-  <node lat="52.5513636708" lon="21.62403211748" id="-39000"/>
-  <node lat="52.55084272266" lon="21.62709655529" id="-4" action="modify">
+  <node lat="52.5508427" lon="21.6270966" id="-4" action="modify">
     <tag k="addr:city" v="Gwizdały"/>
     <tag k="addr:city:simc" v="0678794"/>
     <tag k="addr:housenumber" v="7"/>
@@ -43,7 +35,7 @@
     <tag k="addr:street:sym_ul" v="1"/>
     <tag k="source:addr" v="lochow.e-mapa.net"/>
   </node>
-  <node lat="52.5512123374" lon="21.62388564415" id="-5" action="modify">
+  <node lat="52.5512123" lon="21.6238856" id="-5" action="modify">
     <tag k="addr:city" v="Gwizdały"/>
     <tag k="addr:city:simc" v="0678794"/>
     <tag k="addr:housenumber" v="3"/>
@@ -52,20 +44,28 @@
     <tag k="addr:street:sym_ul" v="2"/>
     <tag k="source:addr" v="lochow.e-mapa.net"/>
   </node>
-  <way id="-39002" action="modify">
+  <node lat="52.5510015" lon="21.6266858" changeset="0" id="38986" timestamp="1970-01-01T00:00:00Z" uid="0" user="" version="0"/>
+  <node lat="52.5507688" lon="21.6266733" changeset="0" id="38988" timestamp="1970-01-01T00:00:00Z" uid="0" user="" version="0"/>
+  <node lat="52.5507576" lon="21.6272335" changeset="0" id="38990" timestamp="1970-01-01T00:00:00Z" uid="0" user="" version="0"/>
+  <node lat="52.5509904" lon="21.6272460" changeset="0" id="38992" timestamp="1970-01-01T00:00:00Z" uid="0" user="" version="0"/>
+  <node lat="52.5513485" lon="21.6234492" changeset="0" id="38994" timestamp="1970-01-01T00:00:00Z" uid="0" user="" version="0"/>
+  <node lat="52.5510882" lon="21.6234675" changeset="0" id="38996" timestamp="1970-01-01T00:00:00Z" uid="0" user="" version="0"/>
+  <node lat="52.5511034" lon="21.6240504" changeset="0" id="38998" timestamp="1970-01-01T00:00:00Z" uid="0" user="" version="0"/>
+  <node lat="52.5513637" lon="21.6240321" changeset="0" id="39000" timestamp="1970-01-01T00:00:00Z" uid="0" user="" version="0"/>
+  <way changeset="0" id="39002" timestamp="1970-01-01T00:00:00Z" uid="0" user="" version="0" action="modify">
     <tag k="building" v="yes"/>
-    <nd ref="-38986"/>
-    <nd ref="-38988"/>
-    <nd ref="-38990"/>
-    <nd ref="-38992"/>
-    <nd ref="-38986"/>
+    <nd ref="38986"/>
+    <nd ref="38988"/>
+    <nd ref="38990"/>
+    <nd ref="38992"/>
+    <nd ref="38986"/>
   </way>
-  <way id="-39004">
+  <way changeset="0" id="39004" timestamp="1970-01-01T00:00:00Z" uid="0" user="" version="0">
     <tag k="building" v="yes"/>
-    <nd ref="-38994"/>
-    <nd ref="-38996"/>
-    <nd ref="-38998"/>
-    <nd ref="-39000"/>
-    <nd ref="-38994"/>
+    <nd ref="38994"/>
+    <nd ref="38996"/>
+    <nd ref="38998"/>
+    <nd ref="39000"/>
+    <nd ref="38994"/>
   </way>
 </osm>

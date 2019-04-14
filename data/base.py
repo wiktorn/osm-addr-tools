@@ -14,6 +14,7 @@ from shapely.geometry import Point
 
 import overpass
 from osmdb import OsmDb, distance
+from utils import osmshapedb
 from utils.mapping import mapstreet, mapcity, mappostcode
 from utils.utils import groupby
 
@@ -144,8 +145,8 @@ class Address(object):
 
     def as_osm_soup(self, node_id):
         ret = BeautifulSoup("", "xml")
-        node = ret.new_tag('node', id=node_id, action='modify', visible='true', lat=self.location['lat'],
-                           lon=self.location['lon'])
+        node = ret.new_tag('node', id=node_id, action='modify', visible='true',
+                           lat="{:07f}".format(self.location['lat']), lon="{:07f}".format(self.location['lon']))
 
         def addTag(key, value):
             if value:
@@ -291,29 +292,23 @@ class AbstractImport(object):
     def __init__(self, terc, *args, **kwargs):
         if terc:
             query = """
-[out:json];
+[out:xml];
 relation
     ["teryt:terc"="%s"]
     ["boundary"="administrative"]
     ["admin_level"~"[79]"];
-out bb;
+out;
 >;
-out bb;
+out;
             """ % (terc,)
-            data = json.loads(overpass.query(query))
+            data = osmshapedb.get_geometries(overpass.query(query))
             try:
-                relation = tuple(x for x in data['elements'] if x['type'] == 'relation')[0]
+                relation = tuple(x for x in data.elements if x['type'] == 'relation')[0]
             except IndexError as e:
                 raise IndexError("No relation found in OSM for TERC: %s" % (terc,), e)
-            bounds = relation['bounds']
-            self.bbox = (
-                bounds['minlon'],
-                bounds['minlat'],
-                bounds['maxlon'],
-                bounds['maxlat'],
-            )
-            osmdb = OsmDb(data)
-            self.shape = osmdb.get_shape(relation)
+
+            self.shape = data.get_geometry(relation)
+            self.bbox = self.shape.bounds
 
     def get_bbox(self):
         """

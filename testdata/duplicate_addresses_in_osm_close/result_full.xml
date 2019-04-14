@@ -2,7 +2,7 @@
 <osm version="0.6" generator="import adresy merger.py">
   <note>The data included in this document is from www.openstreetmap.org. The data is made available under ODbL.</note>
   <meta osm_base=""/>
-  <node lat="52.55135894526" lon="21.62340133339" id="-39036">
+  <node lat="52.5513589" lon="21.6234013" changeset="0" id="-39036" timestamp="1970-01-01T00:00:00Z" uid="0" user="" version="0">
     <tag k="addr:city" v="Gwizdały"/>
     <tag k="addr:housenumber" v="3"/>
     <tag k="addr:street" v="Dębowa"/>
