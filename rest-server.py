@@ -1,11 +1,9 @@
 from flask import Flask, request, make_response as _make_response
 import io
 import logging
-import json
 
-from merger import Merger, get_addresses
+from merger import Merger, get_addresses, get_addresses_terc
 from data.impa import iMPA
-import overpass
 
 app = Flask(__name__)
 
@@ -56,7 +54,7 @@ def full_import(name):
 def merge_addr(terc):
     log_io = io.StringIO()
     logging.basicConfig(level=10, handlers=[logging.StreamHandler(log_io), ])
-    addr = json.loads(overpass.getAddresses(terc))
+    addr = get_addresses_terc(terc)
     m = Merger([], addr, terc, "emuia.gugik.gov.pl")
     m.create_index()
     m.merge_addresses()
