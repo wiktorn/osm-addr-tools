@@ -3,3 +3,4 @@ venv
 *.osm
 .idea
 __pycache__
+**/*pyc

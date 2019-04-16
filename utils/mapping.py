@@ -24,6 +24,8 @@ from .mapping_custom import addr_map
 
 __log = logging.getLogger(__name__)
 
+DISABLE_UPDATE = bool(os.environ.get("DISABLE_UPDATE", ""))
+
 TerytUlicEntry = namedtuple('TerytUlicEntry', ['sym_ul', 'nazwa', 'cecha'])
 
 __CECHA_MAPPING = {
@@ -129,7 +131,7 @@ def stored_dict(fetcher, filename):
         data = {
             'time': 0
         }
-    if data['time'] < time.time() - 21 * 24 * 60 * 60:
+    if not DISABLE_UPDATE and data['time'] < time.time() - 21 * 24 * 60 * 60:
         try:
             new = fetcher()
         except Exception as e:
@@ -172,6 +174,10 @@ def __init():
                 __mapping_simc_postcode = stored_dict(lambda: get_dict('teryt:simc', 'addr:postcode', ['place', ]),
                                                       __DB_OSM_SIMC_POSTCODE)
                 __is_initialized = True
+
+
+def init():
+    __init()
 
 
 @functools.lru_cache(maxsize=None)

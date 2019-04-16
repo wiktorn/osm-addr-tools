@@ -1,0 +1,40 @@
+steps:
+  - name: 'gcr.io/cloud-builders/git'
+    args: ['submodule', 'update', '--remote', '--init']
+
+  - name: 'gcr.io/cloud-builders/docker'
+    args: ['build', '-t', 'osm-addr-tools', '.']
+
+  - name: 'gcr.io/cloud-builders/docker'
+    args: ['run', '--name', 'osm-addr-tools', 'osm-addr-tools', '/app/prepare-dictionaries.sh']
+
+  - name: 'gcr.io/cloud-builders/docker'
+    args: ['commit', '-c', "CMD /app/docker-entrypoint.sh",'osm-addr-tools', 'osm-addr-tools-step2']
+
+  - name: 'gcr.io/cloud-builders/docker'
+    args: ['rm', 'osm-addr-tools']
+
+  - name: 'gcr.io/cloud-builders/docker'
+    args: ['run', '--rm', 'osm-addr-tools-step2', '/app/venv/bin/python', '-m', 'unittest', 'discover', '-t' , '/app', '-s',
+           '/app/tests']
+
+  - name: 'gcr.io/cloud-builders/docker'
+    args: ['tag', 'osm-addr-tools-step2', '${_IMAGE_NAME}']
+
+  - name: 'gcr.io/cloud-builders/docker'
+    args: ['push', '${_IMAGE_NAME}']
+
+  - name: 'gcr.io/cloud-builders/gcloud'
+    args: ['beta', 'run', 'deploy', 'osm-addr-tools',
+           '--image=${_IMAGE_NAME}',
+           '--region=us-central1',
+           '--memory=512Mi',
+           '--allow-unauthenticated',
+           '--set-env-vars=DISABLE_UPDATE=True'
+    ]
+
+images: ['${_IMAGE_NAME}']
+substitutions:
+    _IMAGE_NAME: 'gcr.io/osm-vink/osm-addr-tools:latest'
+
+timeout: 1800s

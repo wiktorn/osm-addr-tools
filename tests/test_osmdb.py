@@ -24,6 +24,7 @@ class OsmDbTests(unittest.TestCase):
     def test_1(self):
         self.trivial_check('node', 2109698537)
 
+    @unittest.skip("Node deleted")
     def test_2(self):
         self.trivial_check('node', 319997075)  # deleted
 
@@ -36,15 +37,19 @@ class OsmDbTests(unittest.TestCase):
     def test_5(self):
         self.trivial_check('way', 196605788)
 
+    @unittest.skip("Not a building, nor a housenumber")
     def test_complicated_relation(self):
         self.trivial_check('relation', 2567398)  # not a building, nor a housenumber
 
+    @unittest.skip("Not a building, nor a housenumber")
     def test_associated_street(self):
         self.trivial_check('relation', 3472746)  # not a building, nor housenumber
 
+    @unittest.skip("Not a building, nor a housenumber")
     def test_building_part(self):
         self.trivial_check('relation', 4609851)  # not a building, nor a housenumber
 
+    @unittest.skip("Not a building, nor a housenumber")
     def test_building_part2(self):
         self.trivial_check('relation', 4096062) # not a building, nor a housenumber
 

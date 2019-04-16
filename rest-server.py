@@ -1,9 +1,12 @@
+import os
+
 from flask import Flask, request, make_response as _make_response
 import io
 import logging
 
 from merger import Merger, get_addresses, get_addresses_terc
 from data.impa import iMPA
+from converters import tools
 
 app = Flask(__name__)
 
@@ -74,11 +77,13 @@ def report_exception(e):
 
 if __name__ == '__main__':
     ADMINS = ['logi-osm@vink.pl']
-    if not app.debug:
+    if False:
         from logging.handlers import SMTPHandler
         mail_handler = SMTPHandler('127.0.0.1',
                                    'server-error@vink.pl',
                                    ADMINS, 'OSM Rest-Server Failed')
         mail_handler.setLevel(logging.INFO)
         app.logger.addHandler(mail_handler)
-    app.run(host='0.0.0.0', port=5001, debug=False)
+
+    port = os.environ.get('PORT', 5001)
+    app.run(host='0.0.0.0', port=port, debug=False)
