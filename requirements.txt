@@ -1,6 +1,7 @@
 requests
 beautifulsoup4
 flask
+gunicorn
 lxml
 osmium
 protobuf

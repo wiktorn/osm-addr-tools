@@ -2,4 +2,4 @@
 set -e
 
 cd /app
-venv/bin/python rest-server.py
+venv/bin/gunicorn -t 600 --bind 0.0.0.0:${PORT} wsgi
