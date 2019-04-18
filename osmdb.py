@@ -1,5 +1,7 @@
 import collections
+import functools
 import logging
+import time
 import typing
 
 import pyproj
@@ -19,6 +21,9 @@ __multipliers = {
     'relation': lambda x: x*3+2,
 }
 
+__geod = pyproj.Geod(ellps="WGS84")
+
+__log = logging.getLogger(__name__)
 
 def _get_id(soup):
     """Converts overlapping identifiers for node, ways and relations in single integer space"""
@@ -45,9 +50,6 @@ def get_soup_center(soup):
     return (pos[0] + pos[2])/2, (pos[1] + pos[3])/2
 
 
-__geod = pyproj.Geod(ellps="WGS84")
-
-
 def distance(a, b):
     """returns distance betwen a and b points in meters"""
     if isinstance(a, shapely.geometry.base.BaseGeometry):
@@ -69,6 +71,11 @@ def buffered_shape_poland(shape: shapely.geometry.base.BaseGeometry, buffer: int
     Warning: This will work only in Poland
     """
     ret = shapely.ops.transform(data.base.wgsTo2180, shape).buffer(buffer)
+    return shapely.ops.transform(data.base.e2180toWGS, ret)
+
+
+def simplified_shape_poland(shape: shapely.geometry.base.BaseGeometry, tolerance: float) -> shapely.geometry.base.BaseGeometry:
+    ret = shapely.ops.transform(data.base.wgsTo2180, shape).simplify(tolerance=tolerance)
     return shapely.ops.transform(data.base.e2180toWGS, ret)
 
 
@@ -144,7 +151,6 @@ class OsmDb(object):
         self.__cached_shapes = {}
         self.__index = index.Index()
         self.__index_entries = {}
-        self.__index_filter = index_filter
 
         def makegetfromindex(index_name):
             def getfromindex(key):
@@ -166,18 +172,19 @@ class OsmDb(object):
             if shape_obj:
                 key = (x['type'], int(x['id']))
                 self.__osm_obj[key] = OsmDbEntry(self._valuefunc(x, location=shape_obj.centroid), x, shape_obj)
+        self.__indexed_objects = list(tqdm.tqdm((value for value in self.__osm_obj.values() if index_filter(value)),
+                                                desc="Filtering objects"))
         self.update_index("[1/14]")
 
     def update_index(self, message=""):
-        self.__log.debug("Recreating index")
-
+        self.__log.info("Updating index")
         self.__index = index.Index()
         self.__index_entries = {}
         self.__custom_indexes = dict((x, collections.defaultdict(list)) for x in self.__custom_indexes_conf.keys())
 
         for val in tqdm.tqdm(
-                [value for value in self.__osm_obj.values() if self.__index_filter(value)],
-                desc="{} Creating index".format(message)
+                self.__indexed_objects,
+                desc="{} Creating index".format(message),
         ):
             try:
                 # pos = self.get_shape(val._raw).centroid
@@ -201,6 +208,7 @@ class OsmDb(object):
         self._shapedb[key] = location
         ret = OsmDbEntry(self._valuefunc(new, location=location), new, location)
         self.__osm_obj[(new['type'], int(new['id']))] = ret
+        self.__indexed_objects.append(ret)
         return ret
 
     def get_by_id(self, typ: str, id_: int) -> OsmDbEntry:

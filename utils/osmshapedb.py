@@ -32,6 +32,9 @@ _REL_TYPE_MAP = {
 }
 
 
+__log = logging.getLogger(__name__)
+
+
 class GeometryHandler(osmium.SimpleHandler):
     __log = logging.getLogger(__name__).getChild('GeometryHandler')  # type: logging.Logger
 
@@ -111,7 +114,9 @@ def get_geometries(data) -> GeometryHandler:
     # use MergeInputReader to sort input, so nodes will come first. Otherwise invalid locations could be passed
     # in ways/relations GeometryHandler
     mir = osmium.MergeInputReader()
+    __log.info("Sorting of input data")
     mir.add_buffer(data, "osm")  # Overpass returns data in osm format
+    __log.info("Data sorted, extracting geometries")
     gh = GeometryHandler()
     # sort to temporary file, then read sorted data from file
     with tempfile.NamedTemporaryFile(suffix='.osm') as temp_osm:
@@ -121,5 +126,6 @@ def get_geometries(data) -> GeometryHandler:
         wh.close()
         # use memory index (flex_mem) for node locations cache. Use "sparse_file_array,<filename>" for file backed indices
         gh.apply_file(temp_osm.name, locations=True, idx='flex_mem')
+    __log.info("Geometries extracted")
     # gh.apply_buffer(data, "osm")
     return gh

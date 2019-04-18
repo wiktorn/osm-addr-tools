@@ -17,8 +17,8 @@ import tqdm
 from lxml.builder import E
 from shapely.geometry import Point
 
-import converter
 import overpass
+import utils.osmshapedb
 from data.base import Address
 from data.egeoportal import EGeoportal
 from data.gisnet import GISNET
@@ -26,8 +26,7 @@ from data.gison import GISON
 from data.gugik import GUGiK, GUGiK_GML
 from data.impa import iMPA
 from data.warszawaum import WarszawaUM
-from osmdb import OsmDb, OsmDbEntry, get_soup_center, distance
-import utils.osmshapedb
+from osmdb import OsmDb, OsmDbEntry, get_soup_center, distance, simplified_shape_poland
 from utils import osmshapedb
 
 __log = logging.getLogger(__name__)
@@ -363,7 +362,7 @@ class Merger(object):
             valuefunc=from_soup,
             indexes={'address': lambda x: x.get_index_key(), 'id': lambda x: x.osmid},
             index_filter=lambda x: (x['tags'].get('building', False)
-                                    or x.entry.housenumber) and self._import_area_shape.contains(x.shape_noerror)
+                                    or x.entry.housenumber) and self._import_area_shape.contains(x.shape)
         )
 
     def create_index(self, message=""):
@@ -809,7 +808,7 @@ class Merger(object):
         ) - imp_addr
 
         self.__log.debug("Marking %d not existing addresses", len(to_delete))
-        for addr in filter(any, to_delete): # type: OsmDbEntry
+        for addr in filter(any, to_delete):  # type: OsmDbEntry
             # at least on addr field is filled in
             for node in filter(
                     lambda x: self._import_area_shape.contains(x.shape),
@@ -870,6 +869,8 @@ class Merger(object):
                 self._mark_soup_visible(self.osmdb.get_by_id(*_id))
 
             self._merge_building_with_addresses(_id, building, nodes)
+
+        self.__log.info("Finished merging addresses with buildings")
 
     def _merge_building_with_addresses(self, _id: str, building: typing.Dict[str, typing.Any],
                                        nodes: typing.List[OsmDbEntry]):
@@ -1166,7 +1167,8 @@ out meta ;
         rel = tuple(x for x in index.elements if x['type'] == 'relation' and
                     x['tags'].get('teryt:terc', '').startswith(terc))[0]
     __log.info("Loading shape of import area - relation id: %s, relation name: %s", rel['id'], rel['tags'].get('name'))
-    return index.geometries["{}:{}".format(rel['type'], rel['id'])]
+    ret = index.geometries["{}:{}".format(rel['type'], rel['id'])]
+    return simplified_shape_poland(ret, tolerance=5)
 
 
 def main():
@@ -1217,10 +1219,15 @@ def main():
 
     log_stderr = logging.StreamHandler()
     log_stderr.setLevel(args.log_level)
+    formatter = logging.Formatter('%(asctime)s %(levelname)s [%(module)s] %(name)s  - %(funcName)s(): %(message)s')
+    log_stderr.setFormatter(formatter)
 
     log_io = io.StringIO()
+    log_io_ch = logging.StreamHandler(log_io)
+    log_io_ch.setLevel(logging.DEBUG)
+    log_io_ch.setFormatter(formatter)
 
-    logging.basicConfig(level=10, handlers=[log_stderr, logging.StreamHandler(log_io)])
+    logging.basicConfig(level=10, handlers=[log_stderr, log_io_ch])
     logging.getLogger("converters").setLevel(logging.INFO)
 
     terc = None
