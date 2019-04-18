@@ -4,7 +4,7 @@ flask
 lxml
 osmium
 protobuf
-pyproj
+pyproj>2.1
 Rtree
 shapely
 tqdm

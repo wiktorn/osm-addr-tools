@@ -1,5 +1,4 @@
 import collections
-import functools
 import logging
 import typing
 
@@ -10,6 +9,7 @@ import shapely.ops
 import tqdm
 from rtree import index
 from shapely.geometry import Point
+import data.base
 
 from utils import osmshapedb
 
@@ -47,9 +47,6 @@ def get_soup_center(soup):
 
 __geod = pyproj.Geod(ellps="WGS84")
 
-_epsg_2180_to_4326 = functools.partial(pyproj.transform, pyproj.Proj(init='epsg:2180'), pyproj.Proj(init='epsg:4326'))
-_epsg_4326_to_2180 = functools.partial(pyproj.transform, pyproj.Proj(init='epsg:4326'), pyproj.Proj(init='epsg:2180'))
-
 
 def distance(a, b):
     """returns distance betwen a and b points in meters"""
@@ -71,8 +68,8 @@ def buffered_shape_poland(shape: shapely.geometry.base.BaseGeometry, buffer: int
     Uses EPSG:2180 (PUWG) to get estimated 1 m = 1 unit, so buffer will actually extend objects by one meter
     Warning: This will work only in Poland
     """
-    ret = shapely.ops.transform(_epsg_4326_to_2180, shape).buffer(buffer)
-    return shapely.ops.transform(_epsg_2180_to_4326, ret)
+    ret = shapely.ops.transform(data.base.wgsTo2180, shape).buffer(buffer)
+    return shapely.ops.transform(data.base.e2180toWGS, ret)
 
 
 def skip_exceptions(gen):
