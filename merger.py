@@ -1118,7 +1118,7 @@ def get_addresses(bbox):
     (%s)
     ["building"];
 """ % (bbox, bbox, bbox, bbox, bbox,)
-    index = utils.osmshapedb.get_geometries(overpass.query(get_referenced_objects(query)))
+    index = utils.osmshapedb.get_geometries(overpass.query(get_referenced_objects(query), desc="get_addresses"))
     return index
 
 
@@ -1138,7 +1138,7 @@ def get_addresses_terc(terc):
         relation(area.boundary_area)["building"];
     );
     """
-    return utils.osmshapedb.get_geometries(overpass.query(get_referenced_objects(query, prefix)))
+    return utils.osmshapedb.get_geometries(overpass.query(get_referenced_objects(query, prefix), desc="get_addresses"))
 
 
 def get_boundary_shape(terc):
@@ -1151,10 +1151,9 @@ out meta ;
 >;
 out meta ;
 """ % (terc,)
-    soup = overpass.query(query)
+    soup = overpass.query(query, desc="get_boundary")
     index = utils.osmshapedb.get_geometries(soup)
 
-    
     boundaries = tuple(x for x in index.elements if x['type'] == 'relation' and
                        x['tags'].get('teryt:terc', '') == terc)
     if len(boundaries) > 1:

@@ -308,7 +308,7 @@ out;
 >;
 out;
             """ % (terc,)
-            data = osmshapedb.get_geometries(overpass.query(query))
+            data = osmshapedb.get_geometries(overpass.query(query, desc="base:getboundary"))
             try:
                 relation = tuple(x for x in data.elements if x['type'] == 'relation')[0]
             except IndexError as e:

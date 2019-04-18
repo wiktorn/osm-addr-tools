@@ -1,6 +1,10 @@
+import io
 from urllib.parse import urlencode
 import logging
+
+import math
 import requests
+import tqdm
 from requests.adapters import HTTPAdapter
 from requests.packages.urllib3.util.retry import Retry
 
@@ -38,7 +42,25 @@ def get_url_for_query(qry: str):
     return __overpassurl + '?' + urlencode({'data': qry.replace('\t', '').replace('\n', '')})
 
 
-def query(qry):
+def query(qry, desc="") -> bytes:
     # TODO - check if the query succeeded
     __log.debug("Query %s , server: %s", qry, __overpassurl)
-    return requests_retry_session().get(get_url_for_query(qry), timeout=180).content
+
+    r = requests_retry_session().get(get_url_for_query(qry), timeout=180, stream=True)
+    total_size = int(r.headers.get('content-length', 0));
+    block_size = 128*1024
+    wrote = 0
+    raw_data = bytearray()
+    if desc:
+        desc = '(' + desc + ')'
+    with tqdm.tqdm(total=math.ceil(total_size//block_size), unit='B', unit_scale=True,
+                   desc="Downloading from Overpass{}".format(desc)) as progressbar:
+        for data in r.iter_content(block_size):
+            wrote += len(data)
+            progressbar.update(len(data))
+            raw_data += data
+    if total_size != 0 and wrote != total_size:
+        raise RuntimeError("Expected %d but got %d bytes".format(total_size, wrote))
+
+    return raw_data
+
