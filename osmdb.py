@@ -1,7 +1,5 @@
 import collections
-import functools
 import logging
-import time
 import typing
 
 import pyproj
@@ -11,8 +9,8 @@ import shapely.ops
 import tqdm
 from rtree import index
 from shapely.geometry import Point
-import data.base
 
+import data.base
 from utils import osmshapedb
 
 __multipliers = {
