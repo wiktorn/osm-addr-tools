@@ -28,7 +28,7 @@ steps:
     args: ['beta', 'run', 'deploy', 'osm-addr-tools',
            '--image=${_IMAGE_NAME}',
            '--region=us-central1',
-           '--memory=512Mi',
+           '--memory=768Mi',
            '--allow-unauthenticated',
            '--set-env-vars=DISABLE_UPDATE=True'
     ]
