@@ -127,7 +127,7 @@ def stored_dict(fetcher, filename):
         with open(filename, "rb") as f:
             data = pickle.load(f)
     except IOError:
-        __log.debug("Can't read a file: %s, starting with a new one", filename, exc_info=True)
+        __log.error("Can't read a file: %s, starting with a new one", filename, exc_info=True)
         data = {
             'time': 0
         }

@@ -31,18 +31,38 @@ urequest.install_opener(__opener)
 
 __WGS84 = pyproj.Proj(proj='latlong', datum='WGS84')
 __EPSG2180 = pyproj.Proj(init="epsg:2180")
-__WGS84_EPSG2180_TRANSFORMER = pyproj.Transformer.from_proj(__WGS84, __EPSG2180)  # type: pyproj.Transformer
-__EPSG2180_WGS84_TRANSFORMER = pyproj.Transformer.from_proj(__EPSG2180, __WGS84)  # type: pyproj.Transformer
+if hasattr(pyproj, "Transformer"):
+    __WGS84_EPSG2180_TRANSFORMER = pyproj.Transformer.from_proj(__WGS84, __EPSG2180)  # type: pyproj.Transformer
+    __EPSG2180_WGS84_TRANSFORMER = pyproj.Transformer.from_proj(__EPSG2180, __WGS84)  # type: pyproj.Transformer
 
 
-def wgsTo2180(lon, lat):
-    # returns lon,lat
-    return __WGS84_EPSG2180_TRANSFORMER.transform(lon, lat)
+    def wgsTo2180(lon, lat):
+        # returns lon,lat
+        return __WGS84_EPSG2180_TRANSFORMER.transform(lon, lat)
 
 
-def e2180toWGS(lon, lat):
-    # returns lon,lat
-    return __EPSG2180_WGS84_TRANSFORMER.transform(lon, lat)
+    def e2180toWGS(lon, lat):
+        # returns lon,lat
+        return __EPSG2180_WGS84_TRANSFORMER.transform(lon, lat)
+
+    @functools.lru_cache(maxsize=128)
+    def get_transformer_to_wgs(srs) -> pyproj.Transformer:
+        return pyproj.Transformer.from_proj(get_proj(srs), __WGS84).transform
+else:
+    def wgsTo2180(lon, lat):
+        # returns lon,lat
+        return pyproj.transform(__WGS84, __EPSG2180, lon, lat)
+
+
+    def e2180toWGS(lon, lat):
+        # returns lon,lat
+        return srs_to_wgs('epsg:2180', lon, lat)
+
+    def get_transformer_to_wgs(srs):
+        return functools.partial(pyproj.transform, get_proj(srs), __WGS84)
+
+    def srs_to_wgs(srs, lon, lat):
+        return pyproj.transform(get_proj(srs), __WGS84, lon, lat)
 
 
 @functools.lru_cache(maxsize=None)
@@ -50,15 +70,10 @@ def get_proj(srs):
     return pyproj.Proj(init=srs)
 
 
-@functools.lru_cache(maxsize=128)
-def get_transformer_to_wgs(srs) -> pyproj.Transformer:
+def srs_to_wgs(srs, lon, lat):
     if srs.startswith("urn:ogc:def:crs:"):
         srs = srs[16:].replace('::', ':')
-    return pyproj.Transformer.from_proj(get_proj(srs), __WGS84)
-
-
-def srs_to_wgs(srs, lon, lat):
-    return get_transformer_to_wgs(srs).transform(lon, lat)
+    return get_transformer_to_wgs(srs)(lon, lat)
 
 
 def _filter_ones(lst):
