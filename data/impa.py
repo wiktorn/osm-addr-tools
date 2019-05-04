@@ -161,7 +161,7 @@ class iMPA(AbstractImport):
                 kv['Miejscowosc'].strip(),
                 kv['ULIC'].strip(),  # sym_ul
                 kv['SIMC'].strip(),  # simc
-                kv.get('Zrodlo danych', ''),
+                kv.get('Zrodlo_danych', ''),
                 {'lat': lat, 'lon': lon},  # location
                 kv.get('idIIP', ''),
             )

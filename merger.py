@@ -335,6 +335,9 @@ class Merger(object):
 
     def __init__(self, impdata: typing.List[Address], asis: osmshapedb.GeometryHandler, terc: str, source_addr: str):
         self.impdata = impdata
+        for entry in self.impdata:
+            if not entry.source:
+                entry.source = source_addr
         self.asis = asis
         self._import_area_shape = Point(0, 0).buffer(400) if not terc else get_boundary_shape(terc)
         self.imp_obj_by_id = dict(zip(itertools.count(), self.impdata))
@@ -613,7 +616,7 @@ class Merger(object):
                                 'lat': c.center.y,
                                 'lon': c.center.x,
                                 'tags': dict((key, value) for key, value in c._raw['tags'].items()
-                                             if key.startswith('addr:') or key == 'source:adr')
+                                             if key.startswith('addr:') or key == 'source:addr')
                             })
                             self._new_nodes.append(new_entry)
                         # remove address from building
