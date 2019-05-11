@@ -14,38 +14,41 @@ import data.base
 from utils import osmshapedb
 
 __multipliers = {
-    'node'    : lambda x: x*3,
-    'way'     : lambda x: x*3+1,
-    'relation': lambda x: x*3+2,
+    "node": lambda x: x * 3,
+    "way": lambda x: x * 3 + 1,
+    "relation": lambda x: x * 3 + 2,
 }
 
 __geod = pyproj.Geod(ellps="WGS84")
 
 __log = logging.getLogger(__name__)
 
+
 def _get_id(soup):
     """Converts overlapping identifiers for node, ways and relations in single integer space"""
-    return __multipliers[soup['type']](int(soup['id']))
+    return __multipliers[soup["type"]](int(soup["id"]))
 
 
 def get_soup_position(soup):
     """Extracts position for way/node as bounding box"""
-    if soup['type'] == 'node':
-        return (float(soup['lat']), float(soup['lon'])) * 2
+    if soup["type"] == "node":
+        return (float(soup["lat"]), float(soup["lon"])) * 2
 
-    if soup['type'] in ('way', 'relation'):
-        b = soup.get('bounds')
+    if soup["type"] in ("way", "relation"):
+        b = soup.get("bounds")
         if b:
-            return tuple(float(x) for x in (b['minlat'], b['minlon'], b['maxlat'], b['maxlon']))
+            return tuple(
+                float(x) for x in (b["minlat"], b["minlon"], b["maxlat"], b["maxlon"])
+            )
         else:
             raise TypeError("OSM Data doesn't contain bounds for ways and relations!")
-    raise TypeError("%s not supported" % (soup['type'],))
+    raise TypeError("%s not supported" % (soup["type"],))
 
 
 def get_soup_center(soup):
     # lat, lon
     pos = get_soup_position(soup)
-    return (pos[0] + pos[2])/2, (pos[1] + pos[3])/2
+    return (pos[0] + pos[2]) / 2, (pos[1] + pos[3]) / 2
 
 
 def distance(a, b):
@@ -59,7 +62,9 @@ def distance(a, b):
     return __geod.inv(a[1], a[0], b[1], b[0])[2]
 
 
-def buffered_shape_poland(shape: shapely.geometry.base.BaseGeometry, buffer: int) -> shapely.geometry.base.BaseGeometry:
+def buffered_shape_poland(
+    shape: shapely.geometry.base.BaseGeometry, buffer: int
+) -> shapely.geometry.base.BaseGeometry:
     """
     :param shape: shape to extend
     :param buffer: buffer in meters -
@@ -72,8 +77,12 @@ def buffered_shape_poland(shape: shapely.geometry.base.BaseGeometry, buffer: int
     return shapely.ops.transform(data.base.e2180toWGS, ret)
 
 
-def simplified_shape_poland(shape: shapely.geometry.base.BaseGeometry, tolerance: float) -> shapely.geometry.base.BaseGeometry:
-    ret = shapely.ops.transform(data.base.wgsTo2180, shape).simplify(tolerance=tolerance)
+def simplified_shape_poland(
+    shape: shapely.geometry.base.BaseGeometry, tolerance: float
+) -> shapely.geometry.base.BaseGeometry:
+    ret = shapely.ops.transform(data.base.wgsTo2180, shape).simplify(
+        tolerance=tolerance
+    )
     return shapely.ops.transform(data.base.e2180toWGS, ret)
 
 
@@ -104,7 +113,7 @@ class OsmDbEntry(object):
     @property
     def shape_noerror(self):
         return self.shape
-    
+
     @property
     def center(self):
         return self.shape.centroid
@@ -133,16 +142,23 @@ class OsmDbEntry(object):
 
 
 class OsmDb(object):
-    __log = logging.getLogger(__name__).getChild('OsmDb')
+    __log = logging.getLogger(__name__).getChild("OsmDb")
 
-    def __init__(self, osmdata: osmshapedb.GeometryHandler, valuefunc=lambda x, location: x, indexes=None,
-                 index_filter=lambda x: True):
+    def __init__(
+        self,
+        osmdata: osmshapedb.GeometryHandler,
+        valuefunc=lambda x, location: x,
+        indexes=None,
+        index_filter=lambda x: True,
+    ):
         # assume osmdata is a BeautifulSoup object already
         # do it an assert
         if not indexes:
             indexes = {}
         self._osmdata = osmdata.elements  # type: typing.List[dict]
-        self._shapedb = osmdata.geometries  # type: typing.Dict[str, shapely.geometry.base.BaseGeometry]
+        self._shapedb = (
+            osmdata.geometries
+        )  # type: typing.Dict[str, shapely.geometry.base.BaseGeometry]
         self.__custom_indexes = dict((x, {}) for x in indexes.keys())
         self._valuefunc = valuefunc
         self.__custom_indexes_conf = indexes
@@ -153,42 +169,58 @@ class OsmDb(object):
         def makegetfromindex(index_name):
             def getfromindex(key):
                 return self.__custom_indexes[index_name].get(key, [])
+
             return getfromindex
 
         def makegetallindexed(index_name):
             def getallindexed():
                 return tuple(self.__custom_indexes[index_name].keys())
+
             return getallindexed
 
         for i in indexes.keys():
-            setattr(self, 'getby' + i, makegetfromindex(i))
-            setattr(self, 'getall' + i, makegetallindexed(i))
+            setattr(self, "getby" + i, makegetfromindex(i))
+            setattr(self, "getall" + i, makegetallindexed(i))
 
         self.__osm_obj: typing.Dict[typing.Tuple[str, int], OsmDbEntry] = dict()
         for x in self._osmdata:
-            shape_obj = self._shapedb.get("{}:{}".format(x['type'], x['id']))
+            shape_obj = self._shapedb.get("{}:{}".format(x["type"], x["id"]))
             if shape_obj:
-                key = (x['type'], int(x['id']))
-                self.__osm_obj[key] = OsmDbEntry(self._valuefunc(x, location=shape_obj.centroid), x, shape_obj)
-        self.__indexed_objects = list(tqdm.tqdm((value for value in self.__osm_obj.values() if index_filter(value)),
-                                                desc="Filtering objects"))
+                key = (x["type"], int(x["id"]))
+                self.__osm_obj[key] = OsmDbEntry(
+                    self._valuefunc(x, location=shape_obj.centroid), x, shape_obj
+                )
+        self.__indexed_objects = list(
+            tqdm.tqdm(
+                (value for value in self.__osm_obj.values() if index_filter(value)),
+                desc="Filtering objects",
+            )
+        )
         self.update_index("[1/14]")
 
     def update_index(self, message=""):
         self.__log.info("Updating index")
         self.__index = index.Index()
         self.__index_entries = {}
-        self.__custom_indexes = dict((x, collections.defaultdict(list)) for x in self.__custom_indexes_conf.keys())
+        self.__custom_indexes = dict(
+            (x, collections.defaultdict(list))
+            for x in self.__custom_indexes_conf.keys()
+        )
 
         for val in tqdm.tqdm(
-                self.__indexed_objects,
-                desc="{} Creating index".format(message),
+            self.__indexed_objects, desc="{} Creating index".format(message)
         ):
             try:
                 # pos = self.get_shape(val._raw).centroid
-                pos = self._shapedb["{}:{}".format(val._raw['type'], val._raw['id'])].centroid
+                pos = self._shapedb[
+                    "{}:{}".format(val._raw["type"], val._raw["id"])
+                ].centroid
             except KeyError:
-                raise KeyError("Problem with getting shape of {}:{}".format(val.entry['type'], val.entry['id']))
+                raise KeyError(
+                    "Problem with getting shape of {}:{}".format(
+                        val.entry["type"], val.entry["id"]
+                    )
+                )
             pos = (pos.y, pos.x)
             if pos:
                 _id = _get_id(val._raw)
@@ -196,16 +228,21 @@ class OsmDb(object):
 
                 self.__index_entries[_id] = val
 
-                for custom_index_name, custom_index_func in self.__custom_indexes_conf.items():
-                    self.__custom_indexes[custom_index_name][custom_index_func(val)].append(val)
+                for (
+                    custom_index_name,
+                    custom_index_func,
+                ) in self.__custom_indexes_conf.items():
+                    self.__custom_indexes[custom_index_name][
+                        custom_index_func(val)
+                    ].append(val)
 
     def add_new(self, new):
         self._osmdata.append(new)
-        key = "{}:{}".format(new['type'], new['id'])
-        location = shapely.geometry.Point(float(new['lon']), float(new['lat']))
+        key = "{}:{}".format(new["type"], new["id"])
+        location = shapely.geometry.Point(float(new["lon"]), float(new["lat"]))
         self._shapedb[key] = location
         ret = OsmDbEntry(self._valuefunc(new, location=location), new, location)
-        self.__osm_obj[(new['type'], int(new['id']))] = ret
+        self.__osm_obj[(new["type"], int(new["id"]))] = ret
         self.__indexed_objects.append(ret)
         return ret
 
@@ -218,20 +255,22 @@ class OsmDb(object):
     def nearest(self, point, num_results=1):
         if isinstance(point, Point):
             point = (point.y, point.x)
-        return map(self.__index_entries.get,
-                   self.__index.nearest(point * 2, num_results)
-                   )
+        return map(
+            self.__index_entries.get, self.__index.nearest(point * 2, num_results)
+        )
 
     def intersects(self, point):
         if isinstance(point, Point):
             point = (point.y, point.x)
-        return (self.__index_entries.get(x) for x in self.__index.intersection(point * 2))
+        return (
+            self.__index_entries.get(x) for x in self.__index.intersection(point * 2)
+        )
 
-                
+
 def main():
     odb = OsmDb(osmshapedb.get_geometries(open("adresy.osm").read()))
     print(list(odb.nearest((53.5880600, 19.5555200), 10)))
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

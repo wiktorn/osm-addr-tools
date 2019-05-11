@@ -6,7 +6,8 @@ import json
 class GugikTests(unittest.TestCase):
     def test_convert_to_address(self):
         g = GUGiK(terc="1409033")
-        sample_addr = json.loads("""
+        sample_addr = json.loads(
+            """
         {
         "cyklZyciaOd": "2016-11-26",
         "pktPrgIIPPn": "PL.PZGIK.200",
@@ -48,7 +49,8 @@ class GugikTests(unittest.TestCase):
         "wojIIPId": "4b6c492a-eb04-441d-a92a-f44359c06de7",
         "wojIIPWersja": "2012-09-27T13:45:13+02:00"
       }
-        """)
+        """
+        )
         addr = g._convert_to_address(sample_addr)
         pos = addr.center
         self.assertAlmostEqual(21.64446755, pos.x, 7)
@@ -62,7 +64,8 @@ class GugikTests(unittest.TestCase):
 
     def test_convert_no_street(self):
         g = GUGiK(terc="1409033")
-        sample_addr = json.loads("""
+        sample_addr = json.loads(
+            """
         {
         "cyklZyciaOd": "2016-11-26",
         "pktPrgIIPPn": "PL.PZGIK.200",
@@ -97,7 +100,8 @@ class GugikTests(unittest.TestCase):
         "wojIIPPn": "PL.PZGIK.200",
         "wojIIPId": "4b6c492a-eb04-441d-a92a-f44359c06de7",
         "wojIIPWersja": "2012-09-27T13:45:13+02:00"
-      }""")
+      }"""
+        )
         g._convert_to_address(sample_addr)
         addr = g._convert_to_address(sample_addr)
         pos = addr.center

@@ -7,5 +7,5 @@ def main():
     mapping.init()
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

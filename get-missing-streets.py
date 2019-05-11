@@ -21,77 +21,77 @@ import math
 import xml.etree.cElementTree as ElementTree
 
 i = 0
-outroot = ElementTree.Element("osm", { "version": "0.6" })
+outroot = ElementTree.Element("osm", {"version": "0.6"})
 inroot = ElementTree.parse(sys.argv[1]).getroot()
 
 waynodes = {}
 existingaddrs = {}
 for elem in inroot:
-    if 'id' not in elem.attrib:
+    if "id" not in elem.attrib:
         continue
-    id = int(elem.attrib['id'])
+    id = int(elem.attrib["id"])
     tags = {}
     for sub in elem:
-        if sub.tag != 'tag':
-	   continue
-	tags[sub.attrib['k']] = sub.attrib['v']
-    if elem.tag == 'node':
-        lat = float(elem.attrib['lat'])
-        lon = float(elem.attrib['lon'])
-        waynodes[id] = ( lat, lon )
-    if 'addr:housenumber' not in tags or 'addr:street' not in tags:
+        if sub.tag != "tag":
+            continue
+        tags[sub.attrib["k"]] = sub.attrib["v"]
+    if elem.tag == "node":
+        lat = float(elem.attrib["lat"])
+        lon = float(elem.attrib["lon"])
+        waynodes[id] = (lat, lon)
+    if "addr:housenumber" not in tags or "addr:street" not in tags:
         continue
-    if elem.tag == 'node' and 'amenity' in tags:
+    if elem.tag == "node" and "amenity" in tags:
         continue
-    strt = tags['addr:street'].lower()
-    if elem.tag not in [ 'way', 'node' ]:
+    strt = tags["addr:street"].lower()
+    if elem.tag not in ["way", "node"]:
         continue
-    if elem.tag == 'way':
+    if elem.tag == "way":
         j = 0
         lat = 0.0
-	lon = 0.0
+        lon = 0.0
         for sub in elem:
-	    if sub.tag != 'nd':
-	        continue
-            ref = int(sub.attrib['ref'])
-	    if ref not in waynodes:
-	        continue
+            if sub.tag != "nd":
+                continue
+            ref = int(sub.attrib["ref"])
+            if ref not in waynodes:
+                continue
             j += 1
-	    lat += waynodes[ref][0]
-	    lon += waynodes[ref][1]
-	lat /= j
-	lon /= j
-    existingaddrs[strt] = ( lat, lon )
+            lat += waynodes[ref][0]
+            lon += waynodes[ref][1]
+        lat /= j
+        lon /= j
+    existingaddrs[strt] = (lat, lon)
 
 byword = {}
 for elem in inroot:
-    if 'id' not in elem.attrib:
+    if "id" not in elem.attrib:
         continue
-    id = int(elem.attrib['id'])
+    id = int(elem.attrib["id"])
     tags = {}
     nodes = []
     for sub in elem:
-        if sub.tag == 'nd':
-	   nodes.append(waynodes[int(sub.attrib['ref'])])
-        if sub.tag != 'tag':
-	   continue
-	tags[sub.attrib['k']] = sub.attrib['v']
-    if elem.tag == 'node':
-        lat = float(elem.attrib['lat'])
-        lon = float(elem.attrib['lon'])
-        waynodes[id] = ( lat, lon )
-	continue
-    elif elem.tag not in [ 'way' ]:
+        if sub.tag == "nd":
+            nodes.append(waynodes[int(sub.attrib["ref"])])
+        if sub.tag != "tag":
+            continue
+        tags[sub.attrib["k"]] = sub.attrib["v"]
+    if elem.tag == "node":
+        lat = float(elem.attrib["lat"])
+        lon = float(elem.attrib["lon"])
+        waynodes[id] = (lat, lon)
         continue
-    if 'highway' not in tags or 'name' not in tags:
+    elif elem.tag not in ["way"]:
         continue
-    name = tags['name'].lower().split()
-    if 'alt_name' in tags:
-        name += tags['alt_name'].lower().replace(';', ' ').split()
+    if "highway" not in tags or "name" not in tags:
+        continue
+    name = tags["name"].lower().split()
+    if "alt_name" in tags:
+        name += tags["alt_name"].lower().replace(";", " ").split()
     for word in name:
         if word not in byword:
-	    byword[word] = []
-	byword[word].append(( name, nodes, id ))
+            byword[word] = []
+        byword[word].append((name, nodes, id))
 inroot = None
 
 i = 0
@@ -102,32 +102,31 @@ for strt in existingaddrs:
     for word in strt.split():
         all += 1
         if word in byword:
-	    for hwy in byword[word]:
-	        hwys[hwy[2]] = hwy
+            for hwy in byword[word]:
+                hwys[hwy[2]] = hwy
     cont = 0
     for id in hwys:
         name, nodes, _id = hwys[id]
         same = 0
         for word in strt.split():
-	    if word in [ u'Księdza', u'Kapitana', u'Generała' ] or word in name:
-	        same += 1
-	if same == all:
-	    for nlat, nlon in nodes:
-	        if math.hypot(lat - nlat, lon - nlon) < 0.01: # ~1km?
-		    cont = 1
-		    break
-	if cont:
-	    break
+            if word in [u"Księdza", u"Kapitana", u"Generała"] or word in name:
+                same += 1
+        if same == all:
+            for nlat, nlon in nodes:
+                if math.hypot(lat - nlat, lon - nlon) < 0.01:  # ~1km?
+                    cont = 1
+                    break
+        if cont:
+            break
     if cont:
         continue
     i += 1
-    node = ElementTree.SubElement(outroot, "node", {
-        "lat": str(lat),
-        "lon": str(lon),
-        "version": str(1),
-        "id": str(i) })
-    ElementTree.SubElement(node, "tag", {
-        "k": 'addr:street', "v": strt })
+    node = ElementTree.SubElement(
+        outroot,
+        "node",
+        {"lat": str(lat), "lon": str(lon), "version": str(1), "id": str(i)},
+    )
+    ElementTree.SubElement(node, "tag", {"k": "addr:street", "v": strt})
 
 sys.stdout.write("Writing .osm's\n")
 ElementTree.ElementTree(outroot).write("missing-streets.osm", "utf-8")

@@ -15,18 +15,15 @@ def osm_xml_to_addresses(filename):
 
 
 def osm_xml_etree_to_addresses(e):
-    return list(
-        map(
-            data.base.Address.from_osm_xml,
-            e.getroot().iterchildren()
-        )
-    )
+    return list(map(data.base.Address.from_osm_xml, e.getroot().iterchildren()))
 
 
-def get_merger(directory: os.PathLike, merge_addresses_with_outlines=True, terc:str = None):
-    imported = osm_xml_to_addresses(os.path.join(directory, 'imp.xml'))
+def get_merger(
+    directory: os.PathLike, merge_addresses_with_outlines=True, terc: str = None
+):
+    imported = osm_xml_to_addresses(os.path.join(directory, "imp.xml"))
     # osm = converter.osm_to_json(lxml.etree.parse(os.path.join(directory, 'osm.xml')))
-    with open(os.path.join(directory, 'osm.xml'), "rb") as f:
+    with open(os.path.join(directory, "osm.xml"), "rb") as f:
         data = f.read()
     osm = osmshapedb.get_geometries(data)
     m = merger.Merger(imported, osm, terc if terc else "", "test")
@@ -38,10 +35,11 @@ def get_merger(directory: os.PathLike, merge_addresses_with_outlines=True, terc:
 
 def sorted_addresses(l):
     def sort_key(o):
-        return '\127'.join(
-            map(lambda x: o.get(x, ''),
-                ['addr:city', 'addr:place', 'addr:street', 'addr:housenumber', 'id']
-                )
+        return "\127".join(
+            map(
+                lambda x: o.get(x, ""),
+                ["addr:city", "addr:place", "addr:street", "addr:housenumber", "id"],
+            )
         )
 
     return sorted(l, key=sort_key)
@@ -50,25 +48,25 @@ def sorted_addresses(l):
 def verify(self, expected, actual: bytes):
     # with open("latest_actual.osm", "wb+") as f:
     #    f.write(actual)
-    with open(expected, "r", encoding='utf-8') as f:
-        self.assertEqual(f.read(), actual.decode('utf-8'))
+    with open(expected, "r", encoding="utf-8") as f:
+        self.assertEqual(f.read(), actual.decode("utf-8"))
 
 
 def make_incremental_test(directory: pathlib.PurePath, terc: str = None):
     def f(self):
         ret = get_merger(directory, terc=terc).get_incremental_result()
-        verify(self, os.path.join(directory, 'result_incremental.xml'), ret)
+        verify(self, os.path.join(directory, "result_incremental.xml"), ret)
 
-    f.__name__ = directory.name + '_incremental'
+    f.__name__ = directory.name + "_incremental"
     return f
 
 
-def make_full_test(directory: pathlib.PurePath, terc: str=None):
+def make_full_test(directory: pathlib.PurePath, terc: str = None):
     def f(self):
         ret = get_merger(directory, terc=terc).get_full_result()
-        verify(self, os.path.join(directory, 'result_full.xml'), ret)
+        verify(self, os.path.join(directory, "result_full.xml"), ret)
 
-    f.__name__ = directory.name + '_full'
+    f.__name__ = directory.name + "_full"
     return f
 
 
@@ -78,68 +76,18 @@ class MergerTests(unittest.TestCase):
 
     def test_sorted_addresses(self):
         test = [
-            {
-                'addr:city': 'Abe',
-                'addr:street': 'Bbe',
-                'addr:housenumber': '4'
-
-            },
-            {
-                'addr:city': 'Aae',
-                'addr:street': 'Bbe',
-                'addr:housenumber': '4'
-
-            },
-            {
-                'addr:city': 'Abe',
-                'addr:street': 'Bae',
-                'addr:housenumber': '4'
-
-            },
-            {
-                'addr:city': 'Abe',
-                'addr:street': 'Bbe',
-                'addr:housenumber': '3'
-
-            },
-            {
-                'addr:city': 'Abe',
-                'addr:street': 'Bbe',
-                'addr:housenumber': '5'
-
-            }
+            {"addr:city": "Abe", "addr:street": "Bbe", "addr:housenumber": "4"},
+            {"addr:city": "Aae", "addr:street": "Bbe", "addr:housenumber": "4"},
+            {"addr:city": "Abe", "addr:street": "Bae", "addr:housenumber": "4"},
+            {"addr:city": "Abe", "addr:street": "Bbe", "addr:housenumber": "3"},
+            {"addr:city": "Abe", "addr:street": "Bbe", "addr:housenumber": "5"},
         ]
         expected = [
-            {
-                'addr:city': 'Aae',
-                'addr:street': 'Bbe',
-                'addr:housenumber': '4'
-
-            },
-            {
-                'addr:city': 'Abe',
-                'addr:street': 'Bae',
-                'addr:housenumber': '4'
-
-            },
-            {
-                'addr:city': 'Abe',
-                'addr:street': 'Bbe',
-                'addr:housenumber': '3'
-
-            },
-            {
-                'addr:city': 'Abe',
-                'addr:street': 'Bbe',
-                'addr:housenumber': '4'
-
-            },
-            {
-                'addr:city': 'Abe',
-                'addr:street': 'Bbe',
-                'addr:housenumber': '5'
-
-            }
+            {"addr:city": "Aae", "addr:street": "Bbe", "addr:housenumber": "4"},
+            {"addr:city": "Abe", "addr:street": "Bae", "addr:housenumber": "4"},
+            {"addr:city": "Abe", "addr:street": "Bbe", "addr:housenumber": "3"},
+            {"addr:city": "Abe", "addr:street": "Bbe", "addr:housenumber": "4"},
+            {"addr:city": "Abe", "addr:street": "Bbe", "addr:housenumber": "5"},
         ]
         self.assertEqual(sorted_addresses(test), expected)
 
@@ -147,7 +95,9 @@ class MergerTests(unittest.TestCase):
         test_name = "deterministic_order"
         # terc = "1465188"
         terc = None
-        make_incremental_test(pathlib.Path(__file__).parent.parent / "testdata" / test_name, terc)(self)
+        make_incremental_test(
+            pathlib.Path(__file__).parent.parent / "testdata" / test_name, terc
+        )(self)
         # make_full_test(pathlib.Path(__file__).parent.parent / "testdata" / test_name, terc)(self)
 
 
@@ -160,11 +110,17 @@ def __set_tests():
             if (test / "terc").exists():
                 with (test / "terc").open("r") as f:
                     terc = "".join(f.readlines()).strip()
-            setattr(MergerTests, 'test_' + test.name + '_incremental', make_incremental_test(test, terc))
-            setattr(MergerTests, 'test_' + test.name + '_full', make_full_test(test, terc))
+            setattr(
+                MergerTests,
+                "test_" + test.name + "_incremental",
+                make_incremental_test(test, terc),
+            )
+            setattr(
+                MergerTests, "test_" + test.name + "_full", make_full_test(test, terc)
+            )
 
 
 __set_tests()
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()

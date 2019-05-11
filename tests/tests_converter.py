@@ -22,24 +22,24 @@ class ConverterTests(unittest.TestCase):
             </osm>
             """,
             {
-                'version': '0.6',
-                'generator': 'JOSM',
-                'elements': [
+                "version": "0.6",
+                "generator": "JOSM",
+                "elements": [
                     {
-                        'type': 'node',
-                        'id': '-47432',
-                        'action': 'modify',
-                        'lat': '50.5221428704',
-                        'lon': '17.21647412211',
-                        'tags': {
-                            'addr:city:simc': '0500949',
-                            'addr:housenumber': '19',
-                            'addr:place': 'Rysiowice',
-                            'source:addr': 'Tests'
+                        "type": "node",
+                        "id": "-47432",
+                        "action": "modify",
+                        "lat": "50.5221428704",
+                        "lon": "17.21647412211",
+                        "tags": {
+                            "addr:city:simc": "0500949",
+                            "addr:housenumber": "19",
+                            "addr:place": "Rysiowice",
+                            "source:addr": "Tests",
                         },
-                     }
-                ]
-            }
+                    }
+                ],
+            },
         )
 
     def test_relation(self):
@@ -60,9 +60,9 @@ class ConverterTests(unittest.TestCase):
             </osm>
             """,
             {
-                'version': '0.6',
-                'generator': 'JOSM',
-                'elements': [
+                "version": "0.6",
+                "generator": "JOSM",
+                "elements": [
                     {
                         "type": "relation",
                         "id": "3776337",
@@ -72,16 +72,8 @@ class ConverterTests(unittest.TestCase):
                         "user": "Zibi-importy",
                         "uid": "1879367",
                         "members": [
-                            {
-                                "type": "way",
-                                "ref": "284675180",
-                                "role": "outer"
-                            },
-                            {
-                                "type": "way",
-                                "ref": "284675179",
-                                "role": "inner"
-                            }
+                            {"type": "way", "ref": "284675180", "role": "outer"},
+                            {"type": "way", "ref": "284675179", "role": "inner"},
                         ],
                         "tags": {
                             "addr:city:simc": "0500949",
@@ -89,11 +81,11 @@ class ConverterTests(unittest.TestCase):
                             "addr:place": "Rysiowice",
                             "building": "yes",
                             "source:addr": "otmuchow.e-mapa.net",
-                            "type": "multipolygon"
-                        }
+                            "type": "multipolygon",
+                        },
                     }
-                ]
-            }
+                ],
+            },
         )
 
     def test_way(self):
@@ -111,29 +103,27 @@ class ConverterTests(unittest.TestCase):
             </way>
             </osm>
             """,
-            {'version': '0.6',
-             'generator': 'JOSM',
-             'elements':
-                 [
-                     {
-                         'type': 'way',
-                         'tags': {
-                             'source:geometry': 'geoportal.gov.pl:ortofoto'
-                         },
-                         'nodes': [
-                             '2883967600',
-                             '2883967613',
-                             '2883967616',
-                             '2883967603',
-                             '2883967600'
-                         ],
-                         'id': '284675179',
-                         'version': '1',
-                         'timestamp': '2014-05-27T18:40:57Z',
-                         'changeset': '22587047',
-                         'uid': '1246157',
-                         'user': 'Jedrzej Pelka'
-                     }
-                 ]
-             }
+            {
+                "version": "0.6",
+                "generator": "JOSM",
+                "elements": [
+                    {
+                        "type": "way",
+                        "tags": {"source:geometry": "geoportal.gov.pl:ortofoto"},
+                        "nodes": [
+                            "2883967600",
+                            "2883967613",
+                            "2883967616",
+                            "2883967603",
+                            "2883967600",
+                        ],
+                        "id": "284675179",
+                        "version": "1",
+                        "timestamp": "2014-05-27T18:40:57Z",
+                        "changeset": "22587047",
+                        "uid": "1246157",
+                        "user": "Jedrzej Pelka",
+                    }
+                ],
+            },
         )

@@ -14,33 +14,33 @@ _wkb_factory = osmium.geom.WKBFactory()
 
 def _common_attributes(o, type_):
     return {
-                'type': type_,
-                'id': o.id,
-                'timestamp': o.timestamp.strftime("%Y-%m-%dT%H:%M:%SZ"),
-                'version': o.version,
-                'changeset': o.changeset,
-                'user': o.user,
-                'uid': o.uid,
-                'tags': dict((tag.k, tag.v) for tag in o.tags)
-            }
+        "type": type_,
+        "id": o.id,
+        "timestamp": o.timestamp.strftime("%Y-%m-%dT%H:%M:%SZ"),
+        "version": o.version,
+        "changeset": o.changeset,
+        "user": o.user,
+        "uid": o.uid,
+        "tags": dict((tag.k, tag.v) for tag in o.tags),
+    }
 
 
-_REL_TYPE_MAP = {
-    'w': 'way',
-    'n': 'node',
-    'r': 'relation'
-}
+_REL_TYPE_MAP = {"w": "way", "n": "node", "r": "relation"}
 
 
 __log = logging.getLogger(__name__)
 
 
 class GeometryHandler(osmium.SimpleHandler):
-    __log = logging.getLogger(__name__).getChild('GeometryHandler')  # type: logging.Logger
+    __log = logging.getLogger(__name__).getChild(
+        "GeometryHandler"
+    )  # type: logging.Logger
 
     def __init__(self):
         super(GeometryHandler, self).__init__()
-        self.__geometries = {}  # type: typing.Dict[str, shapely.geometry.base.BaseGeometry]
+        self.__geometries = (
+            {}
+        )  # type: typing.Dict[str, shapely.geometry.base.BaseGeometry]
         self.__elements = []  # type: typing.List[dict]
 
     def way(self, w: osmium.osm.Way):
@@ -53,17 +53,17 @@ class GeometryHandler(osmium.SimpleHandler):
         id_ = self._get_key("way", w.id)
         if id_ not in self.__geometries:
             self.__geometries[id_] = shape
-        elem = _common_attributes(w, 'way')
-        elem.update({
-            'nodes': [x.ref for x in w.nodes]
-        })
+        elem = _common_attributes(w, "way")
+        elem.update({"nodes": [x.ref for x in w.nodes]})
         self.__elements.append(elem)
 
     def area(self, a: osmium.osm.Area):
         type_ = "way" if a.id % 2 == 0 else "relation"
         id_ = self._get_key(type_, a.orig_id())
         if a.num_rings() == (0, 0):
-            self.__log.error("Unable to create geometry for %s - no data available", id_)
+            self.__log.error(
+                "Unable to create geometry for %s - no data available", id_
+            )
             return
         wkb = _wkb_factory.create_multipolygon(a)
         shape = shapely.wkb.loads(wkb, hex=True)
@@ -73,18 +73,20 @@ class GeometryHandler(osmium.SimpleHandler):
         wkb = _wkb_factory.create_point(n)
         shape = shapely.wkb.loads(wkb, hex=True)
         self.__geometries[self._get_key("node", n.id)] = shape
-        elem = _common_attributes(n, 'node')
-        elem.update({
-                'lat': n.location.lat,
-                'lon': n.location.lon,
-        })
+        elem = _common_attributes(n, "node")
+        elem.update({"lat": n.location.lat, "lon": n.location.lon})
         self.__elements.append(elem)
 
     def relation(self, r):
-        elem = _common_attributes(r, 'relation')
-        elem.update({
-            'members': [{'type': _REL_TYPE_MAP[x.type], 'ref': x.ref, 'role': x.role} for x in r.members]
-        })
+        elem = _common_attributes(r, "relation")
+        elem.update(
+            {
+                "members": [
+                    {"type": _REL_TYPE_MAP[x.type], "ref": x.ref, "role": x.role}
+                    for x in r.members
+                ]
+            }
+        )
         self.__elements.append(elem)
 
     @property
@@ -95,7 +97,9 @@ class GeometryHandler(osmium.SimpleHandler):
     def elements(self):
         return self.__elements
 
-    def get_geometry_byid(self, type_: str, id_: str) -> shapely.geometry.base.BaseGeometry:
+    def get_geometry_byid(
+        self, type_: str, id_: str
+    ) -> shapely.geometry.base.BaseGeometry:
         return self.__geometries[self._get_key(type_, id_)]
 
     def get_geometry(self, obj: dict):
@@ -107,7 +111,7 @@ class GeometryHandler(osmium.SimpleHandler):
 
     @staticmethod
     def _get_obj_key(obj: dict) -> str:
-        return GeometryHandler._get_key(obj['type'], obj['id'])
+        return GeometryHandler._get_key(obj["type"], obj["id"])
 
 
 def get_geometries(data) -> GeometryHandler:
@@ -119,13 +123,13 @@ def get_geometries(data) -> GeometryHandler:
     __log.info("Data sorted, extracting geometries")
     gh = GeometryHandler()
     # sort to temporary file, then read sorted data from file
-    with tempfile.NamedTemporaryFile(suffix='.osm') as temp_osm:
+    with tempfile.NamedTemporaryFile(suffix=".osm") as temp_osm:
         os.unlink(temp_osm.name)
         wh = osmium.WriteHandler(temp_osm.name)
         mir.apply(wh)
         wh.close()
         # use memory index (flex_mem) for node locations cache. Use "sparse_file_array,<filename>" for file backed indices
-        gh.apply_file(temp_osm.name, locations=True, idx='flex_mem')
+        gh.apply_file(temp_osm.name, locations=True, idx="flex_mem")
     __log.info("Geometries extracted")
     # gh.apply_buffer(data, "osm")
     return gh

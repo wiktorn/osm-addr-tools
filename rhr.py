@@ -1,14 +1,17 @@
 # BSD license, Andrzej Zaborowski
 import math
 
+
 def signbit(x):
     if x > 0:
         return 1
     if x < 0:
         return -1
 
+
 def isleft(a, b, c):
     return (c[1] - b[1]) * (b[0] - a[0]) - (c[0] - b[0]) * (b[1] - a[1])
+
 
 def getangle(a, b, c):
     alat = float(a[0])
@@ -31,25 +34,27 @@ def getangle(a, b, c):
     except:
         return 0.0
 
+
 epsilon = 0.001
+
 
 def is_rhr(poly):
     num = len(poly)
     if num < 3:
-        raise Exception('2-node shape')
+        raise Exception("2-node shape")
 
     angle = 0.0
     for i in range(0, num):
-        a = (i + 0)
+        a = i + 0
         b = (i + 1) % num
         c = (i + 2) % num
         # No projection needed
         angle += getangle(poly[a], poly[b], poly[c])
     angle = -angle
 
-    if angle > -360.0 - epsilon and angle < -360.0 + epsilon: # CCW
+    if angle > -360.0 - epsilon and angle < -360.0 + epsilon:  # CCW
         return False
-    elif angle > 360.0 - epsilon and angle < 360.0 + epsilon: # CW
+    elif angle > 360.0 - epsilon and angle < 360.0 + epsilon:  # CW
         return True
     else:
-        raise Exception('likely an illegal shape')
+        raise Exception("likely an illegal shape")

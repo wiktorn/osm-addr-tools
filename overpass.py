@@ -13,10 +13,7 @@ __log = logging.getLogger(__name__)
 
 
 def requests_retry_session(
-    retries=3,
-    backoff_factor=0.3,
-    status_forcelist=(500, 502, 504),
-    session=None,
+    retries=3, backoff_factor=0.3, status_forcelist=(500, 502, 504), session=None
 ):
     session = session or requests.Session()
     retry = Retry(
@@ -27,8 +24,8 @@ def requests_retry_session(
         status_forcelist=status_forcelist,
     )
     adapter = HTTPAdapter(max_retries=retry)
-    session.mount('http://', adapter)
-    session.mount('https://', adapter)
+    session.mount("http://", adapter)
+    session.mount("https://", adapter)
     return session
 
 
@@ -39,7 +36,11 @@ __overpassurl = "http://osm-cdn.vink.pl/api/interpreter"
 
 
 def get_url_for_query(qry: str):
-    return __overpassurl + '?' + urlencode({'data': qry.replace('\t', '').replace('\n', '')})
+    return (
+        __overpassurl
+        + "?"
+        + urlencode({"data": qry.replace("\t", "").replace("\n", "")})
+    )
 
 
 def query(qry, desc="") -> bytes:
@@ -47,14 +48,18 @@ def query(qry, desc="") -> bytes:
     __log.debug("Query %s , server: %s", qry, __overpassurl)
 
     r = requests_retry_session().get(get_url_for_query(qry), timeout=180, stream=True)
-    total_size = int(r.headers.get('content-length', 0));
-    block_size = 128*1024
+    total_size = int(r.headers.get("content-length", 0))
+    block_size = 128 * 1024
     wrote = 0
     raw_data = bytearray()
     if desc:
-        desc = '(' + desc + ')'
-    with tqdm.tqdm(total=math.ceil(total_size//block_size), unit='B', unit_scale=True,
-                   desc="Downloading from Overpass{}".format(desc)) as progressbar:
+        desc = "(" + desc + ")"
+    with tqdm.tqdm(
+        total=math.ceil(total_size // block_size),
+        unit="B",
+        unit_scale=True,
+        desc="Downloading from Overpass{}".format(desc),
+    ) as progressbar:
         for data in r.iter_content(block_size):
             wrote += len(data)
             progressbar.update(len(data))
@@ -63,4 +68,3 @@ def query(qry, desc="") -> bytes:
         raise RuntimeError("Expected %d but got %d bytes".format(total_size, wrote))
 
     return raw_data
-
