@@ -166,7 +166,8 @@ class Address(object):
     @staticmethod
     def mapped_address(*args, **kwargs):
         ret = Address.mapped_address_kpc(*args, **kwargs)
-        ret.postcode = mappostcode("", ret.simc)
+        if not ret.postcode:
+            ret.postcode = mappostcode("", ret.simc)
         return ret
 
     @staticmethod
